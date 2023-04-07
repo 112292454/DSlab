@@ -1,5 +1,6 @@
 package com.dslab.event.domain;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.io.Serial;
@@ -24,19 +25,23 @@ public class Event implements Serializable {
     /**
      * 日程名称
      */
+    @NotBlank(message = "日程名称不能为空")
     private String name;
     /**
      * 日程的形式 (lesson / exam / activity / clock / temporary)
      */
+    @NotBlank(message = "日程类型不能为空")
     private String eventType;
     /**
      * 日程地点的形式 (online / offline)
      * online 的话就不用导航
      */
+    @NotBlank(message = "地点类型不能为空")
     private String positionType;
     /**
      * 参与人数的性质 (personal / group)
      */
+    @NotBlank(message = "人员类型不能为空")
     private String memberType;
     /**
      * 日程地点, 线下建筑物的id
@@ -54,6 +59,7 @@ public class Event implements Serializable {
      * 日程起始时间
      * 时间戳格式(毫秒)
      */
+    @NotBlank(message = "起始时间不能为空")
     private String startTime;
     /**
      * 日程终止时间
@@ -69,5 +75,15 @@ public class Event implements Serializable {
      * 0: 不循环
      * x: 每x天循环一次
      */
+    @NotBlank(message = "循环周期不能为空")
     private int cycle;
+
+    public Event() {
+    }
+
+    public Event(String startTime, int cycle) {
+        this.startTime = startTime;
+        this.cycle = cycle;
+    }
+
 }

@@ -1,10 +1,10 @@
 package com.dslab.event.controller;
 
 import com.dslab.event.domain.RequestParam;
-import com.dslab.event.mapper.EventMapper;
 import com.dslab.event.service.EventService;
 import com.dslab.event.vo.Result;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -29,7 +29,7 @@ public class EventController {
      */
     @PostMapping
     @ResponseBody
-    public Result addEvent(@RequestBody RequestParam requestParam) {
+    public Result addEvent(@RequestBody @Valid RequestParam requestParam) {
         return (Result) eventService.addEvent(requestParam.getEvent(), requestParam.getUser());
     }
 }

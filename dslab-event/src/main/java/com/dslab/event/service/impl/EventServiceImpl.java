@@ -6,8 +6,11 @@ import com.dslab.event.mapper.EventMapper;
 import com.dslab.event.mapper.UserEventRelationMapper;
 import com.dslab.event.mapper.UserMapper;
 import com.dslab.event.service.EventService;
+import com.dslab.event.utils.TimeUtils;
 import com.dslab.event.vo.Result;
 import jakarta.annotation.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +27,7 @@ import java.util.List;
 
 @Service
 public class EventServiceImpl implements EventService {
+    private static Logger logger = LoggerFactory.getLogger(EventServiceImpl.class);
 
     @Resource
     EventMapper eventMapper;
@@ -35,7 +39,7 @@ public class EventServiceImpl implements EventService {
     UserEventRelationMapper userEventRelationMapper;
 
     @Resource
-    TimeServiceImpl timeService;
+    TimeUtils timeUtils;
 
     /**
      * 添加日程
@@ -58,6 +62,7 @@ public class EventServiceImpl implements EventService {
                 result = Result.error("用户类型不明确");
             }
         } catch (Exception e) {
+            logger.warn("添加日程时出现错误");
             throw new BusinessException(666, "未知异常");
         }
         return result;
@@ -134,7 +139,7 @@ public class EventServiceImpl implements EventService {
         List<Event> events = new ArrayList<>();
         for (Integer id : eventIds) {
             Event e = eventMapper.getByEventId(id);
-            if (timeService.IsInOneDay(e, event)) {
+            if (timeUtils.IsInOneDay(e, event)) {
                 events.add(e);
             }
         }
@@ -148,6 +153,7 @@ public class EventServiceImpl implements EventService {
         } else if (EventType.EVENT_TEMPORARY.getValue().equals(event.getEventType())) {
             return checkTemporaryConflict(event, events);
         } else {
+            logger.warn("日程类型出现错误");
             return Result.error("日程类型出现错误");
         }
     }
@@ -162,7 +168,7 @@ public class EventServiceImpl implements EventService {
      */
     public Object checkLessonExamConflict(Event event, List<Event> events) {
         for (Event e : events) {
-            if (!timeService.compareTime(event, e)) {
+            if (timeUtils.compareTime(event, e)) {
                 return Result.error("时间冲突, 无法添加");
             }
         }
@@ -184,11 +190,11 @@ public class EventServiceImpl implements EventService {
         // time[i] = 0 表示 [i, i+1) 内时间空闲
         int[] time = new int[24];
         for (Event e : events) {
-            if (!timeService.compareTime(e, event)) {
+            if (timeUtils.compareTime(e, event)) {
                 ok = false;
             }
-            int start = timeService.TimestampToHour(e.getStartTime());
-            int end = timeService.TimestampToHour(e.getEndTime());
+            int start = timeUtils.TimestampToHour(e.getStartTime());
+            int end = timeUtils.TimestampToHour(e.getEndTime());
             for (int i = start; i < end; ++i) {
                 if (time[i] == 0) {
                     // 标记当前时间已被占用
@@ -253,7 +259,7 @@ public class EventServiceImpl implements EventService {
      */
     public Object checkTemporaryConflict(Event event, List<Event> events) {
         for (Event e : events) {
-            if (!timeService.compareTime(event, e)) {
+            if (timeUtils.compareTime(event, e)) {
                 return Result.error("时间冲突, 无法添加");
             }
         }
