@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dslab.event.mapper.UserMapper">
+
+    <resultMap id="BaseResultMap" type="com.dslab.event.domain.User">
+        <result column="user_id" property="userId"/>
+        <result column="username" property="username"/>
+        <result column="mail" property="mail"/>
+        <result column="password" property="password"/>
+        <result column="type" property="type"/>
+        <result column="group_id" property="groupId"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        user_id,
+        username,
+        mail,
+        password,
+        type,
+        group_id
+    </sql>
+
+    <insert id="add" useGeneratedKeys="true" keyColumn="user_id" keyProperty="userId"
+            parameterType="com.dslab.event.domain.User">
+        INSERT INTO user (username, mail, `password`, type, group_id)
+        VALUES (#{username}, #{mail}, #{password}, #{type}, #{groupId})
+        <!--        <trim prefix="(" suffix=")" suffixOverrides=",">-->
+        <!--            <if test="null != username and '' != username">-->
+        <!--                username,-->
+        <!--            </if>-->
+        <!--            <if test="null != mail and '' != mail">-->
+        <!--                mail,-->
+        <!--            </if>-->
+        <!--            <if test="null != password and '' != password">-->
+        <!--                password,-->
+        <!--            </if>-->
+        <!--            <if test="null != type and '' != type">-->
+        <!--                type,-->
+        <!--            </if>-->
+        <!--            <if test="null != group_id and '' != group_id">-->
+        <!--                group_id-->
+        <!--            </if>-->
+        <!--        </trim>-->
+        <!--        <trim prefix="values (" suffix=")" suffixOverrides=",">-->
+        <!--            <if test="null != username and '' != username">-->
+        <!--                #{username},-->
+        <!--            </if>-->
+        <!--            <if test="null != mail and '' != mail">-->
+        <!--                #{mail},-->
+        <!--            </if>-->
+        <!--            <if test="null != password and '' != password">-->
+        <!--                #{password},-->
+        <!--            </if>-->
+        <!--            <if test="null != type and '' != type">-->
+        <!--                #{type},-->
+        <!--            </if>-->
+        <!--            <if test="null != group_id and '' != group_id">-->
+        <!--                #{groupId}-->
+        <!--            </if>-->
+        <!--        </trim>-->
+    </insert>
+
+    <delete id="deleteById">
+        DELETE
+        FROM user
+        WHERE user_id = #{userId}
+    </delete>
+
+    <delete id="deleteByName">
+        DELETE
+        FROM user
+        WHERE username = #{username}
+    </delete>
+
+    <update id="update" parameterType="com.dslab.event.domain.User">
+        <!--        UPDATE user-->
+        <!--        <set>-->
+        <!--            <if test="null != username and '' != username">username = #{username},</if>-->
+        <!--            <if test="null != mail and '' != mail">mail = #{mail},</if>-->
+        <!--            <if test="null != password and '' != password">password = #{password},</if>-->
+        <!--            <if test="null != type and '' != type">type = #{type},</if>-->
+        <!--            <if test="null != group_id and '' != group_id">group_id = #{groupId}</if>-->
+        <!--        </set>-->
+        <!--        WHERE user_id = #{userId}-->
+        UPDATE user
+        <set>
+            username = #{username},
+            mail = #{mail},
+            password = #{password},
+            type = #{type},
+            group_id = #{groupId}
+        </set>
+        where user_id = #{userId}
+    </update>
+
+
+    <select id="getAll" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM user
+    </select>
+
+    <select id="getByUserId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM user
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="getByUsername" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM user
+        where username = #{username}
+    </select>
+
+    <select id="getByGroupId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM user
+        where group_id = #{groupId} and type != #{type}
+    </select>
+
+</mapper>
