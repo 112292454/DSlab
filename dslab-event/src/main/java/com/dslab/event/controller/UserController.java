@@ -4,6 +4,7 @@ import com.dslab.event.domain.User;
 import com.dslab.event.mapper.UserMapper;
 import com.dslab.event.vo.Result;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
@@ -25,7 +26,8 @@ public class UserController {
 
     @GetMapping("/userId/{userId}")
     @ResponseBody
-    public Result<User> getByUserId(@PathVariable Integer userId) {
+    public Result<User> getByUserId(@PathVariable @RequestParam(defaultValue = "1", required = true) Integer userId) {
+        System.out.println(userId);
         User user = userMapper.getByUserId(userId);
         System.out.println(user);
         System.out.println(user.getUserId());
@@ -35,7 +37,7 @@ public class UserController {
 
     @GetMapping("/username/{username}")
     @ResponseBody
-    public Result<User> getByUsername(@PathVariable String username) throws UnsupportedEncodingException {
+    public Result<User> getByUsername(@PathVariable @Valid String username) throws UnsupportedEncodingException {
         System.out.println(username);
         User user = userMapper.getByUsername(username);
         System.out.println(user);
@@ -55,7 +57,7 @@ public class UserController {
 
     @PutMapping
     @ResponseBody
-    public Result<User> update(@RequestBody User user) {
+    public Result<User> update(@RequestBody @Valid User user) {
         System.out.println(user);
         userMapper.update(user);
         return Result.<User>success("登陆成功").data(user);

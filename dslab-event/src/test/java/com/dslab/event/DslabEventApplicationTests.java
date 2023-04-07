@@ -1,36 +1,29 @@
 package com.dslab.event;
 
-import com.dslab.event.service.impl.TimeServiceImpl;
+import com.dslab.event.domain.Event;
+import com.dslab.event.utils.CRTUtils;
+import com.dslab.event.utils.TimeUtils;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.text.SimpleDateFormat;
 
 @SpringBootTest
 class DslabEventApplicationTests {
 
     @Resource
-    TimeServiceImpl timeService;
+    TimeUtils timeUtils;
+
+    @Resource
+    CRTUtils crtUtils;
 
     @Test
     void contextLoads() {
         long time = System.currentTimeMillis();
-        long time1 = time - 3600 * 1000 * 17;
-        time = time - 3600 * 1000 * 2;
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String date = format.format(time);
-        System.out.println(date);
-        date = format.format(time1);
-        System.out.println(date);
-        System.out.println(timeService.TimestampToHour(String.valueOf(time)));
-        System.out.println(timeService.TimestampToHour(String.valueOf(time1)));
-        System.out.println(this.IsInOneDay(time, time1));
-    }
-
-    public Boolean IsInOneDay(long a, long b) {
-        long nt = (a + 8 * 3600 * 1000) / (3600 * 1000 * 24);
-        long st = (b + 8 * 3600 * 1000) / (3600 * 1000 * 24);
-        return nt == st;
+        long time1 = time + 3600 * 24 * 3 * 1000;
+//        System.out.println(time);
+//        System.out.println(time1);
+        Event a = new Event(String.valueOf(time), 3);
+        Event b = new Event(String.valueOf(time1), 4);
+        System.out.println(timeUtils.IsInOneDay(a, b));
     }
 }
