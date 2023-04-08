@@ -30,6 +30,6 @@ public class EventController {
     @PostMapping
     @ResponseBody
     public Result addEvent(@RequestBody @Valid RequestParam requestParam) {
-        return (Result) eventService.addEvent(requestParam.getEvent(), requestParam.getUser());
+        return eventService.addEvent(requestParam.getEvent(), requestParam.getUser());
     }
 }

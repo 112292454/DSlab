@@ -11,7 +11,9 @@ public enum EventType {
     EVENT_LESSON("0"),
     EVENT_EXAM("1"),
     EVENT_ACTIVITY("2"),
-    EVENT_TEMPORARY("3");
+    EVENT_TEMPORARY("3"),
+    EVENT_CLOCK("4");
+
     private String value;
 
     private EventType(String value) {

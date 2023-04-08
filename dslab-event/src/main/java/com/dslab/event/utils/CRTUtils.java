@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
  **/
 
 @Component
-@Deprecated
 public class CRTUtils {
     /**
      * 扩展欧几里得算法

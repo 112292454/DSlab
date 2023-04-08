@@ -16,6 +16,8 @@
         <result column="end_time" property="endTime"/>
         <result column="duration" property="duration"/>
         <result column="cycle" property="cycle"/>
+        <result column="status" property="status"/>
+        <result column="activity_type" property="activityType"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -30,7 +32,9 @@
         start_time,
         end_time,
         duration,
-        `cycle`
+        `cycle`,
+        `status`,
+        activityType
     </sql>
 
     <insert id="add" useGeneratedKeys="true" keyColumn="event_id" keyProperty="eventId"
@@ -68,7 +72,13 @@
                 duration,
             </if>
             <if test="null != cycle and '' != cycle">
-                `cycle`
+                `cycle`,
+            </if>
+            <if test="null != status and '' != status">
+                `status`,
+            </if>
+            <if test="null != activityType and '' != activityType">
+                `activityType`
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -103,22 +113,32 @@
                 #{duration},
             </if>
             <if test="null != cycle and '' != cycle">
-                #{cycle}
+                #{cycle},
+            </if>
+            <if test="null != status and '' != status">
+                #{status},
+            </if>
+            <if test="null != activityType and '' != activityType">
+                #{activityType}
             </if>
         </trim>
     </insert>
 
-    <delete id="deleteByEventId">
-        DELETE
-        FROM event
+    <update id="deleteByEventId">
+        UPDATE event
+        <set>
+            <if test="null != status and '' != status">`status` = 0</if>
+        </set>
         WHERE event_id = #{eventId}
-    </delete>
+    </update>
 
-    <delete id="deleteByName">
-        DELETE
-        FROM event
+    <update id="deleteByName">
+        UPDATE event
+        <set>
+            <if test="null != status and '' != status">`status` = 0</if>
+        </set>
         WHERE `name` = #{name}
-    </delete>
+    </update>
 
     <update id="update" parameterType="com.dslab.event.domain.Event">
         UPDATE event
@@ -134,6 +154,7 @@
             <if test="null != endTime and '' != endTime">end_time = #{endTime},</if>
             <if test="null != duration and '' != duration">duration = #{duration},</if>
             <if test="null != cycle and '' != cycle">`cycle` = #{cycle}</if>
+            <if test="null != status and '' != status">`status` = #{status}</if>
         </set>
         WHERE event_id = #{eventId}
     </update>

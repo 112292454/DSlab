@@ -17,6 +17,10 @@ import org.springframework.stereotype.Component;
 public class TimeUtils {
 
     Time time = new Time();
+    /**
+     * 冲突的规定范围日期
+     */
+    public static final long MAX_DATE = 120;
     @Resource
     CRTUtils crtUtils;
 
@@ -71,28 +75,18 @@ public class TimeUtils {
         } else if (b.getCycle() == 0) {
             return aDate <= bDate && (bDate - aDate) % a.getCycle() == 0;
         } else {
-            /* todo 此处可能需要调用时钟的api获取一下停止时间
-                    有些复杂, 因为算出来的是满足要求的最小数字,
-                    所以还需要个循环获取范围内的合理日期
-                    所以甚至可能不如直接模拟,
-                    看网上有一句代码的算法, 但是似乎需要模数互质才行
-             */
-            long endTime = this.TimestampToDate(time.getEndTime());
-//            long conDate = crtUtils.CRT(new long[]{aDate, bDate}, new long[]{a.getCycle(), b.getCycle()}, 2);
-//            long lcm = (long) a.getCycle() * b.getCycle() / crtUtils.gcd(a.getCycle(), b.getCycle());
-//            for (long i = conDate; i <= endTime; i += lcm) {
-//                if (i >= Math.max(aDate, bDate)) {
-//                    return true;
-//                }
-//            }
-            // 所以选择直接模拟的写法
-            for (long i = Math.max(aDate, bDate); i <= endTime; ++i) {
-                if ((i - aDate) % a.getCycle() == 0 && (i - bDate) % b.getCycle() == 0) {
-                    return true;
-                }
+            // todo 可能会有bug, 查询最近的会冲突的一天
+            long date;
+            if (aDate <= bDate) {
+                date = crtUtils.CRT(new long[]{0, bDate - aDate}, new long[]{a.getCycle(), b.getCycle()}, 2);
+            } else {
+                date = crtUtils.CRT(new long[]{aDate - bDate, 0}, new long[]{a.getCycle(), b.getCycle()}, 2);
             }
+            if (date < Math.abs(aDate - bDate)) {
+                date = date + (long) a.getCycle() * b.getCycle() / crtUtils.gcd(a.getCycle(), b.getCycle());
+            }
+            return date <= MAX_DATE;
         }
-        return false;
     }
 
     /**

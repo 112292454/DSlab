@@ -50,8 +50,8 @@ public class EventServiceImpl implements EventService {
      */
     @Override
     @Transactional
-    public Object addEvent(Event event, User user) {
-        Object result;
+    public Result addEvent(Event event, User user) {
+        Result result;
         try {
             // 判断用户类别, 如果是admin则和他同组的所有用户都将会有该日程
             if (UserType.USER_ADMIN.getValue().equals(user.getType())) {
@@ -73,7 +73,7 @@ public class EventServiceImpl implements EventService {
      *
      * @return 成功返回success, 失败返回error
      */
-    public Object addEventByAdmin(Event event, User user) {
+    public Result addEventByAdmin(Event event, User user) {
         // 管理员只允许添加课程和考试
         if (!(EventType.EVENT_LESSON.getValue().equals(event.getEventType())
                 || EventType.EVENT_EXAM.getValue().equals(event.getEventType()))) {
@@ -84,7 +84,7 @@ public class EventServiceImpl implements EventService {
         Object result = checkConflict(event, user);
         if (result instanceof Result<?>) {
             // 添加失败, 直接返回失败的信息
-            return result;
+            return (Result) result;
         } else if (result instanceof Boolean && !(Boolean) result) {
             // 给组内每个学生添加该日程
             List<User> students = userMapper.getByGroupId(user.getGroupId());
@@ -105,18 +105,26 @@ public class EventServiceImpl implements EventService {
      *
      * @return 成功返回success, 失败返回error
      */
-    public Object addEventByStudent(Event event, User user) {
+    public Result addEventByStudent(Event event, User user) {
         // 只允许管理员添加课程和考试
         if (EventType.EVENT_LESSON.getValue().equals(event.getEventType())
                 || EventType.EVENT_EXAM.getValue().equals(event.getEventType())) {
             return Result.error("您的权限不够");
         }
 
+        if (EventType.EVENT_CLOCK.getValue().equals(event.getEventType())) {
+            // 闹钟不会和其他日程产生冲突, 可以直接添加
+            eventMapper.add(event);
+            event = eventMapper.getByEventName(event.getName());
+            userEventRelationMapper.add(user.getGroupId(), user.getUserId(), event.getEventId());
+            return Result.success("添加成功");
+        }
+
         // 判断是否有冲突
         Object result = checkConflict(event, user);
         if (result instanceof Result<?>) {
             // 添加失败, 直接返回失败的信息
-            return result;
+            return (Result) result;
         } else if (result instanceof Boolean && !(Boolean) result) {
             // 没有冲突, 可以添加
             eventMapper.add(event);

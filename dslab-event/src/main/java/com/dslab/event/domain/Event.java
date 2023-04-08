@@ -2,6 +2,7 @@ package com.dslab.event.domain;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import org.hibernate.validator.constraints.Range;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -44,6 +45,12 @@ public class Event implements Serializable {
     @NotBlank(message = "人员类型不能为空")
     private String memberType;
     /**
+     * 活动的类型
+     * 个人的包括有: 自习、锻炼、外出等
+     * 集体活动包括有：班会、小组作业、创新创业、聚餐等
+     */
+    private String activityType;
+    /**
      * 日程地点, 线下建筑物的id
      */
     private Integer buildingId;
@@ -77,6 +84,12 @@ public class Event implements Serializable {
      */
     @NotBlank(message = "循环周期不能为空")
     private int cycle;
+    /**
+     * 该日程的状态
+     * 1表示启用, 0表示禁用
+     */
+    @Range(min = 0, max = 1, message = "请设置合法的日程状态")
+    private int status;
 
     public Event() {
     }

@@ -25,7 +25,7 @@ public interface EventMapper {
     int add(Event event);
 
     /**
-     * 根据日程id删除日程
+     * 根据日程id删除日程 (不会真的删除, 只是将该日程的状态设为禁用)
      *
      * @param eventId 日程id
      * @return 修改的行数
@@ -33,7 +33,7 @@ public interface EventMapper {
     int deleteByEventId(Integer eventId);
 
     /**
-     * 根据日程名称删除日程
+     * 根据日程名称删除日程 (不会真的删除, 只是将该日程的状态设为禁用)
      *
      * @param name 日程名称
      * @return 改变的行数
@@ -50,6 +50,7 @@ public interface EventMapper {
 
     /**
      * 根据日程id查询
+     *
      * @param eventId 日程id
      * @return 日程信息
      */
@@ -57,6 +58,7 @@ public interface EventMapper {
 
     /**
      * 根据日程名称查询
+     *
      * @param name 日程名称
      * @return 日程信息
      */
@@ -64,6 +66,7 @@ public interface EventMapper {
 
     /**
      * 根据日程地点id查询
+     *
      * @param buildingId 地点id
      * @return 日程信息
      */

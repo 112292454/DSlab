@@ -2,6 +2,7 @@ package com.dslab.event.service;
 
 import com.dslab.event.domain.Event;
 import com.dslab.event.domain.User;
+import com.dslab.event.vo.Result;
 
 /**
  * @program: dslab-event
@@ -11,6 +12,6 @@ import com.dslab.event.domain.User;
  * @version: 1.0
  **/
 public interface EventService {
-    Object addEvent(Event event, User user);
+    Result addEvent(Event event, User user);
 
 }

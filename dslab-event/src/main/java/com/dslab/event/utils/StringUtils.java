@@ -5,11 +5,37 @@ import java.util.List;
 
 /**
  * @program: dslab-event
- * @description: 字典树
+ * @description: 字符串相关工具
  * @author: 郭晨旭
- * @create: 2023-04-07 14:09
+ * @create: 2023-04-08 18:45
  * @version: 1.0
  **/
+public class StringUtils {
+    public static Trie trie = new Trie();
+
+    /**
+     * 判断两个字符串是否完全相等
+     *
+     * @return 完全相等返回true, 否则返回false
+     */
+    public static boolean isEqual(String a, String b) {
+        if (a == null || b == null || a.length() != b.length()) {
+            return false;
+        }
+        char[] aChars = a.toCharArray();
+        char[] bChars = b.toCharArray();
+        int len = a.length();
+        for (int i = 0; i < len; ++i) {
+            if (aChars[i] != bChars[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+}
+
 class Trie {
     private int curIndex;
     private ArrayList<int[]> trie;
@@ -34,7 +60,6 @@ class Trie {
     }
 
     public void add(String word) {
-        //if(contains(word)) return false;
         int p = 0;
         //p是当前循环中，与charAt i将要匹配的节点：trie[p]中，若[index]不为0，则存储了i这个位置的字母
         for (int i = 0; i < word.length(); i++) {
@@ -45,10 +70,6 @@ class Trie {
                 temp[index] = curIndex++;
             }
             p = temp[index];
-            //if(trie[p][index]==0){
-            //	trie[p][index]=curIndex++;
-            //}
-            //p=trie[p][index];
         }
         isEnd.ensureCapacity(p);
         while (isEnd.size() <= p) {
@@ -84,8 +105,7 @@ class Trie {
     }
 
     /**
-     * @return
-     * @discription 注意：这里返回的，比如有he、here，那么只会返回he，即返回前缀
+     * 注意：这里返回的，比如有he、here，那么只会返回he，即返回前缀
      */
     public List<String> listAllWord() {
         int p = 0;
@@ -110,4 +130,3 @@ class Trie {
         return res;
     }
 }
-
