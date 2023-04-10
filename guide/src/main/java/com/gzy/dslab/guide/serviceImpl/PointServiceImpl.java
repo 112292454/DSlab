@@ -3,6 +3,10 @@ package com.gzy.dslab.guide.serviceImpl;
 import com.gzy.dslab.guide.dao.PointMapper;
 import com.gzy.dslab.guide.entity.Point;
 import com.gzy.dslab.guide.service.PointService;
+import org.apache.dubbo.config.annotation.DubboService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -14,12 +18,14 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
+@DubboService(group = "DS-guide", version = "1.0.0")
 public class PointServiceImpl implements PointService {
 
     private static HashMap<Integer, Point> points= new HashMap<>();
 
     private static List<List<Point>> map= new ArrayList<>();
 
+    private static Logger logger= LoggerFactory.getLogger(PointServiceImpl.class );
     @Resource
     PointMapper pointMapper;
 
@@ -46,6 +52,7 @@ public class PointServiceImpl implements PointService {
     public boolean addPath(int aid, int bid) {
         Point a = points.get(aid);
         Point b = points.get(bid);
+
         if(a.getNeighbors().contains(b.getId())||b.getNeighbors().contains(a.getId())) return false;
         map.get(aid).add(b);
         map.get(bid).add(a);
@@ -67,6 +74,20 @@ public class PointServiceImpl implements PointService {
         return map;
     }
 
+    @Override
+    public void dubboTestMethod() {
+        int i=0;
+        while (true){
+            logger.info("dubbo服务测试信息：{}",i++);
+        }
+    }
+
+    public HashMap<Integer, Point> showPoints() {
+        return points;
+    }
+
+
+
     private boolean refreshRedis(int... ids){
         boolean flag=true;
         for (int id : ids) {
@@ -87,12 +108,13 @@ public class PointServiceImpl implements PointService {
 
     private void refreshMap() {
         List<Point> allPoints = pointMapper.getAllPoints();
-        //对所有的点构造它和邻居的双向关系，完成地图构造
         allPoints.forEach(a->{
             map.add(new ArrayList<>());
             maxID=Math.max(a.getId(), maxID);
             points.put(a.getId(),a);
-
+        });
+        //对所有的点构造它和邻居的双向关系，完成地图构造
+        allPoints.forEach(a->{
             //a的所有邻居的编号
             List<Integer> neighbors = a.getNeighbors();
             //a的所有邻居的list
@@ -101,7 +123,8 @@ public class PointServiceImpl implements PointService {
                 //给a对应的mapLine加入所有相邻的节点
                 mapLine.add(allPoints.get(id));
                 //给a的所有邻居对应的mapLine加入a，构造双向路径
-                map.get(id).add(a);
+                //map.get(id).add(a);
+                //更新：因为对每个点都会跑，所以只需要添加当前点的邻居有谁就好了，否则会重复两遍
             });
         });
     }

@@ -42,7 +42,7 @@ public class Point {
     }
 
     public int getDistance(Point p) {
-        return Math.max(Math.abs(p.x - x), Math.abs(p.y - y));
+        return (int) Math.sqrt(Math.pow(p.x - x,2)+Math.pow(p.y - y,2));
     }
 
     @Override
@@ -55,6 +55,6 @@ public class Point {
 
     @Override
     public int hashCode() {
-        return Objects.hash(x, y);
+        return Objects.hash(x, y, name);
     }
 }

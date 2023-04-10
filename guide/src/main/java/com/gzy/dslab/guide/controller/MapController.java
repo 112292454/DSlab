@@ -3,6 +3,7 @@ package com.gzy.dslab.guide.controller;
 import com.gzy.dslab.guide.entity.Point;
 import com.gzy.dslab.guide.service.PointService;
 import com.gzy.dslab.guide.vo.Result;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,7 +17,7 @@ import java.util.List;
 @RequestMapping("/ds/guide/map")
 public class MapController {
 
-	@Resource
+	@DubboReference(group = "DS-guide", version = "1.0.0")
 	PointService pointService;
 
 	@GetMapping({"/add_point"})

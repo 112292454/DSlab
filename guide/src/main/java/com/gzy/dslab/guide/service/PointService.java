@@ -22,6 +22,10 @@ public interface PointService {
 
     List<List<Point>> showMap();
 
+    HashMap<Integer, Point> showPoints();
+
+    void dubboTestMethod();
+
 
 
 }
