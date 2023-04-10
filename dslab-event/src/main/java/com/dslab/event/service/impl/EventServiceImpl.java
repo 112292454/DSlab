@@ -51,6 +51,11 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public Result addEvent(Event event, User user) {
+        // 校验日程时间是否合法
+        if (!timeUtils.checkTimeValid(event)) {
+            return Result.error("日程时间不合法");
+        }
+
         Result result;
         try {
             // 判断用户类别, 如果是admin则和他同组的所有用户都将会有该日程
@@ -112,8 +117,8 @@ public class EventServiceImpl implements EventService {
             return Result.error("您的权限不够");
         }
 
+        // 闹钟不会和其他日程产生冲突, 可以直接添加
         if (EventType.EVENT_CLOCK.getValue().equals(event.getEventType())) {
-            // 闹钟不会和其他日程产生冲突, 可以直接添加
             eventMapper.add(event);
             event = eventMapper.getByEventName(event.getName());
             userEventRelationMapper.add(user.getGroupId(), user.getUserId(), event.getEventId());

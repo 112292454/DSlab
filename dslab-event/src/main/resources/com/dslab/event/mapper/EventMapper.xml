@@ -53,6 +53,9 @@
             <if test="null != memberType and '' != memberType">
                 member_type,
             </if>
+            <if test="null != activityType and '' != activityType">
+                `activityType`
+            </if>
             <if test="null != buildingId and '' != buildingId">
                 building_id,
             </if>
@@ -77,9 +80,6 @@
             <if test="null != status and '' != status">
                 `status`,
             </if>
-            <if test="null != activityType and '' != activityType">
-                `activityType`
-            </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="null != name and '' != name">
@@ -93,6 +93,9 @@
             </if>
             <if test="null != memberType and '' != memberType">
                 #{memberType},
+            </if>
+            <if test="null != activityType and '' != activityType">
+                #{activityType},
             </if>
             <if test="null != buildingId and '' != buildingId">
                 #{buildingId},
@@ -116,10 +119,7 @@
                 #{cycle},
             </if>
             <if test="null != status and '' != status">
-                #{status},
-            </if>
-            <if test="null != activityType and '' != activityType">
-                #{activityType}
+                #{status}
             </if>
         </trim>
     </insert>
@@ -147,6 +147,7 @@
             <if test="null != eventType and '' != eventType">event_type = #{eventType},</if>
             <if test="null != positionType and '' != positionType">position_type = #{positionType},</if>
             <if test="null != memberType and '' != memberType">member_type = #{memberType},</if>
+            <if test="null != activityType and '' != activityType">activity_type = #{activityType},</if>
             <if test="null != buildingId and '' != buildingId">building_id = #{buildingId},</if>
             <if test="null != link and '' != link">link = #{link},</if>
             <if test="null != date and '' != date">`date` = #{date},</if>

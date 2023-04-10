@@ -4,3 +4,6 @@ spring:
     url: jdbc:mysql://localhost:3306/dslab
     username: root
     password: 101325
+
+server:
+  port: 14514

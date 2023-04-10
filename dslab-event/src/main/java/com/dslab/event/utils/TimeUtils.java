@@ -1,6 +1,7 @@
 package com.dslab.event.utils;
 
 import com.dslab.event.domain.Event;
+import com.dslab.event.domain.EventType;
 import com.dslab.event.domain.Time;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
@@ -21,8 +22,38 @@ public class TimeUtils {
      * 冲突的规定范围日期
      */
     public static final long MAX_DATE = 120;
+
+    /**
+     * 课程, 考试类的时间范围
+     */
+    private static final long ADMIN_START_TIME = 8;
+    private static final long ADMIN_END_TIME = 20;
+    /**
+     * 课外活动, 临时事务类的时间范围
+     */
+    private static final long STU_START_TIME = 6;
+    private static final long STU_END_TIME = 22;
     @Resource
     CRTUtils crtUtils;
+
+    /**
+     * 判断日程时间是否合法
+     *
+     * @return 合法返回true, 否则返回false
+     */
+    public boolean checkTimeValid(Event e) {
+        long start = this.TimestampToHour(e.getStartTime());
+        long end = this.TimestampToHour(e.getEndTime());
+        if (start < end) {
+            if (!(EventType.EVENT_LESSON.getValue().equals(e.getEventType())
+                    || EventType.EVENT_EXAM.getValue().equals(e.getEventType()))) {
+                return start >= ADMIN_START_TIME && end <= ADMIN_END_TIME;
+            } else {
+                return start >= STU_START_TIME && end <= STU_END_TIME;
+            }
+        }
+        return false;
+    }
 
     /**
      * 对比日程时间是否有冲突
