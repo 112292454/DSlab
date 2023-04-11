@@ -9,6 +9,7 @@
         <result column="event_type" property="eventType"/>
         <result column="position_type" property="positionType"/>
         <result column="member_type" property="memberType"/>
+        <result column="activity_type" property="activityType"/>
         <result column="building_id" property="buildingId"/>
         <result column="link" property="link"/>
         <result column="date" property="date"/>
@@ -17,7 +18,6 @@
         <result column="duration" property="duration"/>
         <result column="cycle" property="cycle"/>
         <result column="status" property="status"/>
-        <result column="activity_type" property="activityType"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -26,6 +26,7 @@
         event_type,
         position_type,
         member_type,
+        activity_type,
         building_id,
         link,
         `date`,
@@ -33,8 +34,7 @@
         end_time,
         duration,
         `cycle`,
-        `status`,
-        activityType
+        `status`
     </sql>
 
     <insert id="add" useGeneratedKeys="true" keyColumn="event_id" keyProperty="eventId"
@@ -54,7 +54,7 @@
                 member_type,
             </if>
             <if test="null != activityType and '' != activityType">
-                `activityType`
+                `activity_type`
             </if>
             <if test="null != buildingId and '' != buildingId">
                 building_id,

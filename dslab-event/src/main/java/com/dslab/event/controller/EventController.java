@@ -32,4 +32,6 @@ public class EventController {
     public Result addEvent(@RequestBody @Valid RequestParam requestParam) {
         return eventService.addEvent(requestParam.getEvent(), requestParam.getUser());
     }
+
+
 }

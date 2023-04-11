@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @SpringBootApplication
 @MapperScan("com.dslab.event.mapper")
 @EnableTransactionManagement
+//@EnableDiscoveryClient(autoRegister = true)
 public class DslabEventApplication {
 
     public static void main(String[] args) {

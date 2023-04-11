@@ -53,7 +53,7 @@ public class EventServiceImpl implements EventService {
     public Result addEvent(Event event, User user) {
         // 校验日程时间是否合法
         if (!timeUtils.checkTimeValid(event)) {
-            return Result.error("日程时间不合法");
+            return Result.error("日程时间不合法").data("请求失败");
         }
 
         Result result;
@@ -64,11 +64,11 @@ public class EventServiceImpl implements EventService {
             } else if (UserType.USER_STUDENT.getValue().equals(user.getType())) {
                 result = this.addEventByStudent(event, user);
             } else {
-                result = Result.error("用户类型不明确");
+                result = Result.error("用户类型不明确").data("请求失败");
             }
         } catch (Exception e) {
             logger.warn("添加日程时出现错误");
-            throw new BusinessException(666, "未知异常");
+            return Result.error("数据不合法, 出现未知错误").data("请求失败");
         }
         return result;
     }
@@ -82,7 +82,7 @@ public class EventServiceImpl implements EventService {
         // 管理员只允许添加课程和考试
         if (!(EventType.EVENT_LESSON.getValue().equals(event.getEventType())
                 || EventType.EVENT_EXAM.getValue().equals(event.getEventType()))) {
-            return Result.error("非课程 / 考试类日程无法由管理员统一添加");
+            return Result.error("非课程 / 考试类日程无法由管理员统一添加").data("请求失败");
         }
 
         // 判断是否有冲突
@@ -99,9 +99,9 @@ public class EventServiceImpl implements EventService {
             for (User u : students) {
                 userEventRelationMapper.add(u.getGroupId(), u.getUserId(), event.getEventId());
             }
-            return Result.success("添加成功");
+            return Result.success("添加成功").data("请求成功");
         } else {
-            return Result.error("未知错误");
+            return Result.error("未知错误").data("请求失败");
         }
     }
 
@@ -114,7 +114,7 @@ public class EventServiceImpl implements EventService {
         // 只允许管理员添加课程和考试
         if (EventType.EVENT_LESSON.getValue().equals(event.getEventType())
                 || EventType.EVENT_EXAM.getValue().equals(event.getEventType())) {
-            return Result.error("您的权限不够");
+            return Result.error("您的权限不够").data("请求失败");
         }
 
         // 闹钟不会和其他日程产生冲突, 可以直接添加
@@ -122,7 +122,7 @@ public class EventServiceImpl implements EventService {
             eventMapper.add(event);
             event = eventMapper.getByEventName(event.getName());
             userEventRelationMapper.add(user.getGroupId(), user.getUserId(), event.getEventId());
-            return Result.success("添加成功");
+            return Result.success("添加成功").data("请求失败");
         }
 
         // 判断是否有冲突
@@ -135,9 +135,9 @@ public class EventServiceImpl implements EventService {
             eventMapper.add(event);
             event = eventMapper.getByEventName(event.getName());
             userEventRelationMapper.add(user.getGroupId(), user.getUserId(), event.getEventId());
-            return Result.success("添加成功");
+            return Result.success("添加成功").data("请求成功");
         } else {
-            return Result.error("未知错误");
+            return Result.error("未知错误").data("请求失败");
         }
     }
 
@@ -167,7 +167,7 @@ public class EventServiceImpl implements EventService {
             return checkTemporaryConflict(event, events);
         } else {
             logger.warn("日程类型出现错误");
-            return Result.error("日程类型出现错误");
+            return Result.error("日程类型出现错误").data("请求失败");
         }
     }
 
@@ -182,7 +182,7 @@ public class EventServiceImpl implements EventService {
     public Object checkLessonExamConflict(Event event, List<Event> events) {
         for (Event e : events) {
             if (timeUtils.compareTime(event, e)) {
-                return Result.error("时间冲突, 无法添加");
+                return Result.error("时间冲突, 无法添加").data("请求失败");
             }
         }
         return false;
@@ -222,7 +222,7 @@ public class EventServiceImpl implements EventService {
         } else {
             // 查找出合理的替代时间
             List<int[]> replace = new ArrayList<>();
-            for (int i = 6; i <= 22; ++i) {
+            for (int i = 6; i <= 22 && replace.size() < 3; ++i) {
                 if (time[i] == 0) {
                     // 当前时间空闲
                     replace.add(new int[]{i, i + 1});
@@ -239,7 +239,7 @@ public class EventServiceImpl implements EventService {
                 } else if (MemberType.MEMBER_GROUP.getValue().equals(event.getMemberType())) {
                     // todo 活动持续时间固定为一小时的话, 所有日程均以整点开始结束, 那"冲突最少"似乎就没有意义
                     // ?如果是集体活动则选择三个冲突最小的时间 (或许是可以和临时事务冲突)
-                    for (int i = 6; i <= 22; ++i) {
+                    for (int i = 6; i <= 22 && replace.size() < 3; ++i) {
                         if (time[i] == 4) {
                             // 当前时间为临时事务类型
                             replace.add(new int[]{i, i + 1});
@@ -253,7 +253,7 @@ public class EventServiceImpl implements EventService {
                     }
                     result = Result.error("时间冲突, 以下是冲突最小的时间").data(replace);
                 } else {
-                    return Result.error("时间冲突, 活动类型不明确, 无法给出可代替时间");
+                    return Result.error("时间冲突, 活动类型不明确, 无法给出可代替时间").data("请求失败");
                 }
             }
 
@@ -273,7 +273,7 @@ public class EventServiceImpl implements EventService {
     public Object checkTemporaryConflict(Event event, List<Event> events) {
         for (Event e : events) {
             if (timeUtils.compareTime(event, e)) {
-                return Result.error("时间冲突, 无法添加");
+                return Result.error("时间冲突, 无法添加").data("请求失败");
             }
         }
         return false;

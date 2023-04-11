@@ -62,7 +62,7 @@ public interface UserEventRelationMapper {
      * @param groupId 组id
      * @return 用户id 的列表
      */
-    @Select("select * from user_event_relation where group_id = #{groupId}")
+    @Select("select event_id from user_event_relation where group_id = #{groupId}")
     List<Integer> selectByGroupId(Integer groupId);
 
     /**
@@ -71,7 +71,7 @@ public interface UserEventRelationMapper {
      * @param userId 用户id
      * @return 日程id的列表
      */
-    @Select("select * from user_event_relation where user_id = #{userId}")
+    @Select("select event_id from user_event_relation where user_id = #{userId}")
     List<Integer> selectByUserId(Integer userId);
 
     /**
@@ -80,6 +80,6 @@ public interface UserEventRelationMapper {
      * @param eventId 日程id
      * @return 用户id 的列表
      */
-    @Select("select * from user_event_relation where event_id = #{eventId}")
+    @Select("select user_id from user_event_relation where event_id = #{eventId}")
     List<Integer> selectByEventId(Integer eventId);
 }

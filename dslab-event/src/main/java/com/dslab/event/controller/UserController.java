@@ -3,10 +3,8 @@ package com.dslab.event.controller;
 import com.dslab.event.domain.User;
 import com.dslab.event.mapper.UserMapper;
 import com.dslab.event.vo.Result;
-import com.gzy.dslab.guide.service.PointService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
@@ -26,8 +24,8 @@ public class UserController {
     @Resource
     UserMapper userMapper;
 
-    @DubboReference(group = "DS-guide", version = "1.0.0")
-    PointService pointService;
+//    @DubboReference(group = "DS-guide", version = "1.0.0")
+//    PointService pointService;
 
     @GetMapping("/userId/{userId}")
     @ResponseBody
