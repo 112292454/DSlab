@@ -94,6 +94,7 @@ public class PointServiceImpl implements PointService {
         return res;
     }
 
+    @Override
     public HashMap<Integer, Point> showPoints() {
         return points;
     }
