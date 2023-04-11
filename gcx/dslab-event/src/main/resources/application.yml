@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ds_lab?useUnicode=true&characterEncoding=utf8&serverTimezone=CST
+    username: root
+    password: 1154459434
+
+server:
+  port: 14514
