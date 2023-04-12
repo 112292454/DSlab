@@ -37,8 +37,6 @@ public class EventServiceImpl implements EventService {
     @Resource
     UserEventRelationMapper userEventRelationMapper;
 
-    TimeUtils timeUtils=new TimeUtils();
-
     /**
      * 添加日程
      *
@@ -50,7 +48,7 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public Result addEvent(Event event, User user) {
         // 校验日程时间是否合法
-        if (!timeUtils.checkTimeValid(event)) {
+        if (!TimeUtils.checkTimeValid(event)) {
             return Result.error("日程时间不合法").data("请求失败");
         }
 
@@ -150,7 +148,7 @@ public class EventServiceImpl implements EventService {
         List<Event> events = new ArrayList<>();
         for (Integer id : eventIds) {
             Event e = eventMapper.getByEventId(id);
-            if (timeUtils.IsInOneDay(e, event)) {
+            if (TimeUtils.IsInOneDay(e, event)) {
                 events.add(e);
             }
         }
@@ -179,7 +177,7 @@ public class EventServiceImpl implements EventService {
      */
     public Object checkLessonExamConflict(Event event, List<Event> events) {
         for (Event e : events) {
-            if (timeUtils.compareTime(event, e)) {
+            if (TimeUtils.compareTime(event, e)) {
                 return Result.error("时间冲突, 无法添加").data("请求失败");
             }
         }
@@ -201,11 +199,11 @@ public class EventServiceImpl implements EventService {
         // time[i] = 0 表示 [i, i+1) 内时间空闲
         int[] time = new int[24];
         for (Event e : events) {
-            if (timeUtils.compareTime(e, event)) {
+            if (TimeUtils.compareTime(e, event)) {
                 ok = false;
             }
-            int start = timeUtils.TimestampToHour(e.getStartTime());
-            int end = timeUtils.TimestampToHour(e.getEndTime());
+            int start = TimeUtils.TimestampToHour(e.getStartTime());
+            int end = TimeUtils.TimestampToHour(e.getEndTime());
             for (int i = start; i < end; ++i) {
                 if (time[i] == 0) {
                     // 标记当前时间已被占用
@@ -236,6 +234,7 @@ public class EventServiceImpl implements EventService {
                     result = Result.error("时间冲突, 添加失败");
                 } else if (MemberType.MEMBER_GROUP.getValue().equals(event.getMemberType())) {
                     // todo 活动持续时间固定为一小时的话, 所有日程均以整点开始结束, 那"冲突最少"似乎就没有意义
+                    // todo 待定 查找可用时间的时候，最小冲突时间可以检测每个已有的课程，选取冲突最远的三个
                     // ?如果是集体活动则选择三个冲突最小的时间 (或许是可以和临时事务冲突)
                     for (int i = 6; i <= 22 && replace.size() < 3; ++i) {
                         if (time[i] == 4) {
@@ -270,7 +269,7 @@ public class EventServiceImpl implements EventService {
      */
     public Object checkTemporaryConflict(Event event, List<Event> events) {
         for (Event e : events) {
-            if (timeUtils.compareTime(event, e)) {
+            if (TimeUtils.compareTime(event, e)) {
                 return Result.error("时间冲突, 无法添加").data("请求失败");
             }
         }
