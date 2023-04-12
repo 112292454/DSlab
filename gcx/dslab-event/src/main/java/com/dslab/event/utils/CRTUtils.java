@@ -59,6 +59,5 @@ public class CRTUtils {
     }
 
     public static long gcd(int a, int b) {
-        return b == 0 ? a : gcd(b, a % b);
-    }
+        return b == 0 ? a : gcd(b, a % b);    }
 }

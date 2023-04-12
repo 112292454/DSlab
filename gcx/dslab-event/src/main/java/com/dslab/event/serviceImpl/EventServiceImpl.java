@@ -242,8 +242,9 @@ public class EventServiceImpl implements EventService {
                             replace.add(new int[]{i, i + 1});
                         }
                     }
+                    // todo 待修改，查找最远冲突的日程，可能需要再遍历一遍list，应该可以优化
                     if (replace.size() == 0) {
-                        // 还是未找到可代替时间
+                        // todo 可代替时间小于三个
                         replace.add(new int[]{6, 7});
                         replace.add(new int[]{7, 8});
                         replace.add(new int[]{8, 9});

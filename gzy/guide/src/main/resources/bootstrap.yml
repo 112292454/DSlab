@@ -14,7 +14,7 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 127.0.0.1:8848
+        server-addr: 10.28.166.91:8848
         namespace: 9af3ea75-52ab-4655-9d78-575a92fdafd7
         group: DSlab
       username: nacos
