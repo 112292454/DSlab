@@ -33,7 +33,15 @@ public class StringUtils {
         return true;
     }
 
-
+    /**
+     * todo 字符串模糊搜索
+     *
+     * @param s 需要查找的字符串
+     * @return  返回一个查找结果的列表
+     */
+//    public static List<String> fuzzyMatch(String s){
+//
+//    }
 }
 
 class Trie {

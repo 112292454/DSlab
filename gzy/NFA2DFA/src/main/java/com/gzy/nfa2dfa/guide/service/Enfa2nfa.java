@@ -6,6 +6,4 @@ import org.springframework.stereotype.Service;
 public class Enfa2nfa {
 
 
-
-
 }
