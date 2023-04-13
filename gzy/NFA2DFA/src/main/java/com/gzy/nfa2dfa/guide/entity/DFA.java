@@ -53,8 +53,9 @@ public class DFA implements FA {
 	@Override
 	public Status sigma(Status p, Character input) {
 		//转换表里已有p+input,而且p是原子的状态，就返回
-		if(p.getNames().size()==1&&this.sigmas.containsKey(p))
+		if(p.getNames().size()==1&&this.sigmas.containsKey(p)) {
 			return this.sigmas.get(p).getOrDefault(input,deniedStatus);
+		}
 //		else if(p.getNames().size()==1){
 //			//为原生的状态（不是状态集合，size=1），但是转换表又没有它（所有原生状态的转换应该一开始就有），那么就是不接受这个输入
 //			return deniedStatus;
@@ -67,12 +68,15 @@ public class DFA implements FA {
 			Status tempS = new Status(name);
 			Status transStatus = sigma(tempS, input);
 			//如果是denied的状态，也就是转换函数里面没说明这个转换，那就是不接受
-			if(canContinue(transStatus))
+			if(canContinue(transStatus)) {
 				newNames.addAll(transStatus.getNames());
+			}
 		}
 		List<String> resNames=newNames.stream().distinct().sorted().collect(Collectors.toList());
 		Status res=new Status(resNames);
-		 if(res.getNames().isEmpty()) res=deniedStatus;
+		 if(res.getNames().isEmpty()) {
+			 res=deniedStatus;
+		 }
 		//记录到sigmas转换函数
 		//addOneSigma(p,input,res);
 		return res;
@@ -80,7 +84,9 @@ public class DFA implements FA {
 
 	@Override
 	public boolean addOneSigma(Status from, Character input, Status result) {
-		if(!canContinue(result)) return false;
+		if(!canContinue(result)) {
+			return false;
+		}
 		checkQ(result);
 		Map<Character, Status> map =this.sigmas.getOrDefault(from, new HashMap<>());
 		map.put(input, result);
