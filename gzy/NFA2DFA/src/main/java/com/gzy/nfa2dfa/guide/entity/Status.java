@@ -39,4 +39,14 @@ public class Status implements Serializable {
 	public int hashCode() {
 		return Objects.hash(names);
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb=new StringBuilder();
+		sb.append('[');
+		names.forEach(a ->sb.append(a).append(", "));
+		sb.deleteCharAt(sb.length()-2);
+		sb.append(']');
+		return sb.toString();
+	}
 }
