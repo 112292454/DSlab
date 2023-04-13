@@ -53,13 +53,9 @@ public class DFA implements FA {
 	@Override
 	public Status sigma(Status p, Character input) {
 		//转换表里已有p+input,而且p是原子的状态，就返回
-		if(p.getNames().size()==1&&this.sigmas.containsKey(p)) {
-			return this.sigmas.get(p).getOrDefault(input,deniedStatus);
+		if(p.getNames().size()==1) {
+			return this.sigmas.getOrDefault(p, new HashMap<>()).getOrDefault(input,deniedStatus);
 		}
-//		else if(p.getNames().size()==1){
-//			//为原生的状态（不是状态集合，size=1），但是转换表又没有它（所有原生状态的转换应该一开始就有），那么就是不接受这个输入
-//			return deniedStatus;
-//		}
 
 		List<String> names = p.getNames();
 		List<String> newNames=new ArrayList<>();
