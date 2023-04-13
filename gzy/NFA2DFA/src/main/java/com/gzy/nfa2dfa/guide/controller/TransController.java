@@ -24,70 +24,67 @@ import java.io.OutputStream;
 @RequestMapping("/trans")
 public class TransController {
 
-	@Autowired
-	Nfa2dfa nfa2dfa;
+    @Autowired
+    Nfa2dfa nfa2dfa;
 
-	private static final Logger log= LoggerFactory.getLogger(TransController.class);
+    private static final Logger log = LoggerFactory.getLogger(TransController.class);
 
-	@RequestMapping({"nfa2dfa"})
-	public void NFA2DFA(@RequestBody inputNFA input, HttpServletResponse response) throws IOException {
+    @RequestMapping({"nfa2dfa"})
+    public DFA NFA2DFA(@RequestBody inputNFA input, HttpServletResponse response) throws IOException {
 
-		NFA n=new NFA(input.getQ(), input.getT(), input.getSTART(), input.getF());
-		n.buildSigmas(input.getSigmas());
-		//		LinkedHashMap<Status,LinkedHashMap<Character,Status>> tempProcess=
+        NFA n = new NFA(input.getQ(), input.getT(), input.getSTART(), input.getF());
+        n.buildSigmas(input.getSigmas());
+
+        DFA res = nfa2dfa.NFA2DFA(n);
+        OutputStream os = null;
+
+        try {
+            File graph = Dfa2graphUtils.dfa2graph(res);
+            BufferedImage image = ImageIO.read(new FileInputStream(graph));
+            response.setContentType("image/png");
+            os = response.getOutputStream();
+            if (image != null) {
+                ImageIO.write(image, "png", os);
+            }
+        } catch (Exception e) {
+            log.error("获取图片异常{}", e.getMessage());
+        } finally {
+            if (os != null) {
+                os.flush();
+                os.close();
+            }
+        }
+        return res;
+    }
+
+    @RequestMapping({"show"})
+    public void showNFA(@RequestBody inputNFA input, HttpServletResponse response) throws IOException {
+
+        NFA n = new NFA(input.getQ(), input.getT(), input.getSTART(), input.getF());
+        n.buildSigmas(input.getSigmas());
+        //		LinkedHashMap<Status,LinkedHashMap<Character,Status>> tempProcess=
 //				((LinkedHashMap<Status,LinkedHashMap<Character,Status>>)nfa).get("sigmas");
-		DFA res = nfa2dfa.NFA2DFA(n);
-		File graph = Dfa2graphUtils.dfa2graph(res);
+        File graph = Dfa2graphUtils.nfa2graph(n);
 
-		OutputStream os = null;
-		try {
-			BufferedImage image = ImageIO.read(new FileInputStream(graph));
-			response.setContentType("image/png");
-			os = response.getOutputStream();
-			if (image != null) {
-				ImageIO.write(image, "png", os);
-			}
-		} catch (IOException e) {
-			log.error("获取图片异常{}",e.getMessage());
-		} finally {
-			if (os != null) {
-				os.flush();
-				os.close();
-			}
-		}
+        OutputStream os = null;
+        try {
+            BufferedImage image = ImageIO.read(new FileInputStream(graph));
+            response.setContentType("image/png");
+            os = response.getOutputStream();
+            if (image != null) {
+                ImageIO.write(image, "png", os);
+            }
+        } catch (IOException e) {
+            log.error("获取图片异常{}", e.getMessage());
+        } finally {
+            if (os != null) {
+                os.flush();
+                os.close();
+            }
+        }
 
-		//return res;
-	}
-	@RequestMapping({"show"})
-	public void showNFA(@RequestBody inputNFA input, HttpServletResponse response) throws IOException {
-
-		NFA n=new NFA(input.getQ(), input.getT(), input.getSTART(), input.getF());
-		n.buildSigmas(input.getSigmas());
-		//		LinkedHashMap<Status,LinkedHashMap<Character,Status>> tempProcess=
-//				((LinkedHashMap<Status,LinkedHashMap<Character,Status>>)nfa).get("sigmas");
-		File graph = Dfa2graphUtils.nfa2graph(n);
-
-		OutputStream os = null;
-		try {
-			BufferedImage image = ImageIO.read(new FileInputStream(graph));
-			response.setContentType("image/png");
-			os = response.getOutputStream();
-			if (image != null) {
-				ImageIO.write(image, "png", os);
-			}
-		} catch (IOException e) {
-			log.error("获取图片异常{}",e.getMessage());
-		} finally {
-			if (os != null) {
-				os.flush();
-				os.close();
-			}
-		}
-
-		//return res;
-	}
-
-
+        //return res;
+    }
 
 
 }
