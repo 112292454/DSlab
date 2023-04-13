@@ -10,7 +10,7 @@ public interface FA {
 
 	Status sigma(Status p, Character input);
 
-	boolean addOneSigma(Status from, Character input, Status result);
+	boolean addOneSigma(Status from,Character input,Status result);
 
 	boolean canContinue(Status now);
 

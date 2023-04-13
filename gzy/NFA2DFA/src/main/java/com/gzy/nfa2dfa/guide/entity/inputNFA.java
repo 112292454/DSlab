@@ -8,21 +8,21 @@ import java.util.Map;
 
 @Data
 public class inputNFA {
-    @JsonProperty("Q")
-    private List<Status> Q;
+	@JsonProperty("Q")
+	private List<Status> Q;
 
-    //输入字母表
-    @JsonProperty("T")
-    private List<Character> T;
+	//输入字母表
+	@JsonProperty("T")
+	private List<Character> T;
 
-    //起始状态
-    @JsonProperty("START")
-    private Status START;
+	//起始状态
+	@JsonProperty("START")
+	private Status START;
 
-    //终止状态
-    @JsonProperty("F")
-    private List<Status> F;
+	//终止状态
+	@JsonProperty("F")
+	private List<Status> F;
 
-    @JsonProperty("sigmas")
-    private Map<Status, Map<Character, List<String>>> sigmas;
+	@JsonProperty("sigmas")
+	private Map<Status, Map<Character,List<String>>> sigmas;
 }
