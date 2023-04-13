@@ -58,7 +58,7 @@ public class Graphviz {
      * The dir. where temporary files will be created.
      */
 //private static String TEMP_DIR = "/tmp"; // Linux
-    private static String TEMP_DIR = "/temp/"; // Windows
+    private static String TEMP_DIR = "temp\\"; // Windows
 
     /**
      * Where is your dot program located? It will be called externally.
