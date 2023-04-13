@@ -62,8 +62,6 @@ public class TransController {
 
         NFA n = new NFA(input.getQ(), input.getT(), input.getSTART(), input.getF());
         n.buildSigmas(input.getSigmas());
-        //		LinkedHashMap<Status,LinkedHashMap<Character,Status>> tempProcess=
-//				((LinkedHashMap<Status,LinkedHashMap<Character,Status>>)nfa).get("sigmas");
         File graph = Dfa2graphUtils.nfa2graph(n);
 
         OutputStream os = null;
@@ -83,8 +81,5 @@ public class TransController {
             }
         }
 
-        //return res;
     }
-
-
 }

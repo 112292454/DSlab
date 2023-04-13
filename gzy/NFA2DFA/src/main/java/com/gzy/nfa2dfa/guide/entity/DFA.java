@@ -12,105 +12,105 @@ import java.util.stream.Collectors;
 @Data
 @NoArgsConstructor
 public class DFA implements FA {
-	//状态集
-	private List<Status> Q;
+    //状态集
+    private List<Status> Q;
 
-	//输入字母表
-	private List<Character> T;
+    //输入字母表
+    private List<Character> T;
 
-	//起始状态
-	private Status START;
+    //起始状态
+    private Status START;
 
-	//终止状态
-	private List<Status> F;
+    //终止状态
+    private List<Status> F;
 
-	public Map<Status,Map<Character,Status>> sigmas;
+    public Map<Status, Map<Character, Status>> sigmas;
 
-	public DFA(List<Status> q, List<Character> t, Status START, List<Status> f) {
-		Q = q;
-		T = t;
-		this.START = START;
-		F = f;
-		this.sigmas=new HashMap<>();
-	}
+    public DFA(List<Status> q, List<Character> t, Status START, List<Status> f) {
+        Q = q;
+        T = t;
+        this.START = START;
+        F = f;
+        this.sigmas = new HashMap<>();
+    }
 
-	public DFA(List<Status> q, List<Character> t, Status START, List<Status> f, Map<Status, Map<Character, Status>> sigmas) {
-		Q = q;
-		T = t;
-		this.START = START;
-		F = f;
-		this.sigmas = sigmas;
-	}
+    public DFA(List<Status> q, List<Character> t, Status START, List<Status> f, Map<Status, Map<Character, Status>> sigmas) {
+        Q = q;
+        T = t;
+        this.START = START;
+        F = f;
+        this.sigmas = sigmas;
+    }
 
-	public Map<Status, Map<Character, Status>> getSigmas() {
-		return this.sigmas;
-	}
+    public Map<Status, Map<Character, Status>> getSigmas() {
+        return this.sigmas;
+    }
 
-	public void setSigmas(Map<Status, Map<Character, Status>> sigmas) {
-		this.sigmas = sigmas;
-	}
+    public void setSigmas(Map<Status, Map<Character, Status>> sigmas) {
+        this.sigmas = sigmas;
+    }
 
-	@Override
-	public Status sigma(Status p, Character input) {
-		//转换表里已有p+input,而且p是原子的状态，就返回
-		if(p.getNames().size()==1) {
-			return this.sigmas.getOrDefault(p, new HashMap<>()).getOrDefault(input,deniedStatus);
-		}
+    @Override
+    public Status sigma(Status p, Character input) {
+        //转换表里已有p+input,而且p是原子的状态，就返回
+        if (p.getNames().size() == 1) {
+            return this.sigmas.getOrDefault(p, new HashMap<>()).getOrDefault(input, deniedStatus);
+        }
 
-		List<String> names = p.getNames();
-		List<String> newNames=new ArrayList<>();
-		for (String name : names) {
-			//若没有，对于p的每一个可能状态，看他通过input会变成什么状态，然后添加状态名称
-			Status tempS = new Status(name);
-			Status transStatus = sigma(tempS, input);
-			//如果是denied的状态，也就是转换函数里面没说明这个转换，那就是不接受
-			if(canContinue(transStatus)) {
-				newNames.addAll(transStatus.getNames());
-			}
-		}
-		List<String> resNames=newNames.stream().distinct().sorted().collect(Collectors.toList());
-		Status res=new Status(resNames);
-		 if(res.getNames().isEmpty()) {
-			 res=deniedStatus;
-		 }
-		//记录到sigmas转换函数
-		//addOneSigma(p,input,res);
-		return res;
-	}
+        List<String> names = p.getNames();
+        List<String> newNames = new ArrayList<>();
+        for (String name : names) {
+            //若没有，对于p的每一个可能状态，看他通过input会变成什么状态，然后添加状态名称
+            Status tempS = new Status(name);
+            Status transStatus = sigma(tempS, input);
+            //如果是denied的状态，也就是转换函数里面没说明这个转换，那就是不接受
+            if (canContinue(transStatus)) {
+                newNames.addAll(transStatus.getNames());
+            }
+        }
+        List<String> resNames = newNames.stream().distinct().sorted().collect(Collectors.toList());
+        Status res = new Status(resNames);
+        if (res.getNames().isEmpty()) {
+            res = deniedStatus;
+        }
+        //记录到sigmas转换函数
+        //addOneSigma(p,input,res);
+        return res;
+    }
 
-	@Override
-	public boolean addOneSigma(Status from, Character input, Status result) {
-		if(!canContinue(result)) {
-			return false;
-		}
-		checkQ(result);
-		Map<Character, Status> map =this.sigmas.getOrDefault(from, new HashMap<>());
-		map.put(input, result);
-		this.sigmas.put(from, map);
-		return true;
-	}
+    @Override
+    public boolean addOneSigma(Status from, Character input, Status result) {
+        if (!canContinue(result)) {
+            return false;
+        }
+        checkQ(result);
+        Map<Character, Status> map = this.sigmas.getOrDefault(from, new HashMap<>());
+        map.put(input, result);
+        this.sigmas.put(from, map);
+        return true;
+    }
 
-	@Override
-	public boolean canContinue(Status now) {
+    @Override
+    public boolean canContinue(Status now) {
 
-		return !now.equals(deniedStatus);
-	}
+        return !now.equals(deniedStatus);
+    }
 
-	@Override
-	public void buildSigmas(Map<Status, Map<Character, List<String>>> input) {
-		input.forEach((k,v)->{
-			Map<Character,Status> tempResult = new HashMap<>();
-			v.forEach((tk,tv)-> tempResult.put(tk, new Status(tv )));
-			this.sigmas.put(k, tempResult);
-		});
-	}
+    @Override
+    public void buildSigmas(Map<Status, Map<Character, List<String>>> input) {
+        input.forEach((k, v) -> {
+            Map<Character, Status> tempResult = new HashMap<>();
+            v.forEach((tk, tv) -> tempResult.put(tk, new Status(tv)));
+            this.sigmas.put(k, tempResult);
+        });
+    }
 
-	private void checkQ(Status result) {
-		if(!this.Q.contains(result)) this.Q.add(result);
-	}
+    private void checkQ(Status result) {
+        if (!this.Q.contains(result)) this.Q.add(result);
+    }
 
-	@Override
-	public void printFA() {
+    @Override
+    public void printFA() {
 
-	}
+    }
 }

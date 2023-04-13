@@ -7,9 +7,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 //@DubboComponentScan(basePackages = "com.dslab.server.guide")
 public class DFAApplication {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
-		SpringApplication.run(DFAApplication.class, args);
-	}
+        SpringApplication.run(DFAApplication.class, args);
+    }
 
 }
