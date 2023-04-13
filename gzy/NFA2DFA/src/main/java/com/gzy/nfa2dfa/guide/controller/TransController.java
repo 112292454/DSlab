@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 
 @RestController
@@ -29,16 +28,21 @@ public class TransController {
 
     private static final Logger log = LoggerFactory.getLogger(TransController.class);
 
+    /**
+     * NFA到DFA的转化
+     */
     @RequestMapping({"nfa2dfa"})
-    public DFA NFA2DFA(@RequestBody inputNFA input, HttpServletResponse response) throws IOException {
-
+    public DFA NFA2DFA(@RequestBody inputNFA input, HttpServletResponse response) throws Exception {
+        // 将接受到的数据解析成NFA
         NFA n = new NFA(input.getQ(), input.getT(), input.getSTART(), input.getF());
         n.buildSigmas(input.getSigmas());
 
+        // NFA转化成DFA
         DFA res = nfa2dfa.NFA2DFA(n);
         OutputStream os = null;
 
         try {
+            // 有Graphviz则可以直接返回图片
             File graph = Dfa2graphUtils.dfa2graph(res);
             BufferedImage image = ImageIO.read(new FileInputStream(graph));
             response.setContentType("image/png");
@@ -57,9 +61,12 @@ public class TransController {
         return res;
     }
 
+    /**
+     * 将输入的NFA进行图形化展示
+     */
     @RequestMapping({"show"})
-    public void showNFA(@RequestBody inputNFA input, HttpServletResponse response) throws IOException {
-
+    public void showNFA(@RequestBody inputNFA input, HttpServletResponse response) throws Exception {
+        //解析数据
         NFA n = new NFA(input.getQ(), input.getT(), input.getSTART(), input.getF());
         n.buildSigmas(input.getSigmas());
         File graph = Dfa2graphUtils.nfa2graph(n);
@@ -72,7 +79,7 @@ public class TransController {
             if (image != null) {
                 ImageIO.write(image, "png", os);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("获取图片异常{}", e.getMessage());
         } finally {
             if (os != null) {

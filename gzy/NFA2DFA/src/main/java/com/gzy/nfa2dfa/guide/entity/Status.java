@@ -26,8 +26,12 @@ public class Status implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Status)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Status)) {
+            return false;
+        }
         Status status = (Status) o;
         HashSet<String> a = new HashSet<>(names);
         HashSet<String> b = new HashSet<>(status.names);

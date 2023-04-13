@@ -10,6 +10,9 @@ import java.util.*;
 public class Dfa2graphUtils {
     private static final String link = " -> ";
 
+    /**
+     * 将自动机进行图形化
+     */
     private static File toGraph(DFA in, String type) {
         String[] nodes = new String[in.getQ().size()];
         String[] ends = new String[in.getF().size()];
@@ -24,7 +27,7 @@ public class Dfa2graphUtils {
 
         List<String> preline = new ArrayList<>();
         Map<Status, Map<Character, Status>> sigmas = in.getSigmas();
-        if (type.equals("DFA"))
+        if (type.equals("DFA")) {
             sigmas.forEach((from, trans) ->
                     trans.forEach((ch, to) ->
                             preline.add(
@@ -32,7 +35,7 @@ public class Dfa2graphUtils {
                                             link +
                                             "\"" + to.toString() + "\"" +
                                             " [label = \"" + ch + "\"]")));
-        else if (type.equals("NFA"))
+        } else if (type.equals("NFA")) {
             sigmas.forEach((from, trans) ->
                     trans.forEach((ch, to) ->
                             to.getNames().forEach(a -> preline.add(
@@ -40,6 +43,7 @@ public class Dfa2graphUtils {
                                             link +
                                             "\"[" + a + "]\"" +
                                             " [label = \"" + ch + "\"]"))));
+        }
 
 
         Graphviz gv = new Graphviz();

@@ -50,6 +50,9 @@ public class DFA implements FA {
         this.sigmas = sigmas;
     }
 
+    /**
+     * 查找状态p接受input后可以转换的所有状态
+     */
     @Override
     public Status sigma(Status p, Character input) {
         //转换表里已有p+input,而且p是原子的状态，就返回
@@ -78,6 +81,9 @@ public class DFA implements FA {
         return res;
     }
 
+    /**
+     * 将转换关系添加到转换表中
+     */
     @Override
     public boolean addOneSigma(Status from, Character input, Status result) {
         if (!canContinue(result)) {
@@ -92,10 +98,12 @@ public class DFA implements FA {
 
     @Override
     public boolean canContinue(Status now) {
-
         return !now.equals(deniedStatus);
     }
 
+    /**
+     * 建立转换关系表
+     */
     @Override
     public void buildSigmas(Map<Status, Map<Character, List<String>>> input) {
         input.forEach((k, v) -> {
@@ -105,8 +113,13 @@ public class DFA implements FA {
         });
     }
 
+    /**
+     * 检测自动机的所有状态集合中是否有该状态, 若没有则添加
+     */
     private void checkQ(Status result) {
-        if (!this.Q.contains(result)) this.Q.add(result);
+        if (!this.Q.contains(result)) {
+            this.Q.add(result);
+        }
     }
 
     @Override

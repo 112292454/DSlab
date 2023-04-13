@@ -20,11 +20,12 @@ public class Nfa2dfa {
         processing.addFirst(input.getSTART());
         result.getQ().add(input.getSTART());
         List<Status> vised = new ArrayList<>();
+
         while (!processing.isEmpty()) {
             Status doProcessStatus = processing.pollFirst();
             vised.add(doProcessStatus);
-            input.getT().forEach(a -> {
 
+            input.getT().forEach(a -> {
                 Status nextStatus = input.sigma(doProcessStatus, a);
                 result.addOneSigma(doProcessStatus, a, nextStatus);
                 //仅当可继续，且这个状态没有出现过才进入队列，将来再推
@@ -34,6 +35,7 @@ public class Nfa2dfa {
 
             });
         }
+
         result.getQ().forEach(a -> {
             for (Status status : input.getF()) {
                 if (a.getNames().contains(status.getNames().get(0))) {
@@ -42,6 +44,7 @@ public class Nfa2dfa {
                 }
             }
         });
+
         return result;
     }
 }
