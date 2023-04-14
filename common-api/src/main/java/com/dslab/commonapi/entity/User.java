@@ -2,10 +2,7 @@ package com.dslab.commonapi.entity;
 
 import lombok.Data;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 import java.io.Serializable;
 
 /**
@@ -18,7 +15,7 @@ import java.io.Serializable;
 
 @Data
 public class User implements Serializable {
-     
+
     private static final long serialVersionUID = 1324389877885L;
     /**
      * 用户ID
@@ -36,12 +33,14 @@ public class User implements Serializable {
     /**
      * 邮箱
      */
+    @NotBlank(message = "邮箱不能为空")
     @Email(message = "邮箱不正确")
     private String mail;
     /**
      * 用户类别 (student/admin)
      */
     @NotBlank(message = "用户类型不能为空")
+    @Pattern(regexp = "^1|2$")// todo 不知道这个正则对不对
     private String type;
     /**
      * 用户所属的组

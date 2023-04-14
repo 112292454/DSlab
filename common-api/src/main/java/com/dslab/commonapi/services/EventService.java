@@ -14,4 +14,5 @@ import com.dslab.commonapi.vo.Result;
 public interface EventService {
     Result addEvent(Event event, User user);
 
+    Result updateEvent(Event event, User user);
 }

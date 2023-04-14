@@ -1,9 +1,13 @@
 package com.dslab.event.controller;
 
-import com.dslab.commonapi.entity.RequestParam;
+import com.dslab.commonapi.entity.Event;
+import com.dslab.commonapi.entity.RequestParams;
 import com.dslab.commonapi.services.EventService;
 import com.dslab.commonapi.vo.Result;
+import com.dslab.event.mapper.EventMapper;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -19,20 +23,48 @@ import javax.annotation.Resource;
 @RestController
 @RequestMapping("/events")
 public class EventController {
+
+    private static Logger logger = LoggerFactory.getLogger(EventController.class);
     @Resource
     EventService eventService;
+
+    @Resource
+    EventMapper eventMapper;
 
     /**
      * 添加日程
      *
-     * @param requestParam 请求参数, 包含 event 和 user
-     * @return result
+     * @param requestParams 请求参数, 包含 event 和 user
+     * @return 添加成功返回成功信息, 失败则根据不同活动类型进行判断返回内容
      */
-    @PostMapping
+    @PostMapping("/addEvent")
     @ResponseBody
-    public Result addEvent(@RequestBody @Valid RequestParam requestParam) {
-        return eventService.addEvent(requestParam.getEvent(), requestParam.getUser());
+    public Result addEvent(@RequestBody @Valid RequestParams requestParams) {
+        return eventService.addEvent(requestParams.getEvent(), requestParams.getUser());
     }
 
+    /**
+     * 仅用作修改日程时的课程回显操作
+     *
+     * @param eventId 课程ID
+     * @return 课程信息
+     */
+    @GetMapping("/eventId/{eventId}")
+    @ResponseBody
+    public Result<Event> getById(@PathVariable Integer eventId) {
+        Event event = eventMapper.getByEventId(eventId);
+        return Result.<Event>success().data(event);
+    }
 
+    /**
+     * 修改日程
+     *
+     * @param requestParams 请求参数, 包含 event 和 user
+     * @return 修改成功返回成功信息, 失败则根据不同活动类型进行判断返回内容
+     */
+    @PutMapping("/updateEvent")
+    @ResponseBody
+    public Result updateEvent(@RequestBody @Valid RequestParams requestParams) {
+        return eventService.updateEvent(requestParams.getEvent(), requestParams.getUser());
+    }
 }

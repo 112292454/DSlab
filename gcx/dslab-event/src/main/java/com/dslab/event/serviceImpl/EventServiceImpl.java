@@ -49,7 +49,7 @@ public class EventServiceImpl implements EventService {
     public Result addEvent(Event event, User user) {
         // 校验日程时间是否合法
         if (!TimeUtils.checkTimeValid(event)) {
-            return Result.error("日程时间不合法").data("请求失败");
+            return Result.<String>error("日程时间不合法").data("请求失败");
         }
 
         Result result;
@@ -60,13 +60,26 @@ public class EventServiceImpl implements EventService {
             } else if (UserType.USER_STUDENT.getValue().equals(user.getType())) {
                 result = this.addEventByStudent(event, user);
             } else {
-                result = Result.error("用户类型不明确").data("请求失败");
+                result = Result.<String>error("用户类型不明确").data("请求失败");
             }
         } catch (Exception e) {
             logger.warn("添加日程时出现错误");
-            return Result.error("数据不合法, 出现未知错误").data("请求失败");
+            return Result.<String>error("数据不合法, 出现未知错误").data("请求失败");
         }
         return result;
+    }
+
+    /**
+     * todo 修改日程
+     *
+     * @param event 待添加的日程
+     * @param user  用户信息
+     * @return 返回修改信息
+     */
+    @Override
+    public Result updateEvent(Event event, User user) {
+
+        return null;
     }
 
     /**
