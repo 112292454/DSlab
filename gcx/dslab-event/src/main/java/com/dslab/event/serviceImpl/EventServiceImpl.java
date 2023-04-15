@@ -38,6 +38,28 @@ public class EventServiceImpl implements EventService {
     UserEventRelationMapper userEventRelationMapper;
 
     /**
+     * todo 待测试
+     * 验证用户身份是否可以添加/修改此日程
+     * 课程考试类日程只能由管理员操作, 其他日程只能由学生操作
+     *
+     * @param userType  用户类型
+     * @param eventType 日程类型
+     * @return 符合条件返回true, 否则返回false
+     */
+    public boolean identifyUser(String userType, String eventType) {
+        if (UserType.USER_ADMIN.getValue().equals(userType)
+                && !(EventType.EVENT_LESSON.getValue().equals(eventType)
+                || EventType.EVENT_EXAM.getValue().equals(eventType))) {
+            return false;
+        } else if (UserType.USER_STUDENT.getValue().equals(userType)
+                && (EventType.EVENT_LESSON.getValue().equals(eventType)
+                || EventType.EVENT_EXAM.getValue().equals(eventType))) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * 添加日程
      *
      * @param event 待添加的日程
@@ -46,13 +68,16 @@ public class EventServiceImpl implements EventService {
      */
     @Override
     @Transactional
-    public Result addEvent(Event event, User user) {
-        // 校验日程时间是否合法
+    public Result<?> addEvent(Event event, User user) {
         if (!TimeUtils.checkTimeValid(event)) {
-            return Result.<String>error("日程时间不合法").data("请求失败");
+            // 校验日程时间是否合法
+            return Result.<String>error("日程时间不合法").data("日程添加失败");
+        } else if (!this.identifyUser(user.getType(), event.getEventType())) {
+            //校验用户是否有操作权限
+            return Result.<String>error("用户没有添加权限").data("日程添加失败");
         }
 
-        Result result;
+        Result<?> result;
         try {
             // 判断用户类别, 如果是admin则和他同组的所有用户都将会有该日程
             if (UserType.USER_ADMIN.getValue().equals(user.getType())) {
@@ -70,16 +95,66 @@ public class EventServiceImpl implements EventService {
     }
 
     /**
-     * todo 修改日程
+     * todo 待测试
+     * 删除日程
+     *
+     * @return 是否删除成功
+     */
+    @Override
+    public Result<String> deleteByEventId(Event event, User user) {
+        if (!this.identifyUser(user.getType(), event.getEventType())) {
+            //校验用户是否有操作权限
+            return Result.<String>error("用户没有修改权限").data("日程修改失败");
+        }
+
+        int change = eventMapper.deleteByEventId(event.getEventId());
+        if (change == 1) {
+            return Result.<String>success("删除成功").data("请求成功");
+        } else {
+            return Result.<String>error("删除失败").data("请求失败");
+        }
+    }
+
+    /**
+     * todo 待测试
+     * 修改日程
      *
      * @param event 待添加的日程
      * @param user  用户信息
      * @return 返回修改信息
      */
     @Override
-    public Result updateEvent(Event event, User user) {
+    @Transactional
+    public Result<?> updateEvent(Event event, User user) {
+        if (!TimeUtils.checkTimeValid(event)) {
+            // 校验日程时间是否合法
+            return Result.<String>error("日程时间不合法").data("日程修改失败");
+        } else if (!this.identifyUser(user.getType(), event.getEventType())) {
+            //校验用户是否有操作权限
+            return Result.<String>error("用户没有修改权限").data("日程修改失败");
+        }
 
-        return null;
+        // 先把该日程删除, 以免检测冲突的时候出错
+        eventMapper.deleteByEventId(event.getEventId());
+
+        // 闹钟不会和其他日程产生冲突, 可以直接修改
+        if (EventType.EVENT_CLOCK.getValue().equals(event.getEventType())) {
+            eventMapper.update(event);
+            return Result.<String>success("修改成功").data("请求成功");
+        }
+
+        // 判断是否有冲突
+        Object result = checkConflict(event, user);
+        if (result instanceof Result<?>) {
+            // 添加失败, 直接返回失败的信息
+            return (Result<?>) result;
+        } else if (result instanceof Boolean && !(Boolean) result) {
+            // 没有冲突, 可以添加
+            eventMapper.update(event);
+            return Result.<String>success("添加成功").data("请求成功");
+        } else {
+            return Result.<String>error("未知错误").data("请求失败");
+        }
     }
 
     /**
@@ -87,18 +162,11 @@ public class EventServiceImpl implements EventService {
      *
      * @return 成功返回success, 失败返回error
      */
-    public Result addEventByAdmin(Event event, User user) {
-        // 管理员只允许添加课程和考试
-        if (!(EventType.EVENT_LESSON.getValue().equals(event.getEventType())
-                || EventType.EVENT_EXAM.getValue().equals(event.getEventType()))) {
-            return Result.error("非课程 / 考试类日程无法由管理员统一添加").data("请求失败");
-        }
-
-        // 判断是否有冲突
+    public Result<?> addEventByAdmin(Event event, User user) {
         Object result = checkConflict(event, user);
         if (result instanceof Result<?>) {
             // 添加失败, 直接返回失败的信息
-            return (Result) result;
+            return (Result<?>) result;
         } else if (result instanceof Boolean && !(Boolean) result) {
             // 给组内每个学生添加该日程
             List<User> students = userMapper.getByGroupId(user.getGroupId());
@@ -108,9 +176,9 @@ public class EventServiceImpl implements EventService {
             for (User u : students) {
                 userEventRelationMapper.add(u.getGroupId(), u.getUserId(), event.getEventId());
             }
-            return Result.success("添加成功").data("请求成功");
+            return Result.<String>success("添加成功").data("请求成功");
         } else {
-            return Result.error("未知错误").data("请求失败");
+            return Result.<String>error("未知错误").data("请求失败");
         }
     }
 
@@ -119,34 +187,28 @@ public class EventServiceImpl implements EventService {
      *
      * @return 成功返回success, 失败返回error
      */
-    public Result addEventByStudent(Event event, User user) {
-        // 只允许管理员添加课程和考试
-        if (EventType.EVENT_LESSON.getValue().equals(event.getEventType())
-                || EventType.EVENT_EXAM.getValue().equals(event.getEventType())) {
-            return Result.error("您的权限不够").data("请求失败");
-        }
-
+    public Result<?> addEventByStudent(Event event, User user) {
         // 闹钟不会和其他日程产生冲突, 可以直接添加
         if (EventType.EVENT_CLOCK.getValue().equals(event.getEventType())) {
             eventMapper.add(event);
             event = eventMapper.getByEventName(event.getName());
             userEventRelationMapper.add(user.getGroupId(), user.getUserId(), event.getEventId());
-            return Result.success("添加成功").data("请求失败");
+            return Result.<String>success("添加成功").data("请求成功");
         }
 
         // 判断是否有冲突
         Object result = checkConflict(event, user);
         if (result instanceof Result<?>) {
             // 添加失败, 直接返回失败的信息
-            return (Result) result;
+            return (Result<?>) result;
         } else if (result instanceof Boolean && !(Boolean) result) {
             // 没有冲突, 可以添加
             eventMapper.add(event);
             event = eventMapper.getByEventName(event.getName());
             userEventRelationMapper.add(user.getGroupId(), user.getUserId(), event.getEventId());
-            return Result.success("添加成功").data("请求成功");
+            return Result.<String>success("添加成功").data("请求成功");
         } else {
-            return Result.error("未知错误").data("请求失败");
+            return Result.<String>error("未知错误").data("请求失败");
         }
     }
 
@@ -156,6 +218,7 @@ public class EventServiceImpl implements EventService {
      * @return 如果无法添加则返回 result, 否则返回false表示没有冲突可以添加
      */
     public Object checkConflict(Event event, User user) {
+        // todo 此处可以优化
         // 选出该用户的所有日程
         List<Integer> eventIds = userEventRelationMapper.selectByUserId(user.getUserId());
         List<Event> events = new ArrayList<>();
@@ -176,7 +239,7 @@ public class EventServiceImpl implements EventService {
             return checkTemporaryConflict(event, events);
         } else {
             logger.warn("日程类型出现错误");
-            return Result.error("日程类型出现错误").data("请求失败");
+            return Result.<String>error("日程类型出现错误").data("请求失败");
         }
     }
 
@@ -191,7 +254,7 @@ public class EventServiceImpl implements EventService {
     public Object checkLessonExamConflict(Event event, List<Event> events) {
         for (Event e : events) {
             if (TimeUtils.compareTime(event, e)) {
-                return Result.error("时间冲突, 无法添加").data("请求失败");
+                return Result.<String>error("时间冲突, 无法添加").data("请求失败");
             }
         }
         return false;
@@ -238,7 +301,7 @@ public class EventServiceImpl implements EventService {
                 }
             }
 
-            Result result = Result.error("时间冲突, 以下是可选时间").data(replace);
+            Result<?> result = Result.error("时间冲突, 以下是可选时间").data(replace);
 
             // 如果没有可以代替的时间
             if (replace.size() == 0) {
@@ -264,7 +327,7 @@ public class EventServiceImpl implements EventService {
                     }
                     result = Result.error("时间冲突, 以下是冲突最小的时间").data(replace);
                 } else {
-                    return Result.error("时间冲突, 活动类型不明确, 无法给出可代替时间").data("请求失败");
+                    return Result.<String>error("时间冲突, 活动类型不明确, 无法给出可代替时间").data("请求失败");
                 }
             }
 
@@ -284,7 +347,7 @@ public class EventServiceImpl implements EventService {
     public Object checkTemporaryConflict(Event event, List<Event> events) {
         for (Event e : events) {
             if (TimeUtils.compareTime(event, e)) {
-                return Result.error("时间冲突, 无法添加").data("请求失败");
+                return Result.<String>error("时间冲突, 无法添加").data("请求失败");
             }
         }
         return false;

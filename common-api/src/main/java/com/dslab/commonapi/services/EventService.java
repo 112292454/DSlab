@@ -12,7 +12,9 @@ import com.dslab.commonapi.vo.Result;
  * @version: 1.0
  **/
 public interface EventService {
-    Result addEvent(Event event, User user);
+    Result<?> addEvent(Event event, User user);
 
-    Result updateEvent(Event event, User user);
+    Result<String> deleteByEventId(Event event, User user);
+
+    Result<?> updateEvent(Event event, User user);
 }

@@ -1,7 +1,6 @@
 package com.dslab.event.exception;
 
 import com.dslab.commonapi.vo.Result;
-import org.apache.http.HttpException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -27,10 +26,10 @@ public class GlobalExceptionHandler {
     /**
      * http 异常处理
      */
-    @ExceptionHandler(HttpException.class)
-    public Result httpExceptionHandler(HttpException e) {
-        return Result.error(e.getMessage());
-    }
+//    @ExceptionHandler(HttpException.class)
+//    public Result httpExceptionHandler(HttpException e) {
+//        return Result.error(e.getMessage());
+//    }
 
     /**
      * 验证失败异常处理

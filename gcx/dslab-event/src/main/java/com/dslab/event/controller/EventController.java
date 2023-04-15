@@ -39,21 +39,33 @@ public class EventController {
      */
     @PostMapping("/addEvent")
     @ResponseBody
-    public Result addEvent(@RequestBody @Valid RequestParams requestParams) {
+    public Result<?> addEvent(@RequestBody @Valid RequestParams requestParams) {
         return eventService.addEvent(requestParams.getEvent(), requestParams.getUser());
     }
 
     /**
-     * 仅用作修改日程时的课程回显操作
+     * todo 后期要用自己实现的算法替换
      *
      * @param eventId 课程ID
      * @return 课程信息
      */
     @GetMapping("/eventId/{eventId}")
     @ResponseBody
-    public Result<Event> getById(@PathVariable Integer eventId) {
+    public Result<Event> getByEventId(@PathVariable Integer eventId) {
         Event event = eventMapper.getByEventId(eventId);
         return Result.<Event>success().data(event);
+    }
+
+    /**
+     * 删除日程
+     *
+     * @param requestParams 请求参数, 包含 event 和 user
+     * @return 修改成功返回成功信息, 失败则根据不同活动类型进行判断返回内容
+     */
+    @DeleteMapping("/deleteEvent")
+    @ResponseBody
+    public Result<String> deleteByEventId(@RequestBody @Valid RequestParams requestParams) {
+        return eventService.deleteByEventId(requestParams.getEvent(), requestParams.getUser());
     }
 
     /**
@@ -64,7 +76,7 @@ public class EventController {
      */
     @PutMapping("/updateEvent")
     @ResponseBody
-    public Result updateEvent(@RequestBody @Valid RequestParams requestParams) {
+    public Result<?> updateEvent(@RequestBody @Valid RequestParams requestParams) {
         return eventService.updateEvent(requestParams.getEvent(), requestParams.getUser());
     }
 }

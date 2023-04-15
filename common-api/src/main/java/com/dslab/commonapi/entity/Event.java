@@ -82,13 +82,13 @@ public class Event implements Serializable {
      * x: 每x天循环一次
      */
     @NotBlank(message = "循环周期不能为空")
-    private int cycle;
+    private Integer cycle;
     /**
      * 该日程的状态
      * 1表示启用, 0表示禁用
      */
     @Range(min = 0, max = 1, message = "请设置合法的日程状态")
-    private int status;
+    private Integer status;
 
     public Event() {
     }
