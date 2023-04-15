@@ -40,7 +40,7 @@ public class User implements Serializable {
      * 用户类别 (student/admin)
      */
     @NotBlank(message = "用户类型不能为空")
-    @Pattern(regexp = "^1|2$")// todo 不知道这个正则对不对
+    @Pattern(regexp = "^0|1$", message = "用户类型不正确")
     private String type;
     /**
      * 用户所属的组

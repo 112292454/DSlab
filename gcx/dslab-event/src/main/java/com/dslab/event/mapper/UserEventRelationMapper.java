@@ -1,9 +1,6 @@
 package com.dslab.event.mapper;
 
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -26,7 +23,7 @@ public interface UserEventRelationMapper {
      * @return 修改的行数
      */
     @Insert("insert into user_event_relation (group_id ,user_id, event_id) values (#{groupId},#{userId}, #{eventId})")
-    int add(Integer groupId, Integer userId, Integer eventId);
+    int add(@Param("groupId") Integer groupId, @Param("userId") Integer userId, @Param("eventId") Integer eventId);
 
     /**
      * 删除用户
@@ -54,7 +51,7 @@ public interface UserEventRelationMapper {
      * @return 修改的行数
      */
     @Delete("delete from user_event_relation where user_id = #{userId} and event_id = #{eventId}")
-    int delete(Integer userId, Integer eventId);
+    int delete(@Param("userId") Integer userId,@Param("eventId") Integer eventId);
 
     /**
      * 选择某个组的所有日程

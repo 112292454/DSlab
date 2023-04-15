@@ -38,7 +38,6 @@ public class EventServiceImpl implements EventService {
     UserEventRelationMapper userEventRelationMapper;
 
     /**
-     * todo 待测试
      * 验证用户身份是否可以添加/修改此日程
      * 课程考试类日程只能由管理员操作, 其他日程只能由学生操作
      *
@@ -61,13 +60,14 @@ public class EventServiceImpl implements EventService {
 
     /**
      * 添加日程
+     * todo 测试的时候注意看看这个地方能不能回滚, 要是不能就把try catch删掉
      *
      * @param event 待添加的日程
      * @param user  用户信息
      * @return 返回添加信息
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Result<?> addEvent(Event event, User user) {
         if (!TimeUtils.checkTimeValid(event)) {
             // 校验日程时间是否合法
@@ -95,12 +95,12 @@ public class EventServiceImpl implements EventService {
     }
 
     /**
-     * todo 待测试
      * 删除日程
      *
      * @return 是否删除成功
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Result<String> deleteByEventId(Event event, User user) {
         if (!this.identifyUser(user.getType(), event.getEventType())) {
             //校验用户是否有操作权限
@@ -116,7 +116,6 @@ public class EventServiceImpl implements EventService {
     }
 
     /**
-     * todo 待测试
      * 修改日程
      *
      * @param event 待添加的日程
@@ -124,7 +123,7 @@ public class EventServiceImpl implements EventService {
      * @return 返回修改信息
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Result<?> updateEvent(Event event, User user) {
         if (!TimeUtils.checkTimeValid(event)) {
             // 校验日程时间是否合法
@@ -151,7 +150,7 @@ public class EventServiceImpl implements EventService {
         } else if (result instanceof Boolean && !(Boolean) result) {
             // 没有冲突, 可以添加
             eventMapper.update(event);
-            return Result.<String>success("添加成功").data("请求成功");
+            return Result.<String>success("修改成功").data("请求成功");
         } else {
             return Result.<String>error("未知错误").data("请求失败");
         }
@@ -162,6 +161,7 @@ public class EventServiceImpl implements EventService {
      *
      * @return 成功返回success, 失败返回error
      */
+    @Transactional(rollbackFor = Exception.class)
     public Result<?> addEventByAdmin(Event event, User user) {
         Object result = checkConflict(event, user);
         if (result instanceof Result<?>) {
@@ -187,6 +187,7 @@ public class EventServiceImpl implements EventService {
      *
      * @return 成功返回success, 失败返回error
      */
+    @Transactional(rollbackFor = Exception.class)
     public Result<?> addEventByStudent(Event event, User user) {
         // 闹钟不会和其他日程产生冲突, 可以直接添加
         if (EventType.EVENT_CLOCK.getValue().equals(event.getEventType())) {
@@ -224,7 +225,7 @@ public class EventServiceImpl implements EventService {
         List<Event> events = new ArrayList<>();
         for (Integer id : eventIds) {
             Event e = eventMapper.getByEventId(id);
-            if (TimeUtils.IsInOneDay(e, event)) {
+            if (e != null && TimeUtils.IsInOneDay(e, event)) {
                 events.add(e);
             }
         }

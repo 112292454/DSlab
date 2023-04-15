@@ -2,6 +2,7 @@ package com.dslab.event.mapper;
 
 import com.dslab.commonapi.entity.Event;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -30,7 +31,7 @@ public interface EventMapper {
      * @param eventId 日程id
      * @return 修改的行数
      */
-    int deleteByEventId(Integer eventId);
+    int deleteByEventId(@Param("eventId") Integer eventId);
 
     /**
      * 根据日程名称删除日程 (不会真的删除, 只是将该日程的状态设为禁用)
@@ -38,7 +39,7 @@ public interface EventMapper {
      * @param name 日程名称
      * @return 改变的行数
      */
-    int deleteByName(String name);
+    int deleteByName(@Param("name") String name);
 
     /**
      * 更新日程
@@ -54,7 +55,7 @@ public interface EventMapper {
      * @param eventId 日程id
      * @return 日程信息
      */
-    Event getByEventId(Integer eventId);
+    Event getByEventId(@Param("eventId") Integer eventId);
 
     /**
      * 根据日程名称查询
@@ -62,7 +63,7 @@ public interface EventMapper {
      * @param name 日程名称
      * @return 日程信息
      */
-    Event getByEventName(String name);
+    Event getByEventName(@Param("name") String name);
 
     /**
      * 根据日程地点id查询
@@ -70,5 +71,5 @@ public interface EventMapper {
      * @param buildingId 地点id
      * @return 日程信息
      */
-    Event getByBuildingId(Integer buildingId);
+    Event getByBuildingId(@Param("buildingId") Integer buildingId);
 }

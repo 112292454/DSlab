@@ -4,6 +4,7 @@ import lombok.Data;
 import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 
 /**
@@ -31,17 +32,20 @@ public class Event implements Serializable {
      * 日程的形式 (lesson / exam / activity / clock / temporary)
      */
     @NotBlank(message = "日程类型不能为空")
+    @Pattern(regexp = "^0|1|2|3|4$", message = "日程类型不正确")
     private String eventType;
     /**
      * 日程地点的形式 (online / offline)
      * online 的话就不用导航
      */
     @NotBlank(message = "地点类型不能为空")
+    @Pattern(regexp = "^0|1$", message = "地点类型不正确")
     private String positionType;
     /**
      * 参与人数的性质 (personal / group)
      */
     @NotBlank(message = "人员类型不能为空")
+    @Pattern(regexp = "^0|1$", message = "人员类型不正确")
     private String memberType;
     /**
      * 活动的类型
