@@ -8,7 +8,7 @@ package com.dslab.event.utils;
  * @version: 1.0
  **/
 
-public class CRTUtils {
+public class MathUtils {
     /**
      * 扩展欧几里得算法
      */
@@ -59,5 +59,6 @@ public class CRTUtils {
     }
 
     public static long gcd(int a, int b) {
-        return b == 0 ? a : gcd(b, a % b);    }
+        return b == 0 ? a : gcd(b, a % b);
+    }
 }

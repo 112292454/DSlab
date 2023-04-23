@@ -104,12 +104,12 @@ public class TimeUtils {
             // todo 可能会有bug, 查询最近的会冲突的一天
             long date;
             if (aDate <= bDate) {
-                date = CRTUtils.CRT(new long[]{0, bDate - aDate}, new long[]{a.getCycle(), b.getCycle()}, 2);
+                date = MathUtils.CRT(new long[]{0, bDate - aDate}, new long[]{a.getCycle(), b.getCycle()}, 2);
             } else {
-                date = CRTUtils.CRT(new long[]{aDate - bDate, 0}, new long[]{a.getCycle(), b.getCycle()}, 2);
+                date = MathUtils.CRT(new long[]{aDate - bDate, 0}, new long[]{a.getCycle(), b.getCycle()}, 2);
             }
             if (date < Math.abs(aDate - bDate)) {
-                date = date + (long) a.getCycle() * b.getCycle() / CRTUtils.gcd(a.getCycle(), b.getCycle());
+                date = date + (long) a.getCycle() * b.getCycle() / MathUtils.gcd(a.getCycle(), b.getCycle());
             }
             return date <= MAX_DATE;
         }
@@ -122,7 +122,7 @@ public class TimeUtils {
      */
     public static Boolean IsInOneDay(Event e) {
         // todo 此处需要调用定时器的api获取当前时间 (微服务??)
-        //TODO: time是假的，new Time() 记得改
+        // todo time是假的，new Time() 记得改
         String nowTime = new Time().getNowTime();
         long nt = TimestampToDate(nowTime);
         long st = TimestampToDate(e.getStartTime());
