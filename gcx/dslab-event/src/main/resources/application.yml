@@ -9,7 +9,7 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/dslab?useUnicode=true&characterEncoding=utf8&serverTimezone=CST
+    url: jdbc:mysql://10.28.239.220:3306/dslab?useUnicode=true&characterEncoding=utf8&serverTimezone=CST
     username: root
     password: 101325
 
