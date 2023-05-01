@@ -51,6 +51,7 @@ public class Event implements Serializable {
      * 活动的类型
      * 个人的包括有: 自习、锻炼、外出等
      * 集体活动包括有：班会、小组作业、创新创业、聚餐等
+     * 临时事务类型包括有: 购物、洗澡、取外卖、取快递、送取东西等
      */
     private String activityType;
     /**

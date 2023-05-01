@@ -46,16 +46,12 @@ public class EventServiceImpl implements EventService {
      * @return 符合条件返回true, 否则返回false
      */
     public boolean identifyUser(String userType, String eventType) {
-        if (UserType.USER_ADMIN.getValue().equals(userType)
-                && !(EventType.EVENT_LESSON.getValue().equals(eventType)
-                || EventType.EVENT_EXAM.getValue().equals(eventType))) {
-            return false;
-        } else if (UserType.USER_STUDENT.getValue().equals(userType)
-                && (EventType.EVENT_LESSON.getValue().equals(eventType)
-                || EventType.EVENT_EXAM.getValue().equals(eventType))) {
-            return false;
+        if (EventType.EVENT_LESSON.getValue().equals(eventType)
+                || EventType.EVENT_EXAM.getValue().equals(eventType)) {
+            return UserType.USER_ADMIN.getValue().equals(userType);
+        } else {
+            return UserType.USER_STUDENT.getValue().equals(userType);
         }
-        return true;
     }
 
     /**

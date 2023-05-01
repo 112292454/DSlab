@@ -1,9 +1,12 @@
 package com.dslab.event.controller;
 
+import com.dslab.commonapi.entity.Point;
 import com.dslab.commonapi.entity.User;
+import com.dslab.commonapi.services.PointService;
 import com.dslab.commonapi.vo.Result;
 import com.dslab.event.mapper.UserMapper;
 import jakarta.validation.Valid;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -24,13 +27,13 @@ public class UserController {
     @Resource
     UserMapper userMapper;
 
-//    @DubboReference(group = "DSlab-guide", version = "1.0.0")
-//    PointService pointService;
+    @DubboReference(group = "DSlab-guide", version = "1.0.0")
+    PointService pointService;
 
-//    @GetMapping("/dubbo_test")
-//    public Result<List<Point>> testMethod() {
-//        return Result.<List<Point>>success("测试dubbo远程调用成功，获取地图：").data(pointService.listAll());
-//    }
+    @GetMapping("/dubbo_test")
+    public Result<List<Point>> testMethod() {
+        return Result.<List<Point>>success("测试dubbo远程调用成功，获取地图：").data(pointService.listAll());
+    }
 
     @GetMapping("/userId/{userId}")
     public Result<User> getByUserId(@PathVariable @RequestParam(defaultValue = "1", required = true) Integer userId) {
