@@ -71,7 +71,7 @@ public class MathUtils {
      * 排序
      *
      * @param list 待排序的列表
-     * @param c    比较器
+     * @param c    自定义比较器
      */
     @SuppressWarnings({"unchecked"})
     public static <T, E> void mySort(List<E> list, Comparator<? super T> c) {
@@ -90,7 +90,7 @@ public class MathUtils {
      * @param arr  待排序的数组
      * @param low  左端点
      * @param high 右端点
-     * @param c    比较器
+     * @param c    自定义比较器
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static void quickSort(Object[] arr, int low, int high, Comparator c) {
@@ -137,29 +137,32 @@ public class MathUtils {
      *
      * @param list   列表
      * @param target 目标对象
+     * @param c      自定义比较器
      * @return 对升序数组二分查找, 大于等于target的第一个数下标，均大于时返回0，均小于时返回-1
      */
-    public static int mySearch(List list, int target) {
+    @SuppressWarnings({"rawtypes"})
+    public static int mySearch(List list, int target, Comparator c) {
         Object[] arr = list.toArray();
-        return lowerBound(arr, target);
+        return lowerBound(arr, target, c);
     }
 
     /**
      * @return 对升序数组二分查找, 大于等于target的第一个数下标，均大于时返回0，均小于时返回-1
      */
-    public static int lowerBound(Object[] a, int target) {
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static int lowerBound(Object[] a, int target, Comparator c) {
         int l = 0, r = 0, mid, half, len = a.length - 1;
         while (len > 0) {
             half = len / 2;
             mid = l + half;
-            if (a[mid] < target) {
+            if (c.compare(a[mid], target) < 0) {
                 l = mid + 1;
                 len = len - half - 1;
             } else {
                 len = half;
             }
         }
-        if (target > a[l]) {
+        if (c.compare(target, a[l]) > 0) {
             return -1;
         }
         return l;
