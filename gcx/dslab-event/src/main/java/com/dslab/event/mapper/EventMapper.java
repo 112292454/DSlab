@@ -5,6 +5,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * @program: dslab-event
  * @description: 和日程相关的数据库操作
@@ -72,4 +74,9 @@ public interface EventMapper {
      * @return 日程信息
      */
     Event getByBuildingId(@Param("buildingId") Integer buildingId);
+
+    /**
+     * 获取所有的日程
+     */
+    List<Event> getAllEvents();
 }

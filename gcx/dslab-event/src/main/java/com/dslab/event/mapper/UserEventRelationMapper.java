@@ -1,6 +1,8 @@
 package com.dslab.event.mapper;
 
-import org.apache.ibatis.annotations.*;
+import com.dslab.commonapi.entity.UserEventRelation;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,7 +24,6 @@ public interface UserEventRelationMapper {
      * @param eventId 日程id
      * @return 修改的行数
      */
-    @Insert("insert into user_event_relation (group_id ,user_id, event_id) values (#{groupId},#{userId}, #{eventId})")
     int add(@Param("groupId") Integer groupId, @Param("userId") Integer userId, @Param("eventId") Integer eventId);
 
     /**
@@ -31,7 +32,6 @@ public interface UserEventRelationMapper {
      * @param userId 用户id
      * @return 修改的行数
      */
-    @Delete("delete from user_event_relation where user_id = #{userId}")
     int deleteUser(Integer userId);
 
     /**
@@ -40,7 +40,6 @@ public interface UserEventRelationMapper {
      * @param eventId 课程id
      * @return 修改的行数
      */
-    @Delete("delete from user_event_relation where event_id = #{eventId}")
     int deleteEvents(Integer eventId);
 
     /**
@@ -50,33 +49,36 @@ public interface UserEventRelationMapper {
      * @param eventId 日程id
      * @return 修改的行数
      */
-    @Delete("delete from user_event_relation where user_id = #{userId} and event_id = #{eventId}")
-    int delete(@Param("userId") Integer userId,@Param("eventId") Integer eventId);
+    int delete(@Param("userId") Integer userId, @Param("eventId") Integer eventId);
 
     /**
-     * 选择某个组的所有日程
+     * 获取某个组的所有日程
      *
      * @param groupId 组id
-     * @return 用户id 的列表
+     * @return 列表
      */
-    @Select("select event_id from user_event_relation where group_id = #{groupId}")
-    List<Integer> selectByGroupId(Integer groupId);
+    List<Integer> getByGroupId(Integer groupId);
 
     /**
-     * 选择某个用户的所有日程
+     * 获取某个用户的所有日程
      *
      * @param userId 用户id
-     * @return 日程id的列表
+     * @return 列表
      */
-    @Select("select event_id from user_event_relation where user_id = #{userId}")
-    List<Integer> selectByUserId(Integer userId);
+    List<Integer> getByUserId(Integer userId);
 
     /**
-     * 选择某个日程的所有用户
+     * 获取某个日程的所有用户
      *
      * @param eventId 日程id
-     * @return 用户id 的列表
+     * @return 列表
      */
-    @Select("select user_id from user_event_relation where event_id = #{eventId}")
-    List<Integer> selectByEventId(Integer eventId);
+    List<Integer> getByEventId(Integer eventId);
+
+    /**
+     * 获取表中的所有信息
+     *
+     * @return 所有信息的列表
+     */
+    List<UserEventRelation> getAll();
 }

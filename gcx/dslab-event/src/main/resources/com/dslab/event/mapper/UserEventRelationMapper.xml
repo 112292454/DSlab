@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dslab.event.mapper.UserEventRelationMapper">
+
+    <resultMap id="BaseResultMap" type="com.dslab.commonapi.entity.UserEventRelation">
+        <result column="group_id" property="groupId"/>
+        <result column="user_id" property="userId"/>
+        <result column="event_id" property="eventId"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        group_id,
+        user_id,
+        event_id
+    </sql>
+
+    <insert id="add" useGeneratedKeys="true" keyColumn="id" keyProperty="id"
+            parameterType="com.dslab.commonapi.entity.UserEventRelation">
+        INSERT INTO user_event_relation
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="null != groupId and '' != groupId">
+                group_id,
+            </if>
+            <if test="null != userId and '' != userId">
+                user_id,
+            </if>
+            <if test="null != eventId and '' != eventId">
+                event_id
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="null != groupId and '' != groupId">
+                #{groupId},
+            </if>
+            <if test="null != userId and '' != userId">
+                #{userId},
+            </if>
+            <if test="null != eventId and '' != eventId">
+                #{eventId}
+            </if>
+        </trim>
+    </insert>
+
+    <delete id="deleteUser">
+        DELETE
+        FROM user_event_relation
+        WHERE user_id = #{userId}
+    </delete>
+
+    <delete id="deleteEvents">
+        DELETE
+        FROM user_event_relation
+        WHERE event_id = #{eventId}
+    </delete>
+
+    <delete id="delete">
+        DELETE
+        FROM user_event_relation
+        WHERE user_id = #{userId}
+          and event_id = #{eventId}
+    </delete>
+
+    <select id="getByGroupId" resultType="Integer">
+        SELECT event_id
+        FROM user_event_relation
+        where group_id = #{groupId}
+    </select>
+
+    <select id="getByUserId" resultType="Integer">
+        SELECT event_id
+        FROM user_event_relation
+        where user_id = #{userId}
+    </select>
+
+    <select id="getByEventId" resultType="Integer">
+        SELECT user_id
+        FROM user_event_relation
+        where event_id = #{eventId}
+    </select>
+
+    <select id="getAll" resultType="com.dslab.commonapi.entity.UserEventRelation">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM user_event_relation
+    </select>
+
+</mapper>

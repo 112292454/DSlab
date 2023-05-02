@@ -160,7 +160,6 @@
         WHERE event_id = #{eventId}
     </update>
 
-
     <select id="getByEventId" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
@@ -180,5 +179,11 @@
         <include refid="Base_Column_List"/>
         FROM event
         WHERE building_id = #{buildingId} and `status` = 1
+    </select>
+
+    <select id="getAllEvents" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM event
     </select>
 </mapper>

@@ -217,7 +217,7 @@ public class EventServiceImpl implements EventService {
     public Object checkConflict(Event event, User user) {
         // todo 此处可以优化
         // 选出该用户的所有日程
-        List<Integer> eventIds = userEventRelationMapper.selectByUserId(user.getUserId());
+        List<Integer> eventIds = userEventRelationMapper.getByUserId(user.getUserId());
         List<Event> events = new ArrayList<>();
         for (Integer id : eventIds) {
             Event e = eventMapper.getByEventId(id);

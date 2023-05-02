@@ -5,6 +5,8 @@ import com.dslab.commonapi.entity.AVLTreeNode;
 import java.util.Comparator;
 
 /**
+ * todo 待测试, 改注释
+ *
  * @program: DSlab
  * @description: 二叉平衡树的工具类
  * @author: 郭晨旭
@@ -15,10 +17,8 @@ public class AVLTree<T> {
     private AVLTreeNode<T> mRoot;// 根结点
     private Comparator<T> c;
 
-    // AVL树的节点(内部类)
 
-
-    // 构造函数
+    // 构造函数, 要求传入一个自定义的比较器
     public AVLTree(Comparator<T> c) {
         mRoot = null;
         this.c = c;
@@ -261,20 +261,20 @@ public class AVLTree<T> {
             int cmp = c.compare(key, tree.getKey());
 
             if (cmp < 0) {    // 应该将key插入到"tree的左子树"的情况
-                tree.left = insert(tree.left, key);
+                tree.setLeft(insert(tree.getLeft(), key));
                 // 插入节点后，若AVL树失去平衡，则进行相应的调节。
-                if (height(tree.left) - height(tree.right) == 2) {
-                    if (key.compareTo(tree.left.key) < 0) {
+                if (height(tree.getLeft()) - height(tree.getRight()) == 2) {
+                    if (c.compare(key, tree.getLeft().getKey()) < 0) {
                         tree = leftLeftRotation(tree);
                     } else {
                         tree = leftRightRotation(tree);
                     }
                 }
             } else if (cmp > 0) {    // 应该将key插入到"tree的右子树"的情况
-                tree.right = insert(tree.right, key);
+                tree.setRight(insert(tree.getRight(), key));
                 // 插入节点后，若AVL树失去平衡，则进行相应的调节。
-                if (height(tree.right) - height(tree.left) == 2) {
-                    if (key.compareTo(tree.right.key) > 0) {
+                if (height(tree.getRight()) - height(tree.getLeft()) == 2) {
+                    if (c.compare(key, tree.getRight().getKey()) > 0) {
                         tree = rightRightRotation(tree);
                     } else {
                         tree = rightLeftRotation(tree);
@@ -285,7 +285,7 @@ public class AVLTree<T> {
             }
         }
 
-        tree.height = max(height(tree.left), height(tree.right)) + 1;
+        tree.setHeight(max(height(tree.getLeft()), height(tree.getRight())) + 1);
 
         return tree;
     }
@@ -309,24 +309,24 @@ public class AVLTree<T> {
             return null;
         }
 
-        int cmp = z.key.compareTo(tree.key);
+        int cmp = c.compare(z.getKey(), tree.getKey());
         if (cmp < 0) {        // 待删除的节点在"tree的左子树"中
-            tree.left = remove(tree.left, z);
+            tree.setLeft(remove(tree.getLeft(), z));
             // 删除节点后，若AVL树失去平衡，则进行相应的调节。
-            if (height(tree.right) - height(tree.left) == 2) {
-                AVLTreeNode<T> r = tree.right;
-                if (height(r.left) > height(r.right)) {
+            if (height(tree.getRight()) - height(tree.getLeft()) == 2) {
+                AVLTreeNode<T> r = tree.getRight();
+                if (height(r.getLeft()) > height(r.getRight())) {
                     tree = rightLeftRotation(tree);
                 } else {
                     tree = rightRightRotation(tree);
                 }
             }
         } else if (cmp > 0) {    // 待删除的节点在"tree的右子树"中
-            tree.right = remove(tree.right, z);
+            tree.setRight(remove(tree.getRight(), z));
             // 删除节点后，若AVL树失去平衡，则进行相应的调节。
-            if (height(tree.left) - height(tree.right) == 2) {
-                AVLTreeNode<T> l = tree.left;
-                if (height(l.right) > height(l.left)) {
+            if (height(tree.getLeft()) - height(tree.getRight()) == 2) {
+                AVLTreeNode<T> l = tree.getLeft();
+                if (height(l.getRight()) > height(l.getLeft())) {
                     tree = leftRightRotation(tree);
                 } else {
                     tree = leftLeftRotation(tree);
@@ -334,17 +334,17 @@ public class AVLTree<T> {
             }
         } else {    // tree是对应要删除的节点。
             // tree的左右孩子都非空
-            if ((tree.left != null) && (tree.right != null)) {
-                if (height(tree.left) > height(tree.right)) {
+            if ((tree.getLeft() != null) && (tree.getRight() != null)) {
+                if (height(tree.getLeft()) > height(tree.getRight())) {
                     // 如果tree的左子树比右子树高；
                     // 则(01)找出tree的左子树中的最大节点
                     //   (02)将该最大节点的值赋值给tree。
                     //   (03)删除该最大节点。
                     // 这类似于用"tree的左子树中最大节点"做"tree"的替身；
                     // 采用这种方式的好处是：删除"tree的左子树中最大节点"之后，AVL树仍然是平衡的。
-                    AVLTreeNode<T> max = maximum(tree.left);
-                    tree.key = max.key;
-                    tree.left = remove(tree.left, max);
+                    AVLTreeNode<T> max = maximum(tree.getLeft());
+                    tree.setKey(max.getKey());
+                    tree.setLeft(remove(tree.getLeft(), max));
                 } else {
                     // 如果tree的左子树不比右子树高(即它们相等，或右子树比左子树高1)
                     // 则(01)找出tree的右子树中的最小节点
@@ -352,8 +352,8 @@ public class AVLTree<T> {
                     //   (03)删除该最小节点。
                     // 这类似于用"tree的右子树中最小节点"做"tree"的替身；
                     // 采用这种方式的好处是：删除"tree的右子树中最小节点"之后，AVL树仍然是平衡的。
-                    AVLTreeNode<T> min = maximum(tree.right);
-                    tree.key = min.key;
+                    AVLTreeNode<T> min = maximum(tree.getRight());
+                    tree.setKey(min.getKey());
                     tree.setRight(remove(tree.getRight(), min));
                 }
             } else {
