@@ -45,7 +45,7 @@ public class EventServiceImpl implements EventService {
      * @param eventType 日程类型
      * @return 符合条件返回true, 否则返回false
      */
-    public boolean identifyUser(String userType, String eventType) {
+    private boolean identifyUser(String userType, String eventType) {
         if (EventType.EVENT_LESSON.getValue().equals(eventType)
                 || EventType.EVENT_EXAM.getValue().equals(eventType)) {
             return UserType.USER_ADMIN.getValue().equals(userType);
@@ -157,8 +157,7 @@ public class EventServiceImpl implements EventService {
      *
      * @return 成功返回success, 失败返回error
      */
-    @Transactional(rollbackFor = Exception.class)
-    public Result<?> addEventByAdmin(Event event, User user) {
+    private Result<?> addEventByAdmin(Event event, User user) {
         Object result = checkConflict(event, user);
         if (result instanceof Result<?>) {
             // 添加失败, 直接返回失败的信息
@@ -183,8 +182,7 @@ public class EventServiceImpl implements EventService {
      *
      * @return 成功返回success, 失败返回error
      */
-    @Transactional(rollbackFor = Exception.class)
-    public Result<?> addEventByStudent(Event event, User user) {
+    private Result<?> addEventByStudent(Event event, User user) {
         // 闹钟不会和其他日程产生冲突, 可以直接添加
         if (EventType.EVENT_CLOCK.getValue().equals(event.getEventType())) {
             eventMapper.add(event);
@@ -214,7 +212,7 @@ public class EventServiceImpl implements EventService {
      *
      * @return 如果无法添加则返回 result, 否则返回false表示没有冲突可以添加
      */
-    public Object checkConflict(Event event, User user) {
+    private Object checkConflict(Event event, User user) {
         // todo 此处可以优化
         // 选出该用户的所有日程
         List<Integer> eventIds = userEventRelationMapper.getByUserId(user.getUserId());
@@ -248,7 +246,7 @@ public class EventServiceImpl implements EventService {
      * @return 如果有冲突则直接返回添加失败;
      * 若没有则返回false
      */
-    public Object checkLessonExamConflict(Event event, List<Event> events) {
+    private Object checkLessonExamConflict(Event event, List<Event> events) {
         for (Event e : events) {
             if (TimeUtils.compareTime(event, e)) {
                 return Result.<String>error("时间冲突, 无法添加").data("请求失败");
@@ -266,7 +264,7 @@ public class EventServiceImpl implements EventService {
      * 如果有冲突则给出三个可行性时间 (6 - 22);
      * 若没有则个人活动提示添加失败, 集体活动给出冲突最小的三个时间
      */
-    public Object checkActivityConflict(Event event, List<Event> events) {
+    private Object checkActivityConflict(Event event, List<Event> events) {
         // 查看是否有冲突
         boolean ok = true;
         // time[i] = 0 表示 [i, i+1) 内时间空闲
@@ -341,7 +339,7 @@ public class EventServiceImpl implements EventService {
      * @return 如果有冲突则直接返回添加失败;
      * 若没有则返回false
      */
-    public Object checkTemporaryConflict(Event event, List<Event> events) {
+    private Object checkTemporaryConflict(Event event, List<Event> events) {
         for (Event e : events) {
             if (TimeUtils.compareTime(event, e)) {
                 return Result.<String>error("时间冲突, 无法添加").data("请求失败");

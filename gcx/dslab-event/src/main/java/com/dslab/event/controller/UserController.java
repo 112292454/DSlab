@@ -27,7 +27,7 @@ public class UserController {
     @Resource
     UserMapper userMapper;
 
-    @DubboReference(group = "DSlab-guide", version = "1.0.0")
+    @DubboReference(group = "DSlab-guide", version = "1.0.0", check = false)
     PointService pointService;
 
     @GetMapping("/dubbo_test")

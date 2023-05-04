@@ -1,8 +1,9 @@
 package com.dslab.event;
 
 import com.dslab.commonapi.entity.Event;
+import com.dslab.commonapi.services.AVLTreeService;
 import com.dslab.event.mapper.EventMapper;
-import com.dslab.event.utils.AVLTree;
+import com.dslab.event.serviceImpl.AVLTreeServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -18,11 +19,11 @@ class DslabEventApplicationTests {
 
     @Test
     void contextLoads() {
-        AVLTree<Event> avlTree = new AVLTree<>(Comparator.comparingInt(Event::getEventId));
+        AVLTreeService<Event> avlTree = new AVLTreeServiceImpl<>(Comparator.comparing(Event::getName));
         List<Event> allEvents = eventMapper.getAllEvents();
         for (Event event : allEvents) {
             avlTree.insert(event);
         }
-        avlTree.print();
+        System.out.println(avlTree.search(new Event("数据结构")).getKey());
     }
 }

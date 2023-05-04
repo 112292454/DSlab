@@ -1,5 +1,6 @@
 package com.dslab.commonapi.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.hibernate.validator.constraints.Range;
 
@@ -16,6 +17,7 @@ import java.io.Serializable;
  **/
 
 @Data
+@AllArgsConstructor
 public class Event implements Serializable {
 
     private static final long serialVersionUID = 1324389877898L;
@@ -103,4 +105,11 @@ public class Event implements Serializable {
         this.cycle = cycle;
     }
 
+    public Event(Integer eventId) {
+        this.eventId = eventId;
+    }
+
+    public Event(String name) {
+        this.name = name;
+    }
 }

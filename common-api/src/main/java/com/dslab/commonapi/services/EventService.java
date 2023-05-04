@@ -12,9 +12,29 @@ import com.dslab.commonapi.vo.Result;
  * @version: 1.0
  **/
 public interface EventService {
+
+    /**
+     * 添加日程
+     *
+     * @param event 待添加的日程
+     * @param user  用户信息
+     * @return 返回添加信息
+     */
     Result<?> addEvent(Event event, User user);
 
+    /**
+     * 删除日程
+     *
+     * @return 是否删除成功
+     */
     Result<String> deleteByEventId(Event event, User user);
 
+    /**
+     * 修改日程
+     *
+     * @param event 待添加的日程
+     * @param user  用户信息
+     * @return 返回修改信息
+     */
     Result<?> updateEvent(Event event, User user);
 }

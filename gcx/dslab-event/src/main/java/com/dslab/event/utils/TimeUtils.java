@@ -29,7 +29,7 @@ public class TimeUtils {
      * 课外活动, 临时事务类的时间范围
      */
     private static final long STU_START_TIME = 6;
-    private static final long STU_END_TIME=22;
+    private static final long STU_END_TIME = 22;
 
     /**
      * 判断日程时间是否合法
@@ -121,7 +121,7 @@ public class TimeUtils {
      * @return 在当天则返回true, 否则返回false
      */
     public static Boolean IsInOneDay(Event e) {
-        // todo 此处需要调用定时器的api获取当前时间 (微服务??)
+        // todo 此处需要调用定时器的api获取当前时间
         // todo time是假的，new Time() 记得改
         String nowTime = new Time().getNowTime();
         long nt = TimestampToDate(nowTime);
