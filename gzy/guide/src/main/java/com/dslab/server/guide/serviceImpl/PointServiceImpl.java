@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
-@DubboService(group = "DSlab-guide", version = "1.0.0",interfaceClass = PointService.class)
+@DubboService(group = "DSlab", version = "1.0.0",interfaceClass = PointService.class)
 public class PointServiceImpl implements PointService {
 
     private static HashMap<Integer, Point> points;
