@@ -1,0 +1,27 @@
+dubbo:
+  scan:
+    base-packages: com.dslab.server.guide
+  protocol:
+    name: dubbo
+    port: -1
+  cloud:
+    subscribed-services: DSlab-guide-service
+spring:
+  application:
+    name: DSlab-guide-service
+  main:
+    allow-bean-definition-overriding: true
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 10.28.166.24:8848
+        namespace: 9af3ea75-52ab-4655-9d78-575a92fdafd7
+        group: DSlab
+      username: nacos
+      password: nacos
+      config:
+        server-addr: 10.28.166.24:8848
+        namespace: 9af3ea75-52ab-4655-9d78-575a92fdafd7
+        group: DSlab
+    config:
+      allow-override: false
