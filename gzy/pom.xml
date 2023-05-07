@@ -19,6 +19,7 @@
     </properties>
     <modules>
         <module>guide</module>
+        <module>simulate</module>
     </modules>
     <dependencies>
         <dependency>
