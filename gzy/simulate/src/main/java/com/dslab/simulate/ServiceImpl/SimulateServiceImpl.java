@@ -1,6 +1,10 @@
 package com.dslab.simulate.ServiceImpl;
 
+import com.dslab.commonapi.services.EventService;
 import com.dslab.commonapi.services.SimulateService;
+import com.dslab.commonapi.vo.Result;
+import com.dslab.simulate.util.WebsocketUtil;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.stereotype.Service;
 
@@ -11,22 +15,23 @@ import java.util.Map;
 @Service
 @DubboService(group = "DSlab",interfaceClass = SimulateService.class)
 public class SimulateServiceImpl implements SimulateService {
-	
+
 
 	private Map<String,simulateThread> threadMap=new HashMap<>();
+
+	@DubboReference(group = "DSlab",interfaceClass = EventService.class,check = false)
+	EventService eventService;
 
 
 	@Override
 	public boolean startSimulateThread(String user, Date startTime, int simulateSpeed, boolean isInverseSimulate) {
 		internStart(user, startTime, simulateSpeed*60*1000, isInverseSimulate);
-
 		return true;
 	}
 
 	private synchronized void internStart(String user, Date startTime, int simulateSpeed, boolean isInverseSimulate){
 		if(threadMap.containsKey(user)){
-			//TODO:look down
-			threadMap.get(user).notifyAll();
+			threadMap.get(user).restore();
 		}else{
 			//TODO
 			simulateThread simulateThread = new simulateThread(user,startTime,simulateSpeed,isInverseSimulate);
@@ -66,12 +71,7 @@ public class SimulateServiceImpl implements SimulateService {
 
 	@Override
 	public boolean stopSimulate(String user) {
-		try {
-			//TODO:look down
-			threadMap.get(user).wait();
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
+		threadMap.get(user).setStop();
 		return true;
 	}
 
@@ -88,7 +88,7 @@ public class SimulateServiceImpl implements SimulateService {
 
 	private class simulateThread extends Thread{
 		boolean finished=false;
-//		boolean stopped=false;
+		boolean stopped=false;
 
 		String user;
 
@@ -117,28 +117,42 @@ public class SimulateServiceImpl implements SimulateService {
 			this.speed = speed;
 		}
 
+		public void setStop() {
+			this.stopped = true;
+		}
+
+		public void restore() {
+			this.stopped = false;
+		}
+
 		public void finish() {
 			this.finished = true;
 		}
 
 		@Override
 		public void run() {
-			while (!finished){
-				//TODO:MAIN FUNC
-				//TODO:use stopped flag and while loop instead of wait/notify?
+			try {
+				while (!finished) {
+					//TODO:MAIN FUNC
+					while (!stopped) {
+						//查询应该发送什么提醒
+						//这个消息的内容格式应该是和前端约定一下：socket收到这种消息就给用户弹一个提示，
+						// 比方说result的{code=201，data=[课程a、课程b]}之类
+						Result<String> result = eventService.checkUserEventInTime(now, user);
+						WebsocketUtil.sendMessage(user, result);
 
-
-
-
-
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
+						//每过1s跳动一下时间
+						Thread.sleep(1000);
+						now = new Date(now.getTime() + speed*(isInverseSimulate?-1:1));
+					}
+					//若被暂停，每0.5s查询一次是否恢复
+					Thread.sleep(500);
 				}
-				now=new Date(now.getTime()+speed);
-			}
+			} catch (InterruptedException e) {
+				//TODO:notify client
 
+				throw new RuntimeException(e);
+			}
 		}
 	}
 

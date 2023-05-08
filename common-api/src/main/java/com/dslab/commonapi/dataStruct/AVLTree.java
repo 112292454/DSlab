@@ -1,4 +1,4 @@
-package com.dslab.commonapi.services;
+package com.dslab.commonapi.dataStruct;
 
 import com.dslab.commonapi.entity.AVLTreeNode;
 
@@ -9,7 +9,7 @@ import com.dslab.commonapi.entity.AVLTreeNode;
  * @create: 2023-05-04 21:34
  * @version: 1.0
  **/
-public interface AVLTreeService<T> {
+public interface AVLTree<T> {
     /**
      * 获取树的高度
      *

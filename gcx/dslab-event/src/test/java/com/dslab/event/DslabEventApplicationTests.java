@@ -1,9 +1,9 @@
 package com.dslab.event;
 
 import com.dslab.commonapi.entity.Event;
-import com.dslab.commonapi.services.AVLTreeService;
+import com.dslab.commonapi.dataStruct.AVLTree;
 import com.dslab.event.mapper.EventMapper;
-import com.dslab.event.serviceImpl.AVLTreeServiceImpl;
+import com.dslab.commonapi.dataStruct.AVLTreeServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -19,7 +19,7 @@ class DslabEventApplicationTests {
 
     @Test
     void contextLoads() {
-        AVLTreeService<Event> avlTree = new AVLTreeServiceImpl<>(Comparator.comparing(Event::getName));
+        AVLTree<Event> avlTree = new AVLTreeServiceImpl<>(Comparator.comparing(Event::getName));
         List<Event> allEvents = eventMapper.getAllEvents();
         for (Event event : allEvents) {
             avlTree.insert(event);

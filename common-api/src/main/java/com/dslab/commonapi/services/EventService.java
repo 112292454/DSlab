@@ -4,6 +4,8 @@ import com.dslab.commonapi.entity.Event;
 import com.dslab.commonapi.entity.User;
 import com.dslab.commonapi.vo.Result;
 
+import java.util.Date;
+
 /**
  * @program: dslab-event
  * @description: 日程相关服务的接口
@@ -37,4 +39,6 @@ public interface EventService {
      * @return 返回修改信息
      */
     Result<?> updateEvent(Event event, User user);
+
+    Result<String> checkUserEventInTime(Date nowTime,String userId);
 }

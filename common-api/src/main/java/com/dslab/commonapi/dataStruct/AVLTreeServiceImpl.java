@@ -1,7 +1,6 @@
-package com.dslab.event.serviceImpl;
+package com.dslab.commonapi.dataStruct;
 
 import com.dslab.commonapi.entity.AVLTreeNode;
-import com.dslab.commonapi.services.AVLTreeService;
 
 import java.util.Comparator;
 
@@ -14,7 +13,7 @@ import java.util.Comparator;
  * @create: 2023-05-02 00:34
  * @version: 1.0
  **/
-public class AVLTreeServiceImpl<T> implements AVLTreeService<T> {
+public class AVLTreeServiceImpl<T> implements AVLTree<T> {
     /**
      * 根节点
      */
@@ -298,7 +297,7 @@ public class AVLTreeServiceImpl<T> implements AVLTreeService<T> {
             // 新建节点
             tree = new AVLTreeNode<T>(key, null, null);
             if (tree == null) {
-                System.out.println("ERROR: create avltree node failed!");
+                System.out.println("ERROR: insert avltree node failed!");
                 return null;
             }
         } else {
