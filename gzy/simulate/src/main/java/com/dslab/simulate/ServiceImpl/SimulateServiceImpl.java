@@ -44,12 +44,12 @@ public class SimulateServiceImpl implements SimulateService {
 
 	@Override
 	public boolean startSimulateThread(String user, Date startTime, int simulateSpeed) {
-		return startSimulateThread(user, startTime, simulateSpeed*60*1000, false);
+		return startSimulateThread(user, startTime, simulateSpeed, false);
 	}
 
 	@Override
 	public boolean startSimulateThread(String user, Date startTime) {
-		return startSimulateThread(user, startTime, 6*60*1000);
+		return startSimulateThread(user, startTime, 6);
 	}
 
 	@Override
