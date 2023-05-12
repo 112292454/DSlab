@@ -1,15 +1,12 @@
 package com.dslab.event;
 
-import com.dslab.commonapi.entity.Event;
-import com.dslab.commonapi.dataStruct.AVLTree;
 import com.dslab.event.mapper.EventMapper;
-import com.dslab.commonapi.dataStruct.AVLTreeServiceImpl;
+import com.dslab.event.mapper.UserEventRelationMapper;
+import com.dslab.event.serviceImpl.EventServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
-import java.util.Comparator;
-import java.util.List;
 
 @SpringBootTest
 class DslabEventApplicationTests {
@@ -17,13 +14,17 @@ class DslabEventApplicationTests {
     @Resource
     EventMapper eventMapper;
 
+    @Resource
+    UserEventRelationMapper userEventRelationMapper;
+
+    @Resource
+    EventServiceImpl eventService;
+
     @Test
     void contextLoads() {
-        AVLTree<Event> avlTree = new AVLTreeServiceImpl<>(Comparator.comparing(Event::getName));
-        List<Event> allEvents = eventMapper.getAllEvents();
-        for (Event event : allEvents) {
-            avlTree.insert(event);
-        }
-        System.out.println(avlTree.search(new Event("数据结构")).getKey());
+        System.out.println(eventService.getIdTree());
+        System.out.println(eventService.getNameTree());
+        System.out.println(eventService.getUserEventIdList());
+        System.out.println(eventService.getUserGroupIdList());
     }
 }

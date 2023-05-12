@@ -28,8 +28,4 @@ public class UserEventRelation implements Serializable {
      * 日程id
      */
     private Integer eventId;
-    /**
-     * 日程的实体类
-     */
-    private Event event;
 }

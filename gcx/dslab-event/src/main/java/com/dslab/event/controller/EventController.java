@@ -6,6 +6,7 @@ import com.dslab.commonapi.services.EventService;
 import com.dslab.commonapi.vo.Result;
 import com.dslab.event.mapper.EventMapper;
 import jakarta.validation.Valid;
+import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -44,17 +45,27 @@ public class EventController {
     }
 
     /**
-     * todo 后期要用自己实现的算法替换
      *
-     * @param eventId 课程ID
-     * @return 课程信息
+     * @param eventId 日程id
+     * @return 日程信息
      */
     @GetMapping("/eventId/{eventId}")
     @ResponseBody
-    public Result<Event> getByEventId(@PathVariable Integer eventId) {
-        Event event = eventMapper.getByEventId(eventId);
-        return Result.<Event>success().data(event);
+    public Result<Event> getByEventId(@PathVariable @Param("eventId") Integer eventId) {
+        return eventService.getByEventId(eventId);
     }
+
+    /**
+     *
+     * @param eventName 日程名称
+     * @return 日程信息
+     */
+    @GetMapping("/eventName/{eventName}")
+    @ResponseBody
+    public Result<Event> getByEventId(@PathVariable @Param("eventName") String eventName) {
+        return eventService.getByEventName(eventName);
+    }
+
 
     /**
      * 删除日程
@@ -64,7 +75,7 @@ public class EventController {
      */
     @DeleteMapping("/deleteEvent")
     @ResponseBody
-    public Result<String> deleteByEventId(@RequestBody @Valid RequestParams requestParams) {
+    public Result<?> deleteByEventId(@RequestBody @Valid RequestParams requestParams) {
         return eventService.deleteByEventId(requestParams.getEvent(), requestParams.getUser());
     }
 

@@ -1,19 +1,25 @@
 package com.dslab.event.serviceImpl;
 
+import com.dslab.commonapi.dataStruct.AVLTree;
+import com.dslab.commonapi.dataStruct.AVLTreeImpl;
 import com.dslab.commonapi.entity.*;
 import com.dslab.commonapi.services.EventService;
 import com.dslab.commonapi.vo.Result;
 import com.dslab.event.mapper.EventMapper;
 import com.dslab.event.mapper.UserEventRelationMapper;
 import com.dslab.event.mapper.UserMapper;
+import com.dslab.event.utils.MathUtils;
 import com.dslab.event.utils.TimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -38,6 +44,46 @@ public class EventServiceImpl implements EventService {
     UserEventRelationMapper userEventRelationMapper;
 
     /**
+     * 根据日程id进行排序的树
+     */
+    private AVLTree<Event> idTree = new AVLTreeImpl<>(Comparator.comparingInt(Event::getEventId));
+    /**
+     * 根据日程名称进行排序的树
+     */
+    private AVLTree<Event> nameTree = new AVLTreeImpl<>(Comparator.comparing(Event::getName));
+    /**
+     * 根据用户id和日程id排序的列表
+     * 一个用户有哪些日程
+     */
+    private List<UserEventRelation> userEventIdList = new ArrayList<>();
+    /**
+     * 根据用户id和群组id排序的列表
+     * 一个群组有哪些用户
+     */
+    private List<UserEventRelation> userGroupIdList = new ArrayList<>();
+
+    /**
+     * 预加载函数
+     */
+    @PostConstruct
+    public void init() {
+        List<Event> events = eventMapper.getAllEvents();
+        for (Event e : events) {
+            idTree.insert(e);
+            nameTree.insert(e);
+        }
+        idTree.preOrder();
+        List<UserEventRelation> userEventRelations = userEventRelationMapper.getAll();
+        for (UserEventRelation u : userEventRelations) {
+            userEventIdList.add(u);
+            userGroupIdList.add(u);
+        }
+        MathUtils.mySort(userEventIdList, Comparator.comparingInt(UserEventRelation::getUserId));
+        MathUtils.mySort(userGroupIdList, Comparator.comparingInt(UserEventRelation::getGroupId));
+        logger.info("init success!");
+    }
+
+    /**
      * 验证用户身份是否可以添加/修改此日程
      * 课程考试类日程只能由管理员操作, 其他日程只能由学生操作
      *
@@ -56,7 +102,6 @@ public class EventServiceImpl implements EventService {
 
     /**
      * 添加日程
-     * todo 测试的时候注意看看这个地方能不能回滚, 要是不能就把try catch删掉
      *
      * @param event 待添加的日程
      * @param user  用户信息
@@ -67,10 +112,10 @@ public class EventServiceImpl implements EventService {
     public Result<?> addEvent(Event event, User user) {
         if (!TimeUtils.checkTimeValid(event)) {
             // 校验日程时间是否合法
-            return Result.<String>error("日程时间不合法").data("日程添加失败");
+            return Result.error("日程时间不合法");
         } else if (!this.identifyUser(user.getType(), event.getEventType())) {
             //校验用户是否有操作权限
-            return Result.<String>error("用户没有添加权限").data("日程添加失败");
+            return Result.error("用户没有添加权限");
         }
 
         Result<?> result;
@@ -81,11 +126,11 @@ public class EventServiceImpl implements EventService {
             } else if (UserType.USER_STUDENT.getValue().equals(user.getType())) {
                 result = this.addEventByStudent(event, user);
             } else {
-                result = Result.<String>error("用户类型不明确").data("请求失败");
+                result = Result.error("用户类型不明确");
             }
         } catch (Exception e) {
             logger.warn("添加日程时出现错误");
-            return Result.<String>error("数据不合法, 出现未知错误").data("请求失败");
+            return Result.error("数据不合法, 出现未知错误");
         }
         return result;
     }
@@ -97,17 +142,17 @@ public class EventServiceImpl implements EventService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Result<String> deleteByEventId(Event event, User user) {
+    public Result<?> deleteByEventId(Event event, User user) {
         if (!this.identifyUser(user.getType(), event.getEventType())) {
             //校验用户是否有操作权限
-            return Result.<String>error("用户没有修改权限").data("日程修改失败");
+            return Result.error("删除失败, 用户没有修改权限");
         }
 
         int change = eventMapper.deleteByEventId(event.getEventId());
         if (change == 1) {
-            return Result.<String>success("删除成功").data("请求成功");
+            return Result.success("删除成功");
         } else {
-            return Result.<String>error("删除失败").data("请求失败");
+            return Result.error("删除失败");
         }
     }
 
@@ -123,10 +168,11 @@ public class EventServiceImpl implements EventService {
     public Result<?> updateEvent(Event event, User user) {
         if (!TimeUtils.checkTimeValid(event)) {
             // 校验日程时间是否合法
-            return Result.<String>error("日程时间不合法").data("日程修改失败");
-        } else if (!this.identifyUser(user.getType(), event.getEventType())) {
+            return Result.error("日程时间不合法");
+        }
+        if (!this.identifyUser(user.getType(), event.getEventType())) {
             //校验用户是否有操作权限
-            return Result.<String>error("用户没有修改权限").data("日程修改失败");
+            return Result.error("用户没有修改权限");
         }
 
         // 先把该日程删除, 以免检测冲突的时候出错
@@ -135,21 +181,74 @@ public class EventServiceImpl implements EventService {
         // 闹钟不会和其他日程产生冲突, 可以直接修改
         if (EventType.EVENT_CLOCK.getValue().equals(event.getEventType())) {
             eventMapper.update(event);
-            return Result.<String>success("修改成功").data("请求成功");
+            return Result.success("修改成功");
         }
 
         // 判断是否有冲突
-        Object result = checkConflict(event, user);
-        if (result instanceof Result<?>) {
-            // 添加失败, 直接返回失败的信息
-            return (Result<?>) result;
-        } else if (result instanceof Boolean && !(Boolean) result) {
-            // 没有冲突, 可以添加
-            eventMapper.update(event);
-            return Result.<String>success("修改成功").data("请求成功");
+        // todo 缺少吧禁用的日程恢复启用
+        boolean result = checkConflict(event, user);
+        if (result) {
+            // 修改失败
+            if (EventType.EVENT_ACTIVITY.getValue().equals(event.getEventType())) {
+                // 如果是活动类日程则需要找出三个可添加的时间段
+                return findTime(event, user);
+            }
+            return Result.error("添加失败");
         } else {
-            return Result.<String>error("未知错误").data("请求失败");
+            // 没有冲突, 可以直接修改
+            eventMapper.update(event);
+            return Result.success("修改成功");
         }
+    }
+
+    /**
+     * 根据日程id获取日程
+     *
+     * @param eventId 日程id
+     * @return 日程信息
+     */
+    @Override
+    public Result<Event> getByEventId(Integer eventId) {
+        Event event = idTree.search(new Event(eventId)).getKey();
+        if (event != null) {
+            return Result.<Event>success("查找成功").data(event);
+        } else {
+            return Result.<Event>error("查找失败");
+        }
+    }
+
+    /**
+     * 根据日程名称获取日程
+     *
+     * @param eventName 日程名称
+     * @return 日程信息
+     */
+    @Override
+    public Result<Event> getByEventName(String eventName) {
+        Event event = idTree.search(new Event(eventName)).getKey();
+        if (event != null) {
+            return Result.<Event>success("查找成功").data(event);
+        } else {
+            return Result.<Event>error("查找失败");
+        }
+    }
+
+    /**
+     * todo
+     * 获取用户在某个时间的课程
+     *
+     * @param nowTime 传入的时间
+     * @param userId  用户id
+     * @return 所有用户则这个时间的课程
+     */
+    @Override
+    public Result<String> checkUserEventInTime(Date nowTime, String userId) {
+        String time = nowTime.toString();
+        String t = String.valueOf(nowTime.getTime());
+        long nowDay = TimeUtils.TimestampToDate(t);
+        int nowHour = TimeUtils.TimestampToHour(t);
+        // todo 两个函数, 查找下一个小时和第二天的课程
+        return null;
     }
 
     /**
@@ -158,11 +257,11 @@ public class EventServiceImpl implements EventService {
      * @return 成功返回success, 失败返回error
      */
     private Result<?> addEventByAdmin(Event event, User user) {
-        Object result = checkConflict(event, user);
-        if (result instanceof Result<?>) {
-            // 添加失败, 直接返回失败的信息
-            return (Result<?>) result;
-        } else if (result instanceof Boolean && !(Boolean) result) {
+        boolean result = checkConflict(event, user);
+        if (result) {
+            // 添加失败
+            return Result.error("添加失败");
+        } else {
             // 给组内每个学生添加该日程
             List<User> students = userMapper.getByGroupId(user.getGroupId());
             eventMapper.add(event);
@@ -171,9 +270,7 @@ public class EventServiceImpl implements EventService {
             for (User u : students) {
                 userEventRelationMapper.add(u.getGroupId(), u.getUserId(), event.getEventId());
             }
-            return Result.<String>success("添加成功").data("请求成功");
-        } else {
-            return Result.<String>error("未知错误").data("请求失败");
+            return Result.success("添加成功");
         }
     }
 
@@ -188,34 +285,38 @@ public class EventServiceImpl implements EventService {
             eventMapper.add(event);
             event = eventMapper.getByEventName(event.getName());
             userEventRelationMapper.add(user.getGroupId(), user.getUserId(), event.getEventId());
-            return Result.<String>success("添加成功").data("请求成功");
+            return Result.success("添加成功");
         }
 
         // 判断是否有冲突
-        Object result = checkConflict(event, user);
-        if (result instanceof Result<?>) {
-            // 添加失败, 直接返回失败的信息
-            return (Result<?>) result;
-        } else if (result instanceof Boolean && !(Boolean) result) {
+        boolean result = checkConflict(event, user);
+        if (result) {
+            // 添加失败
+            if (EventType.EVENT_ACTIVITY.getValue().equals(event.getEventType())) {
+                // 如果是活动类日程则需要找出三个可添加的时间段
+                return findTime(event, user);
+            }
+            return Result.error("添加失败");
+        } else {
             // 没有冲突, 可以添加
             eventMapper.add(event);
             event = eventMapper.getByEventName(event.getName());
             userEventRelationMapper.add(user.getGroupId(), user.getUserId(), event.getEventId());
-            return Result.<String>success("添加成功").data("请求成功");
-        } else {
-            return Result.<String>error("未知错误").data("请求失败");
+            return Result.success("添加成功");
         }
     }
 
     /**
      * 判断该用户是否有冲突的日程
      *
-     * @return 如果无法添加则返回 result, 否则返回false表示没有冲突可以添加
+     * @return 如果有冲突返回true, 否则返回false
      */
-    private Object checkConflict(Event event, User user) {
+    private boolean checkConflict(Event event, User user) {
         // todo 此处可以优化
         // 选出该用户的所有日程
-        List<Integer> eventIds = userEventRelationMapper.getByUserId(user.getUserId());
+        List<Integer> eventIds = new ArrayList<>();
+        // todo 看一下库函数怎么写的
+        int low = MathUtils.mySearch(userEventIdList, user.getUserId(), (o1, o2) -> o1.getUserId() - o2.getUserId());
         List<Event> events = new ArrayList<>();
         for (Integer id : eventIds) {
             Event e = eventMapper.getByEventId(id);
@@ -225,6 +326,7 @@ public class EventServiceImpl implements EventService {
         }
 
         // 根据日程类型不同进行不同的冲突判断
+        // todo 这个地方应该不用调函数了, 可以直接实现
         if (EventType.EVENT_LESSON.getValue().equals(event.getEventType())
                 || EventType.EVENT_EXAM.getValue().equals(event.getEventType())) {
             return checkLessonExamConflict(event, events);
@@ -234,7 +336,7 @@ public class EventServiceImpl implements EventService {
             return checkTemporaryConflict(event, events);
         } else {
             logger.warn("日程类型出现错误");
-            return Result.<String>error("日程类型出现错误").data("请求失败");
+            return false;
         }
     }
 
@@ -243,46 +345,72 @@ public class EventServiceImpl implements EventService {
      *
      * @param event  待添加的日程
      * @param events 该用户当天的所有日程
-     * @return 如果有冲突则直接返回添加失败;
-     * 若没有则返回false
+     * @return 如果有冲突返回true, 若没有则返回false
      */
-    private Object checkLessonExamConflict(Event event, List<Event> events) {
+    private boolean checkLessonExamConflict(Event event, List<Event> events) {
         for (Event e : events) {
             if (TimeUtils.compareTime(event, e)) {
-                return Result.<String>error("时间冲突, 无法添加").data("请求失败");
+                return true;
             }
         }
         return false;
     }
 
     /**
+     * todo 这部分用线段树
      * 判断该用户是否有冲突的日程 (活动类)
      *
      * @param event  待添加的日程
      * @param events 该用户当天的所有日程
-     * @return 如果没有冲突则直接返回false;
+     * @return 如果有冲突返回true, 否则返回false
      * 如果有冲突则给出三个可行性时间 (6 - 22);
      * 若没有则个人活动提示添加失败, 集体活动给出冲突最小的三个时间
      */
-    private Object checkActivityConflict(Event event, List<Event> events) {
-        // 查看是否有冲突
-        boolean ok = true;
-        // time[i] = 0 表示 [i, i+1) 内时间空闲
-        int[] time = new int[24];
+    private boolean checkActivityConflict(Event event, List<Event> events) {
         for (Event e : events) {
             if (TimeUtils.compareTime(e, event)) {
-                ok = false;
-            }
-            int start = TimeUtils.TimestampToHour(e.getStartTime());
-            int end = TimeUtils.TimestampToHour(e.getEndTime());
-            for (int i = start; i < end; ++i) {
-                if (time[i] == 0) {
-                    // 标记当前时间已被占用
-                    time[i] = time[i] + Integer.parseInt(e.getEventType()) + 1;
-                }
+                return false;
             }
         }
+        return true;
+    }
 
+    /**
+     * 判断该用户是否有冲突的日程 (临时事务类)
+     *
+     * @param event  待添加的日程
+     * @param events 该用户当天的所有日程
+     * @return 如果有冲突返回true, 否则返回false
+     */
+    private boolean checkTemporaryConflict(Event event, List<Event> events) {
+        for (Event e : events) {
+            if (TimeUtils.compareTime(event, e)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * todo 未完成
+     * 集体类日程, 寻找没有冲突的时间段
+     *
+     * @param event 待添加日程
+     * @param user  用户
+     * @return 添加结果
+     */
+    private Result<?> findTime(Event event, User user) {
+        // time[i] = 0 表示 [i, i+1) 内时间空闲
+        int[] time = new int[24];
+
+        int start = TimeUtils.TimestampToHour(e.getStartTime());
+        int end = TimeUtils.TimestampToHour(e.getEndTime());
+        for (int i = start; i < end; ++i) {
+            if (time[i] == 0) {
+                // 标记当前时间已被占用
+                time[i] = time[i] + Integer.parseInt(e.getEventType()) + 1;
+            }
+        }
         if (ok) {
             // 检测发现没有时间冲突
             return false;
@@ -329,22 +457,5 @@ public class EventServiceImpl implements EventService {
             // 有可代替时间则直接返回
             return result;
         }
-    }
-
-    /**
-     * 判断该用户是否有冲突的日程 (临时事务类)
-     *
-     * @param event  待添加的日程
-     * @param events 该用户当天的所有日程
-     * @return 如果有冲突则直接返回添加失败;
-     * 若没有则返回false
-     */
-    private Object checkTemporaryConflict(Event event, List<Event> events) {
-        for (Event e : events) {
-            if (TimeUtils.compareTime(event, e)) {
-                return Result.<String>error("时间冲突, 无法添加").data("请求失败");
-            }
-        }
-        return false;
     }
 }

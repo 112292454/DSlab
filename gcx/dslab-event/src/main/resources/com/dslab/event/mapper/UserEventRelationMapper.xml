@@ -4,12 +4,14 @@
 <mapper namespace="com.dslab.event.mapper.UserEventRelationMapper">
 
     <resultMap id="BaseResultMap" type="com.dslab.commonapi.entity.UserEventRelation">
+        <result column="id" property="id"/>
         <result column="group_id" property="groupId"/>
         <result column="user_id" property="userId"/>
         <result column="event_id" property="eventId"/>
     </resultMap>
 
     <sql id="Base_Column_List">
+        id,
         group_id,
         user_id,
         event_id
@@ -79,7 +81,7 @@
         where event_id = #{eventId}
     </select>
 
-    <select id="getAll" resultType="com.dslab.commonapi.entity.UserEventRelation">
+    <select id="getAll" resultType="com.dslab.commonapi.entity.UserEventRelation" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
         FROM user_event_relation

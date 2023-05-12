@@ -29,7 +29,7 @@ public interface EventService {
      *
      * @return 是否删除成功
      */
-    Result<String> deleteByEventId(Event event, User user);
+    Result<?> deleteByEventId(Event event, User user);
 
     /**
      * 修改日程
@@ -40,5 +40,29 @@ public interface EventService {
      */
     Result<?> updateEvent(Event event, User user);
 
-    Result<String> checkUserEventInTime(Date nowTime,String userId);
+    /**
+     * 根据日程id获取日程
+     *
+     * @param eventId 日程id
+     * @return 日程信息
+     */
+    Result<Event> getByEventId(Integer eventId);
+
+    /**
+     * 根据日程名称获取日程
+     *
+     * @param eventName 日程名称
+     * @return 日程信息
+     */
+    Result<Event> getByEventName(String eventName);
+
+    /**
+     * 根据给定时间获取用户日程
+     * 时间点在23点后获取第二天日程, 否则获取下一个小时的日程
+     *
+     * @param nowTime 时间点
+     * @param userId  用户id
+     * @return 日程
+     */
+    Result<String> checkUserEventInTime(Date nowTime, String userId);
 }

@@ -1,5 +1,6 @@
 package com.dslab.event.utils;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ListIterator;
@@ -16,7 +17,7 @@ public class MathUtils {
     /**
      * 扩展欧几里得算法
      */
-    public static long exGcd(long a, long b, long[] u) {
+    private static long exGcd(long a, long b, long[] u) {
         if (b == 0) {
             u[0] = 1;
             u[1] = 0;
@@ -33,7 +34,7 @@ public class MathUtils {
     /**
      * 乘法逆元
      */
-    public static long inv(long a, long p) {
+    private static long inv(long a, long p) {
         long[] u = {0, 0};
         long x = 0, y = 0;
         exGcd(a, p, u);
@@ -67,15 +68,17 @@ public class MathUtils {
     }
 
     /**
-     * todo 待测试
      * 排序
      *
      * @param list 待排序的列表
      * @param c    自定义比较器
      */
-    public static <T, E> void mySort(List<E> list, Comparator<? super T> c) {
+    public static <T, E> void mySort(List<E> list, Comparator<? super E> c) {
+        System.out.println(list.toString() + "*************************");
         Object[] arr = list.toArray();
-        quickSort(arr, 0, arr.length - 1, c);
+        System.out.println(Arrays.toString(arr));
+        System.out.println(arr[0].getClass());
+        quickSort(arr, 0, arr.length - 1, (Comparator) c);
         ListIterator<E> i = list.listIterator();
         for (Object e : arr) {
             i.next();
@@ -91,9 +94,9 @@ public class MathUtils {
      * @param high 右端点
      * @param c    自定义比较器
      */
-    public static void quickSort(Object[] arr, int low, int high, Comparator c) {
+    private static <T> void quickSort(T[] arr, int low, int high, Comparator<? super T> c) {
         int i, j;
-        Object temp, t;
+        T temp, t;
         if (low > high) {
             return;
         }
@@ -138,15 +141,15 @@ public class MathUtils {
      * @param c      自定义比较器
      * @return 对升序数组二分查找, 大于等于target的第一个数下标，均大于时返回0，均小于时返回-1
      */
-    public static int mySearch(List list, int target, Comparator c) {
+    public static <T, E> int mySearch(List<E> list, int target, Comparator<? super T> c) {
         Object[] arr = list.toArray();
-        return lowerBound(arr, target, c);
+        return lowerBound(arr, target, (Comparator) c);
     }
 
     /**
      * @return 对升序数组二分查找, 大于等于target的第一个数下标，均大于时返回0，均小于时返回-1
      */
-    public static int lowerBound(Object[] a, int target, Comparator c) {
+    private static <T> int lowerBound(T[] a, int target, Comparator<? super T> c) {
         int l = 0, r = 0, mid, half, len = a.length - 1;
         while (len > 0) {
             half = len / 2;

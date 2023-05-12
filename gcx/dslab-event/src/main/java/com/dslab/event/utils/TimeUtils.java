@@ -2,7 +2,9 @@ package com.dslab.event.utils;
 
 import com.dslab.commonapi.entity.Event;
 import com.dslab.commonapi.entity.EventType;
-import com.dslab.commonapi.entity.Time;
+import com.dslab.commonapi.services.SimulateService;
+
+import javax.annotation.Resource;
 
 /**
  * @program: dslab-event
@@ -30,6 +32,9 @@ public class TimeUtils {
      */
     private static final long STU_START_TIME = 6;
     private static final long STU_END_TIME = 22;
+
+    @Resource
+    static SimulateService simulateService;
 
     /**
      * 判断日程时间是否合法
@@ -101,7 +106,6 @@ public class TimeUtils {
         } else if (b.getCycle() == 0) {
             return aDate <= bDate && (bDate - aDate) % a.getCycle() == 0;
         } else {
-            // todo 可能会有bug, 查询最近的会冲突的一天
             long date;
             if (aDate <= bDate) {
                 date = MathUtils.CRT(new long[]{0, bDate - aDate}, new long[]{a.getCycle(), b.getCycle()}, 2);
@@ -120,11 +124,8 @@ public class TimeUtils {
      *
      * @return 在当天则返回true, 否则返回false
      */
-    public static Boolean IsInOneDay(Event e) {
-        // todo 此处需要调用定时器的api获取当前时间
-        // todo time是假的，new Time() 记得改
-        String nowTime = new Time().getNowTime();
-        long nt = TimestampToDate(nowTime);
+    public static Boolean IsInOneDay(Long nowTime, Event e) {
+        long nt = TimestampToDate(String.valueOf(nowTime));
         long st = TimestampToDate(e.getStartTime());
         return nt == st;
     }
