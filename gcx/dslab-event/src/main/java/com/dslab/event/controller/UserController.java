@@ -79,7 +79,7 @@ public class UserController {
 
     @GetMapping
     public Result<List> getAll() {
-        List<User> list = userMapper.getAll();
+        List<User> list = userMapper.getAllUsers();
         return Result.<List>success("登陆成功").data(list);
     }
 

@@ -54,7 +54,7 @@ public interface UserMapper {
      *
      * @return 所有用户组成的列表
      */
-    List<User> getAll();
+    List<User> getAllUsers();
 
     /**
      * 按照用户id查询用户

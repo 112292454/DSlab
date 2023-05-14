@@ -112,4 +112,9 @@ public class Event implements Serializable {
     public Event(String name) {
         this.name = name;
     }
+
+    public Event(Integer eventId, String name) {
+        this.eventId = eventId;
+        this.name = name;
+    }
 }

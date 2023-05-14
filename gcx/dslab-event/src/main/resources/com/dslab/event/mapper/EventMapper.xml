@@ -140,6 +140,22 @@
         WHERE `name` = #{name}
     </update>
 
+    <update id="restartByEventId">
+        UPDATE event
+        <set>
+            `status` = 1
+        </set>
+        WHERE `id` = #{id}
+    </update>
+
+    <update id="restartByName">
+        UPDATE event
+        <set>
+            `status` = 1
+        </set>
+        WHERE `name` = #{name}
+    </update>
+
     <update id="update" parameterType="com.dslab.commonapi.entity.Event">
         UPDATE event
         <set>
