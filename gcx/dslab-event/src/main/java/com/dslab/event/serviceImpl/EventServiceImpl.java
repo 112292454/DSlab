@@ -1,5 +1,6 @@
 package com.dslab.event.serviceImpl;
 
+import com.alibaba.fastjson.JSON;
 import com.dslab.commonapi.dataStruct.AVLTree;
 import com.dslab.commonapi.dataStruct.AVLTreeImpl;
 import com.dslab.commonapi.entity.*;
@@ -291,7 +292,6 @@ public class EventServiceImpl implements EventService {
     }
 
     /**
-     * todo
      * 检查用户第二天的日程
      *
      * @param nowDay 当前天
@@ -299,8 +299,23 @@ public class EventServiceImpl implements EventService {
      * @return JSON化字符串
      */
     private String checkNextDayEvent(long nowDay, Integer userId) {
+        // 选出该用户的所有日程id
+        List<Integer> eventIds = new ArrayList<>();
+        int low = MathUtils.mySearch(userEventIdList, new User(userId), Comparator.comparingInt(User::getUserId));
+        int high = MathUtils.mySearch(userEventIdList, new User(userId), Comparator.comparingInt(User::getUserId));
+        for (int i = low; i < high; ++i) {
+            eventIds.add(userEventIdList.get(i).getEventId());
+        }
 
-        return "";
+        // 根据用户的日程id找到对应日程, 并判断其是否是第二天的课程
+        List<Event> events = new ArrayList<>();
+        for (Integer id : eventIds) {
+            Event e = eventIdTree.search(new Event(id)).getKey();
+            if (e != null && TimeUtils.IsInOneDay(nowDay + 1, e)) {
+                events.add(e);
+            }
+        }
+        return JSON.toJSONString(events);
     }
 
     /**
