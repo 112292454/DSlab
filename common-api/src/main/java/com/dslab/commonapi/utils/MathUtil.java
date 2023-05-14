@@ -1,4 +1,4 @@
-package com.dslab.event.utils;
+package com.dslab.commonapi.utils;
 
 import java.util.Comparator;
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.Random;
  * @version: 1.0
  **/
 
-public class MathUtils {
+public class MathUtil {
     /**
      * 扩展欧几里得算法
      */

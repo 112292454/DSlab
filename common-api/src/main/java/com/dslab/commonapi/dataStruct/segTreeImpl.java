@@ -1,13 +1,15 @@
 package com.dslab.commonapi.dataStruct;
 
 import com.dslab.commonapi.entity.Event;
+import com.dslab.commonapi.utils.TimeUtil;
+import io.micrometer.core.instrument.util.TimeUtils;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.lang.Math.max;
+;
 
 public class segTreeImpl{
     /*
@@ -70,7 +72,7 @@ public class segTreeImpl{
         if(seg[index]==null) seg[index]=new segment(l,r);
         if(l==r) {
             segment s=new segment(l,r);
-            s.value=source[l-1].value;
+            //s.value=source[l-1].value;
             seg[index]=s;
         }
         else {
@@ -84,6 +86,7 @@ public class segTreeImpl{
         modify(1,start,end,value);
     }
     public void addEvent(Event e){
+        //int sm= TimeUtil.dateToMin(e.get)
 
     }
 

@@ -1,10 +1,8 @@
-package com.dslab.event.utils;
+package com.dslab.commonapi.utils;
 
 import com.dslab.commonapi.entity.Event;
 import com.dslab.commonapi.entity.EventType;
-import com.dslab.commonapi.services.SimulateService;
 
-import javax.annotation.Resource;
 import java.util.Date;
 
 
@@ -17,7 +15,7 @@ import java.util.Date;
  **/
 
 
-public class TimeUtils {
+public class TimeUtil {
 
     /**
      * 冲突的规定范围日期
@@ -118,12 +116,12 @@ public class TimeUtils {
         } else {
             long date;
             if (aDate <= bDate) {
-                date = MathUtils.CRT(new long[]{0, bDate - aDate}, new long[]{a.getCycle(), b.getCycle()}, 2);
+                date = MathUtil.CRT(new long[]{0, bDate - aDate}, new long[]{a.getCycle(), b.getCycle()}, 2);
             } else {
-                date = MathUtils.CRT(new long[]{aDate - bDate, 0}, new long[]{a.getCycle(), b.getCycle()}, 2);
+                date = MathUtil.CRT(new long[]{aDate - bDate, 0}, new long[]{a.getCycle(), b.getCycle()}, 2);
             }
             if (date < Math.abs(aDate - bDate)) {
-                date = date + (long) a.getCycle() * b.getCycle() / MathUtils.gcd(a.getCycle(), b.getCycle());
+                date = date + (long) a.getCycle() * b.getCycle() / MathUtil.gcd(a.getCycle(), b.getCycle());
             }
             return date <= MAX_DATE;
         }

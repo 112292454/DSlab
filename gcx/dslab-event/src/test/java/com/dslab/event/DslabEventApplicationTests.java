@@ -5,7 +5,7 @@ import com.dslab.commonapi.entity.Event;
 import com.dslab.event.mapper.EventMapper;
 import com.dslab.event.mapper.UserEventRelationMapper;
 import com.dslab.event.serviceImpl.EventServiceImpl;
-import com.dslab.event.utils.MathUtils;
+import com.dslab.commonapi.utils.MathUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -54,15 +54,15 @@ class DslabEventApplicationTests {
                 list4.add(new Random().nextInt(10000000));
             }
             long t1 = System.currentTimeMillis();
-            MathUtils.mySort(list, (o1, o2) -> o1 - o2);
+            MathUtil.mySort(list, (o1, o2) -> o1 - o2);
             long t2 = System.currentTimeMillis();
             System.out.print(t2 - t1 + "    ");
             long t3 = System.currentTimeMillis();
-            MathUtils.mySort(list2, (o1, o2) -> o1 - o2);
+            MathUtil.mySort(list2, (o1, o2) -> o1 - o2);
             long t4 = System.currentTimeMillis();
             System.out.print(t4 - t3 + "       ");
             long t5 = System.currentTimeMillis();
-            MathUtils.mySort(list3, (o1, o2) -> o1 - o2);
+            MathUtil.mySort(list3, (o1, o2) -> o1 - o2);
             long t6 = System.currentTimeMillis();
             System.out.println(t6 - t5);
             long t7 = System.currentTimeMillis();

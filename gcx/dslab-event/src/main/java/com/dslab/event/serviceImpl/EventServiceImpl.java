@@ -9,8 +9,8 @@ import com.dslab.commonapi.vo.Result;
 import com.dslab.event.mapper.EventMapper;
 import com.dslab.event.mapper.UserEventRelationMapper;
 import com.dslab.event.mapper.UserMapper;
-import com.dslab.event.utils.MathUtils;
-import com.dslab.event.utils.TimeUtils;
+import com.dslab.commonapi.utils.MathUtil;
+import com.dslab.commonapi.utils.TimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -77,7 +77,7 @@ public class EventServiceImpl implements EventService {
             userIdTree.insert(u);
             userGroupIdList.add(u);
         }
-        MathUtils.mySort(userGroupIdList, Comparator.comparingInt(User::getGroupId));
+        MathUtil.mySort(userGroupIdList, Comparator.comparingInt(User::getGroupId));
 
         List<Event> events = eventMapper.getAllEvents();
         for (Event e : events) {
@@ -88,7 +88,7 @@ public class EventServiceImpl implements EventService {
 
         List<UserEventRelation> userEventRelations = userEventRelationMapper.getAll();
         userEventIdList.addAll(userEventRelations);
-        MathUtils.mySort(userEventIdList, Comparator.comparingInt(UserEventRelation::getUserId));
+        MathUtil.mySort(userEventIdList, Comparator.comparingInt(UserEventRelation::getUserId));
         logger.info("init success!");
     }
 
@@ -119,7 +119,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result<?> addEvent(Event event, User user) {
-        if (!TimeUtils.checkTimeValid(event)) {
+        if (!TimeUtil.checkTimeValid(event)) {
             // 校验日程时间是否合法
             return Result.error("日程时间不合法");
         }
@@ -178,7 +178,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result<?> updateEvent(Event event, User user) {
-        if (!TimeUtils.checkTimeValid(event)) {
+        if (!TimeUtil.checkTimeValid(event)) {
             // 校验日程时间是否合法
             return Result.error("日程时间不合法");
         }
@@ -264,8 +264,8 @@ public class EventServiceImpl implements EventService {
     public Result<String> checkUserEventInTime(Date nowTime, String userId) {
         String time = nowTime.toString();
         String t = String.valueOf(nowTime.getTime());
-        long nowDay = TimeUtils.TimestampToDate(t);
-        int nowHour = TimeUtils.TimestampToHour(t);
+        long nowDay = TimeUtil.TimestampToDate(t);
+        int nowHour = TimeUtil.TimestampToHour(t);
 
         String res;
         if (nowHour < 23) {
@@ -301,8 +301,8 @@ public class EventServiceImpl implements EventService {
     private String checkNextDayEvent(long nowDay, Integer userId) {
         // 选出该用户的所有日程id
         List<Integer> eventIds = new ArrayList<>();
-        int low = MathUtils.mySearch(userEventIdList, new User(userId), Comparator.comparingInt(User::getUserId));
-        int high = MathUtils.mySearch(userEventIdList, new User(userId), Comparator.comparingInt(User::getUserId));
+        int low = MathUtil.mySearch(userEventIdList, new User(userId), Comparator.comparingInt(User::getUserId));
+        int high = MathUtil.mySearch(userEventIdList, new User(userId), Comparator.comparingInt(User::getUserId));
         for (int i = low; i < high; ++i) {
             eventIds.add(userEventIdList.get(i).getEventId());
         }
@@ -311,7 +311,7 @@ public class EventServiceImpl implements EventService {
         List<Event> events = new ArrayList<>();
         for (Integer id : eventIds) {
             Event e = eventIdTree.search(new Event(id)).getKey();
-            if (e != null && TimeUtils.IsInOneDay(nowDay + 1, e)) {
+            if (e != null && TimeUtil.IsInOneDay(nowDay + 1, e)) {
                 events.add(e);
             }
         }
@@ -331,8 +331,8 @@ public class EventServiceImpl implements EventService {
         } else {
             // 给组内每个学生添加该日程
             // 选出同一个组的用户
-            int low = MathUtils.mySearch(userGroupIdList, new User(user.getGroupId()), Comparator.comparingInt(User::getGroupId));
-            int high = MathUtils.mySearch(userGroupIdList, new User(user.getGroupId() + 1), Comparator.comparingInt(User::getGroupId));
+            int low = MathUtil.mySearch(userGroupIdList, new User(user.getGroupId()), Comparator.comparingInt(User::getGroupId));
+            int high = MathUtil.mySearch(userGroupIdList, new User(user.getGroupId() + 1), Comparator.comparingInt(User::getGroupId));
             List<User> users = new ArrayList<>();
             for (int i = low; i < high; ++i) {
                 int id = userGroupIdList.get(i).getUserId();
@@ -351,7 +351,7 @@ public class EventServiceImpl implements EventService {
                 userEventRelationMapper.add(u.getGroupId(), u.getUserId(), event.getEventId());
                 userEventIdList.add(new UserEventRelation(u.getGroupId(), u.getUserId(), event.getEventId()));
             }
-            MathUtils.mySort(userEventIdList, Comparator.comparingInt(UserEventRelation::getUserId));
+            MathUtil.mySort(userEventIdList, Comparator.comparingInt(UserEventRelation::getUserId));
 
             return Result.success("添加成功");
         }
@@ -398,7 +398,7 @@ public class EventServiceImpl implements EventService {
         // 添加日程和用户的映射关系
         userEventRelationMapper.add(user.getGroupId(), user.getUserId(), event.getEventId());
         userEventIdList.add(new UserEventRelation(user.getGroupId(), user.getUserId(), event.getEventId()));
-        MathUtils.mySort(userEventIdList, Comparator.comparingInt(UserEventRelation::getUserId));
+        MathUtil.mySort(userEventIdList, Comparator.comparingInt(UserEventRelation::getUserId));
         return Result.success("添加成功");
     }
 
@@ -410,8 +410,8 @@ public class EventServiceImpl implements EventService {
     private boolean checkConflict(Event event, User user) {
         // 选出该用户的所有日程id
         List<Integer> eventIds = new ArrayList<>();
-        int low = MathUtils.mySearch(userEventIdList, new User(user.getUserId()), Comparator.comparingInt(User::getUserId));
-        int high = MathUtils.mySearch(userEventIdList, new User(user.getUserId() + 1), Comparator.comparingInt(User::getUserId));
+        int low = MathUtil.mySearch(userEventIdList, new User(user.getUserId()), Comparator.comparingInt(User::getUserId));
+        int high = MathUtil.mySearch(userEventIdList, new User(user.getUserId() + 1), Comparator.comparingInt(User::getUserId));
         for (int i = low; i < high; ++i) {
             eventIds.add(userEventIdList.get(i).getEventId());
         }
@@ -419,7 +419,7 @@ public class EventServiceImpl implements EventService {
         List<Event> events = new ArrayList<>();
         for (Integer id : eventIds) {
             Event e = eventIdTree.search(new Event(id)).getKey();
-            if (e != null && TimeUtils.IsInOneDay(e, event) && TimeUtils.compareTime(event, e)) {
+            if (e != null && TimeUtil.IsInOneDay(e, event) && TimeUtil.compareTime(event, e)) {
                 return true;
             }
         }
