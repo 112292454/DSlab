@@ -5,6 +5,7 @@ import com.dslab.commonapi.entity.EventType;
 import com.dslab.commonapi.services.SimulateService;
 
 import javax.annotation.Resource;
+import java.util.Date;
 
 /**
  * @program: dslab-event
@@ -88,6 +89,16 @@ public class TimeUtils {
         long t = Long.parseLong(timestamp);
         String res = (t / (3600 * 1000) + 8) % 24 + "";
         return Integer.parseInt(res);
+    }
+
+    /**
+     * 将data转换成在当天的分钟数
+     *
+     * @param date 日期
+     * @return 当天的分钟数，介于0~1440-1之间
+     */
+    public static int dateToMin(Date date) {
+        return date.getHours()*60+date.getMinutes();
     }
 
     /**

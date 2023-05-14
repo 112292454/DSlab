@@ -33,7 +33,7 @@ public class SimulateServiceImpl implements SimulateService {
 		if(threadMap.containsKey(user)){
 			threadMap.get(user).restore();
 		}else{
-			//TODO
+			threadMap.get(user).setInverseSimulate(isInverseSimulate);
 			simulateThread simulateThread = new simulateThread(user,startTime,simulateSpeed,isInverseSimulate);
 			threadMap.put(user, simulateThread);
 			simulateThread.start();
@@ -77,7 +77,12 @@ public class SimulateServiceImpl implements SimulateService {
 
 	@Override
 	public void setSimulateSpeed(int sToMin,String user) {
-		threadMap.get(user).setSpeed(sToMin*1000);
+		threadMap.get(user).setSpeed(sToMin*60*1000);
+	}
+
+	@Override
+	public void setSimulateInv(String user, boolean isInv) {
+		threadMap.get(user).setInverseSimulate(isInv);
 	}
 
 	@Override
@@ -85,7 +90,10 @@ public class SimulateServiceImpl implements SimulateService {
 		return threadMap.get(user).getNow();
 	}
 
-
+	@Override
+	public int getUserSimulateSpeed(String user) {
+		return threadMap.get(user).getSpeed()/1000;
+	}
 	private class simulateThread extends Thread{
 		boolean finished=false;
 		boolean stopped=false;
@@ -109,6 +117,10 @@ public class SimulateServiceImpl implements SimulateService {
 			return now;
 		}
 
+		public int getSpeed() {
+			return speed;
+		}
+
 		public void setNow(Date now) {
 			this.now = now;
 		}
@@ -119,6 +131,10 @@ public class SimulateServiceImpl implements SimulateService {
 
 		public void setStop() {
 			this.stopped = true;
+		}
+
+		public void setInverseSimulate(boolean inverseSimulate) {
+			isInverseSimulate = inverseSimulate;
 		}
 
 		public void restore() {
@@ -133,7 +149,6 @@ public class SimulateServiceImpl implements SimulateService {
 		public void run() {
 			try {
 				while (!finished) {
-					//TODO:MAIN FUNC
 					while (!stopped) {
 						//查询应该发送什么提醒
 						//这个消息的内容格式应该是和前端约定一下：socket收到这种消息就给用户弹一个提示，
@@ -149,9 +164,8 @@ public class SimulateServiceImpl implements SimulateService {
 					Thread.sleep(500);
 				}
 			} catch (InterruptedException e) {
-				//TODO:notify client
-
-				throw new RuntimeException(e);
+				WebsocketUtil.sendMessage(user, Result.error("模拟出现异常，现已中止！").data(e));
+				e.printStackTrace();
 			}
 		}
 	}

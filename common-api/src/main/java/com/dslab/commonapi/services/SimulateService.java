@@ -99,6 +99,8 @@ public interface SimulateService {
 	 */
 	void setSimulateSpeed(int sToMin, String user);
 
+	void setSimulateInv(String user, boolean isInv);
+
 	/**
 	 * 获取该用户当前模拟到的时间
 	 *
@@ -108,6 +110,8 @@ public interface SimulateService {
 	 * @Return java.util.Date
 	 */
 	Date getUserSimulateTime(String user);
+
+	int getUserSimulateSpeed(String user);
 
 
 }
