@@ -18,13 +18,19 @@ public class SegTreeImpl{
     private class segment{
         int l,r,lazy=0;
         Set<Integer> value;
-        public segment(int a,int b){l=a;r=b;}
+        public segment(int a,int b){
+            l=a;
+            r=b;
+            value=new HashSet<>();
+        }
 
         public segment(Set<Integer> value) {
             this.value = value;
         }
 
-        public segment() {value=new HashSet<>();}
+        public segment() {
+            value=new HashSet<>();
+        }
 
         public Set<Integer> merge(segment another){
             Set<Integer> set = new HashSet<>(value);
@@ -60,12 +66,14 @@ public class SegTreeImpl{
     segment[] seg;
     node[] source;
     int size=0;
-    public SegTreeImpl(node[] source){
+
+    public SegTreeImpl(List<Event> userEvents){
         size=source.length;
         seg=new segment[source.length<<2];
-        this.source=source;
         build(1,size,1);
+        userEvents.forEach(this::addEvent);
     }
+
     private void build(int l,int r,int index){
         if(seg[index]==null) seg[index]=new segment(l,r);
         if(l==r) {
@@ -83,6 +91,10 @@ public class SegTreeImpl{
     public void rangeModify(int start,int end,int value){
         modify(1,start,end,value);
     }
+    public List<Integer> rangeQuery(int start, int end){
+        segment query = query(1, start, end);
+        return query.value.stream().sorted().collect(Collectors.toList());
+    }
     public void addEvent(Event e){
         //int sm= TimeUtil.dateToMin(e.get)
 
@@ -90,10 +102,6 @@ public class SegTreeImpl{
 
     public void modifyEvent(Event source,Event dest){
 
-    }
-    public List<Integer> rangeQuery(int start, int end){
-        segment query = query(1, start, end);
-        return query.value.stream().sorted().collect(Collectors.toList());
     }
 
 

@@ -113,6 +113,4 @@ public interface SimulateService {
 
 	int getUserSimulateSpeed(String user);
 
-
-	int getUserSimulateSpeed(String user);
 }
