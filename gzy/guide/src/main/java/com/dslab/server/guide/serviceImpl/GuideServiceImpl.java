@@ -1,5 +1,6 @@
 package com.dslab.server.guide.serviceImpl;
 
+import com.dslab.commonapi.dataStruct.ShortestRoad;
 import com.dslab.commonapi.entity.Point;
 import com.dslab.commonapi.services.GuideService;
 import com.dslab.commonapi.services.PointService;
@@ -7,9 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
-
-import static java.lang.Math.max;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class GuideServiceImpl implements GuideService {
@@ -21,18 +21,72 @@ public class GuideServiceImpl implements GuideService {
 
     @Override
     public List<Point> directGuide(int from, int to) {
-
         List<Point> dijkstra = sr.dijkstra(from, to);
         dijkstra.add(0, sr.getPoint(from));
         return dijkstra;
     }
 
     @Override
-    public List<Point> byManyPointsGuide(List<Point> passedPoints) {
-        // TODO:初步设想的算法是
-        // 跑完全图的floyd/dij，然后看始末的路径上有哪个点在必经里，然后以这些必经点分段
+    public List<Point> byManyPointsGuide(List<Integer> passedPoints) {
+        Point start=sr.getPoint(passedPoints.get(0));
+        passedPoints.remove(0);
 
-        return null;
+        List<Point> res=new ArrayList<>();
+        res.add(start);
+        int passedSize = passedPoints.size();
+
+        if(passedSize >20){
+            //如果size大于20，就采取近似解，通过搜索剪枝来确定路径
+            while (!passedPoints.isEmpty()){
+                Point now=res.get(res.size()-1);
+                final Point[] temp = new Point[1];
+                final int[] min = {1 << 30};
+                passedPoints.forEach(a->{
+                    if(sr.floydAsk(now.getId(), a)< min[0]){
+                        min[0] =sr.floydAsk(now.getId(), a);
+                        temp[0] =sr.getPoint(a);
+                    }
+                });
+                res.add(temp[0]);
+            }
+            res.add(start);
+        }else{
+            //如果size小于20，使用哈密顿回路寻找到精确解，状压dp
+            int[][] dp=new int[1<<passedSize][passedSize];
+            List<Point>[] atPointPaths=new List[passedSize];//不论走过了什么点，怎么走的，存储最后位于k点的中距离最短的走法
+            int[] atPointDist=new int[passedSize];
+            for (int i = 0; i < atPointDist.length; i++) {
+                atPointPaths[i]=new ArrayList<>();
+            }
+
+            for(int i=0;i<(1<<passedSize);i++) {//i代表的是一个方案的集合，其中每个位置的0/1代表没有/有经过这个点
+                for(int j=0;j<passedSize;j++) {//枚举当前在哪个点
+                    if(((i>>j)&1)!=0) {//如果i代表的状态中有j，也就是可以表示“经过了i中bit为1的点，且当前处于j点”
+                        for(int k=0;k<passedSize;k++) {//枚举所有可以走到到达j的点
+                            if((i-(1<<j)>>k&1)!=0) {//在i状态中，走到j这个点之前，是否可以停在k点。如果是，才能从k转移到j
+                                int dist = sr.floydAsk(sr.getPoint(passedPoints.get(k)).getId(), sr.getPoint(passedPoints.get(j)).getId());
+                                if(dp[i-(1<<j)][k]+dist<dp[i][j]){//如果从k走到j比原先的更短
+                                    dp[i][j]=dp[i-(1<<j)][k]+ dist;
+                                    atPointPaths[j]=new ArrayList<>(atPointPaths[k]);//那么走到j点的路径就必然是走到k点，再到j的
+                                    atPointPaths[j].add(sr.getPoint( passedPoints.get(j)));
+                                    atPointDist[j]=atPointDist[k]+dist;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            //计算完成了遍历需要pass的所有点的距离，也就是得到了所有的哈密顿路径值，然后还需要走回到出发点（由于项目要求）
+            int min=0;
+            for (int i = 0; i < atPointPaths.length; i++) {
+                atPointDist[i]+=sr.floydAsk(atPointPaths[i].get(atPointPaths[i].size()-1).getId(),start.getId());//获得再回到start的距离
+                atPointPaths[i].add(start);
+                if(atPointDist[i]>atPointDist[min]) min=i;
+            }
+            res=atPointPaths[min];
+        }
+
+        return res;
     }
 
     @PostConstruct
@@ -50,97 +104,3 @@ public class GuideServiceImpl implements GuideService {
     }
 }
 
-class ShortestRoad {
-    class Node{
-        //从某一点（以map中的下标起始）到达哪个城市，以及到达的距离
-        int to,value;
-        public Node(int to,int value) {this.to=to;this.value=value;}
-    }
-
-    private Map<Integer, Point> points;
-
-    public Point getPoint(int index) {
-        return points.get(index);
-    }
-
-    private List<List<Point>> map;
-    private List<Point>[][] cachedPaths;
-
-
-    public ShortestRoad(Map<Integer, Point> points,List<List<Point>> map) {
-        this.points = points;
-        this.map = map;
-        this.cachedPaths = new List[points.size()][points.size()];
-
-        for (int i = 0; i < cachedPaths.length; i++) {
-            for (int j = 0; j < cachedPaths[i].length; j++) {
-                cachedPaths[i][j]=new ArrayList<>();
-                //if(i==j) cachedPaths[i][j].add(points.get(i));
-            }
-        }
-    }
-
-    double[][] f;
-    public void setFloyd(double[][] f) {
-        this.f=f;
-    }
-    public List<Point> dijkstra(int start ,int end){
-        //起点start到各个点的路径是否有缓存
-        if(!cachedPaths[start][end].isEmpty()) {
-            return cachedPaths[start][end];
-        }
-
-        //cachedPaths[start][end].add(points.get(start));
-        int[] distance=new int[points.size()],used=new int[points.size()];
-        PriorityQueue<Node> node=new PriorityQueue<>(Comparator.comparingInt(o -> o.value));
-
-        Arrays.fill(distance,Integer.MAX_VALUE/2);
-        node.add(new Node(start,0));
-        distance[start]=0;
-        used[start]=1;
-        while (!node.isEmpty()) {
-            //要被用来开始松弛的城市N
-            int city = node.poll().to;
-            Point from=points.get(city);
-            used[city] = 1;
-            List<Point> arr = map.get(city);
-            //if (arr.isEmpty()&&city!=end) return new ArrayList<>();
-            //遍历这个城市的邻边
-            for (Point n : arr) {
-                int toCity = n.getId();
-
-                if (used[toCity] != 0) continue;
-                if(cachedPaths[city][toCity].isEmpty()) cachedPaths[city][toCity].add(n);
-                //如果有哪个相邻的点，满足：从已知的起始点到达该点的方式的距离，大于从起始点到达N再从N到达这个点的距离，就替换到达方式为后者
-                if (distance[toCity] > distance[city] + n.getDistance(from)) {
-                    distance[toCity] = distance[city] + n.getDistance(from);
-                    node.offer(new Node(toCity, distance[toCity]));
-
-                    ArrayList<Point> temp = new ArrayList<>();
-                    temp.addAll(cachedPaths[start][city]);
-                    temp.addAll(cachedPaths[city][toCity]);
-                    cachedPaths[start][toCity]=temp;
-                }
-            }
-        }
-        cachedPaths[end][start]=cachedPaths[start][end];
-        if(distance[end]!=Integer.MAX_VALUE/2) return cachedPaths[start][end];
-        else return new ArrayList<>();
-        //若返回空表，则为不连通
-    }
-
-    public void floydRun(int max) {
-        for (int k = 0; k < max; k++)
-            for (int i = 0; i < max; i++)
-                if (f[i][k] != Integer.MAX_VALUE / 2)
-                    for (int j = 0; j < max; j++) {
-                        if (f[k][j] != Integer.MAX_VALUE / 2) {
-                            f[i][j] = max(f[i][j], f[i][k] * f[k][j]);
-                            //f[j][i] = min(f[j][i], f[i][k] + f[k][j]);
-                        }
-                    }
-    }
-    public double floydAsk(int i,int j){
-        return f[i][j];
-    }
-}

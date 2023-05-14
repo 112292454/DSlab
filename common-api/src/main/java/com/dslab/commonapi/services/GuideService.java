@@ -9,9 +9,8 @@ import java.util.List;
 public interface GuideService {
 
 
-    public List<Point> directGuide(int from, int to);
-
-    public List<Point> byManyPointsGuide(List<Point> passedPoints);
+    List<Point> directGuide(int from, int to);
 
 
+    List<Point> byManyPointsGuide(List<Integer> passedPoints);
 }

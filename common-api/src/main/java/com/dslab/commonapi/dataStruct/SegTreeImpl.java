@@ -1,8 +1,6 @@
 package com.dslab.commonapi.dataStruct;
 
 import com.dslab.commonapi.entity.Event;
-import com.dslab.commonapi.utils.TimeUtil;
-import io.micrometer.core.instrument.util.TimeUtils;
 
 import java.util.HashSet;
 import java.util.List;
@@ -11,7 +9,7 @@ import java.util.stream.Collectors;
 
 ;
 
-public class segTreeImpl{
+public class SegTreeImpl{
     /*
 	疑似常数过大/写假了，之后需尝试用segment【】数组重写一遍，看看能不能降到可接受的时间
 	现在貌似比ac时间多了几倍
@@ -62,7 +60,7 @@ public class segTreeImpl{
     segment[] seg;
     node[] source;
     int size=0;
-    public segTreeImpl(node[] source){
+    public SegTreeImpl(node[] source){
         size=source.length;
         seg=new segment[source.length<<2];
         this.source=source;
