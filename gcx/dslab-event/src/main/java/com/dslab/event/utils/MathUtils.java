@@ -1,9 +1,9 @@
 package com.dslab.event.utils;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Random;
 
 /**
  * @program: dslab-event
@@ -74,10 +74,7 @@ public class MathUtils {
      * @param c    自定义比较器
      */
     public static <T, E> void mySort(List<E> list, Comparator<? super E> c) {
-        System.out.println(list.toString() + "*************************");
         Object[] arr = list.toArray();
-        System.out.println(Arrays.toString(arr));
-        System.out.println(arr[0].getClass());
         quickSort(arr, 0, arr.length - 1, (Comparator) c);
         ListIterator<E> i = list.listIterator();
         for (Object e : arr) {
@@ -96,22 +93,22 @@ public class MathUtils {
      */
     private static <T> void quickSort(T[] arr, int low, int high, Comparator<? super T> c) {
         int i, j;
-        T temp, t;
-        if (low > high) {
+        T pivot, t;
+        if (low >= high) {
             return;
         }
         i = low;
         j = high;
-        //temp就是基准位
-        temp = arr[low];
+        //随机选取元素作为枢轴
+        pivot = arr[new Random().nextInt(high - low) + low];
 
         while (i < j) {
             //先看右边，依次往左递减
-            while (c.compare(temp, arr[j]) <= 0 && i < j) {
+            while (c.compare(pivot, arr[j]) <= 0 && i < j) {
                 j--;
             }
             //再看左边，依次往右递增
-            while (c.compare(temp, arr[i]) >= 0 && i < j) {
+            while (c.compare(pivot, arr[i]) >= 0 && i < j) {
                 i++;
             }
             //如果满足条件则交换
@@ -124,7 +121,7 @@ public class MathUtils {
 
         //最后将基准为与i和j相等位置的数字交换
         arr[low] = arr[i];
-        arr[i] = temp;
+        arr[i] = pivot;
 
         //递归调用左半数组
         quickSort(arr, low, j - 1, c);
@@ -133,7 +130,6 @@ public class MathUtils {
     }
 
     /**
-     * todo 待测试
      * 查找
      *
      * @param list   要查找的列表
