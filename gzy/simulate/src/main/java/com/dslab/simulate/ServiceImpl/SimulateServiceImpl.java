@@ -31,9 +31,9 @@ public class SimulateServiceImpl implements SimulateService {
 
 	private synchronized void internStart(String user, Date startTime, int simulateSpeed, boolean isInverseSimulate){
 		if(threadMap.containsKey(user)){
+			threadMap.get(user).setInverseSimulate(isInverseSimulate);
 			threadMap.get(user).restore();
 		}else{
-			threadMap.get(user).setInverseSimulate(isInverseSimulate);
 			simulateThread simulateThread = new simulateThread(user,startTime,simulateSpeed,isInverseSimulate);
 			threadMap.put(user, simulateThread);
 			simulateThread.start();

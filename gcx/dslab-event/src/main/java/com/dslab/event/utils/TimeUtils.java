@@ -7,6 +7,7 @@ import com.dslab.commonapi.services.SimulateService;
 import javax.annotation.Resource;
 import java.util.Date;
 
+
 /**
  * @program: dslab-event
  * @description: 和时间有关的工具
@@ -34,8 +35,6 @@ public class TimeUtils {
     private static final long STU_START_TIME = 6;
     private static final long STU_END_TIME = 22;
 
-    @Resource
-    static SimulateService simulateService;
 
     /**
      * 判断日程时间是否合法
