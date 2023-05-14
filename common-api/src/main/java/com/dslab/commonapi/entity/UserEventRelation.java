@@ -28,4 +28,17 @@ public class UserEventRelation implements Serializable {
      * 日程id
      */
     private Integer eventId;
+
+    public UserEventRelation() {
+    }
+
+    public UserEventRelation(Integer groupId) {
+        this.groupId = groupId;
+    }
+
+    public UserEventRelation(Integer groupId, Integer userId, Integer eventId) {
+        this.groupId = groupId;
+        this.userId = userId;
+        this.eventId = eventId;
+    }
 }

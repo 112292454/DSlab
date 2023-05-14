@@ -44,6 +44,22 @@ public interface EventMapper {
     int deleteByName(@Param("name") String name);
 
     /**
+     * 根据日程id重新启用日程 (将该日程的状态设为启用)
+     *
+     * @param eventId 日程id
+     * @return 修改的行数
+     */
+    int restartByEventId(@Param("eventId") Integer eventId);
+
+    /**
+     * 根据日程名称重新启用日程 (将该日程的状态设为启用)
+     *
+     * @param name 日程名称
+     * @return 改变的行数
+     */
+    int restartByName(@Param("name") String name);
+
+    /**
      * 更新日程
      *
      * @param event 日程信息

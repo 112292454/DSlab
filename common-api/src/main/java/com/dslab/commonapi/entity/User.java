@@ -48,4 +48,11 @@ public class User implements Serializable {
     @NotNull(message = "用户所属组不正确")
     @Min(value = 0, message = "组id必须为非负数")
     private Integer groupId;
+
+    public User() {
+    }
+
+    public User(Integer userId) {
+        this.userId = userId;
+    }
 }

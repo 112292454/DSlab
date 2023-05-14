@@ -130,13 +130,17 @@ public class TimeUtils {
     }
 
     /**
-     * 判断事务是否在当天
+     * 判断一个日程和是否和给定日期在同一天
      *
      * @return 在当天则返回true, 否则返回false
      */
-    public static Boolean IsInOneDay(Long nowTime, Event e) {
-        long nt = TimestampToDate(String.valueOf(nowTime));
-        long st = TimestampToDate(e.getStartTime());
-        return nt == st;
+    public static Boolean IsInOneDay(Long nowDay, Event e) {
+        long eDate = TimestampToDate(e.getStartTime());
+        // 根据周期是否为0分类讨论, 进行判断
+        if (e.getCycle() == 0) {
+            return nowDay == eDate;
+        } else  {
+            return eDate <= nowDay && (nowDay - eDate) % e.getCycle() == 0;
+        }
     }
 }
