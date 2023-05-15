@@ -1,5 +1,6 @@
 package com.dslab.commonapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.hibernate.validator.constraints.Range;
@@ -7,6 +8,7 @@ import org.hibernate.validator.constraints.Range;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @program: DSlab
@@ -67,18 +69,21 @@ public class Event implements Serializable {
     /**
      * 日程日期
      */
-    private String date;
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    private Date date;
     /**
      * 日程起始时间
      * 时间戳格式(毫秒)
      */
     @NotBlank(message = "起始时间不能为空")
-    private String startTime;
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    private Date startTime;
     /**
      * 日程终止时间
      * 时间戳格式
      */
-    private String endTime;
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    private Date endTime;
     /**
      * 持续时间
      */
@@ -100,7 +105,7 @@ public class Event implements Serializable {
     public Event() {
     }
 
-    public Event(String startTime, int cycle) {
+    public Event(Date startTime, int cycle) {
         this.startTime = startTime;
         this.cycle = cycle;
     }

@@ -2,15 +2,19 @@ package com.dslab.event;
 
 import com.alibaba.fastjson.JSON;
 import com.dslab.commonapi.entity.Event;
+import com.dslab.commonapi.entity.User;
+import com.dslab.commonapi.entity.UserEventRelation;
+import com.dslab.commonapi.utils.MathUtil;
 import com.dslab.event.mapper.EventMapper;
 import com.dslab.event.mapper.UserEventRelationMapper;
+import com.dslab.event.mapper.UserMapper;
 import com.dslab.event.serviceImpl.EventServiceImpl;
-import com.dslab.commonapi.utils.MathUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -24,6 +28,9 @@ class DslabEventApplicationTests {
     UserEventRelationMapper userEventRelationMapper;
 
     @Resource
+    UserMapper userMapper;
+
+    @Resource
     EventServiceImpl eventService;
 
     @Test
@@ -33,11 +40,10 @@ class DslabEventApplicationTests {
         list.add(new Event(22, "bb"));
         list.add(new Event(33, "cc"));
         list.add(new Event(44, "dd"));
-        JSON json = (JSON) JSON.toJSON(list);
-        System.out.println(json.toString());
         String jsonStr = JSON.toJSONString(list);
-        List<Event> ll = JSON.parseArray(jsonStr, Event.class);
+        List<Event> ll = (List<Event>) JSON.parse(jsonStr);
         System.out.println(ll.toString());
+        System.out.println(new Date().getTime() - System.currentTimeMillis());
     }
 
     @Test
@@ -70,5 +76,24 @@ class DslabEventApplicationTests {
             long t8 = System.currentTimeMillis();
             System.out.println(t8 - t7);
         }
+    }
+
+    @Test
+    void testEntity() {
+        UserEventRelation userEventRelation = new UserEventRelation();
+        User user = new User();
+        user.setUserId(123);
+        userEventRelation.setUserId(user.getUserId() + 1);
+        System.out.println(userEventRelation.getUserId());
+    }
+
+    @Test
+    void testMapper() {
+        Event event = new Event();
+        event.setName("123");
+        event.setStartTime(new Date());
+        event.setStatus(1);
+        eventMapper.add(event);
+        System.out.println(userMapper.getAllUsers());
     }
 }

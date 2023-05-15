@@ -40,8 +40,8 @@ public class TimeUtil {
      * @return 合法返回true, 否则返回false
      */
     public static boolean checkTimeValid(Event e) {
-        long start = TimestampToHour(e.getStartTime());
-        long end = TimestampToHour(e.getEndTime());
+        int start = dateToHour(e.getStartTime());
+        int end = dateToHour(e.getEndTime());
         if (start < end) {
             if (!(EventType.EVENT_LESSON.getValue().equals(e.getEventType())
                     || EventType.EVENT_EXAM.getValue().equals(e.getEventType()))) {
@@ -59,33 +59,32 @@ public class TimeUtil {
      * @return 有冲突返回true, 否则返回false
      */
     public static boolean compareTime(Event a, Event b) {
-        long aStartHour = TimestampToHour(a.getStartTime());
-        long aEndHour = TimestampToHour(a.getEndTime());
-        long bStartHour = TimestampToHour(b.getStartTime());
-        long bEndHour = TimestampToHour(b.getEndTime());
+        int aStartHour = dateToHour(a.getStartTime());
+        int aEndHour = dateToHour(a.getEndTime());
+        int bStartHour = dateToHour(b.getStartTime());
+        int bEndHour = dateToHour(b.getEndTime());
         return !(aStartHour >= bEndHour || aEndHour <= bStartHour);
     }
 
     /**
-     * 将时间戳转换成日期 (天数)
+     * 将日期转换成天数
      *
-     * @param timestamp 时间戳
-     * @return 日期
+     * @param date 日期
+     * @return 天数
      */
-    public static long TimestampToDate(String timestamp) {
-        return (Long.parseLong(timestamp) + 8 * 3600 * 1000) / (3600 * 1000 * 24);
+    public static long dateToDay(Date date) {
+        long timestamp = date.getTime();
+        return (timestamp + 8 * 3600 * 1000) / (3600 * 1000 * 24);
     }
 
     /**
-     * 将时间戳转换成小时数
+     * 将日期换成小时数
      *
-     * @param timestamp 时间戳
+     * @param date 时间
      * @return 小时数
      */
-    public static int TimestampToHour(String timestamp) {
-        long t = Long.parseLong(timestamp);
-        String res = (t / (3600 * 1000) + 8) % 24 + "";
-        return Integer.parseInt(res);
+    public static int dateToHour(Date date) {
+        return date.getHours();
     }
 
     /**
@@ -95,7 +94,7 @@ public class TimeUtil {
      * @return 当天的分钟数，介于0~1440-1之间
      */
     public static int dateToMin(Date date) {
-        return date.getHours()*60+date.getMinutes();
+        return date.getHours() * 60 + date.getMinutes();
     }
 
     /**
@@ -104,8 +103,8 @@ public class TimeUtil {
      * @return 在同一天则返回true, 否则返回false
      */
     public static Boolean IsInOneDay(Event a, Event b) {
-        long aDate = TimestampToDate(a.getStartTime());
-        long bDate = TimestampToDate(b.getStartTime());
+        long aDate = dateToDay(a.getStartTime());
+        long bDate = dateToDay(b.getStartTime());
         // 根据周期是否为0分类讨论, 进行判断
         if (a.getCycle() == 0 && b.getCycle() == 0) {
             return aDate == bDate;
@@ -133,11 +132,11 @@ public class TimeUtil {
      * @return 在当天则返回true, 否则返回false
      */
     public static Boolean IsInOneDay(Long nowDay, Event e) {
-        long eDate = TimestampToDate(e.getStartTime());
+        long eDate = dateToDay(e.getStartTime());
         // 根据周期是否为0分类讨论, 进行判断
         if (e.getCycle() == 0) {
             return nowDay == eDate;
-        } else  {
+        } else {
             return eDate <= nowDay && (nowDay - eDate) % e.getCycle() == 0;
         }
     }

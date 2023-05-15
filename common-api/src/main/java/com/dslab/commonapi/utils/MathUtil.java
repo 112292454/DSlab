@@ -157,7 +157,7 @@ public class MathUtil {
                 len = half;
             }
         }
-        if (c.compare(target, a[l]) > 0) {
+        if (len < 0 || c.compare(target, a[l]) > 0) {
             return -1;
         }
         return l;

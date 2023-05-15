@@ -5,12 +5,12 @@ import com.dslab.commonapi.dataStruct.AVLTree;
 import com.dslab.commonapi.dataStruct.AVLTreeImpl;
 import com.dslab.commonapi.entity.*;
 import com.dslab.commonapi.services.EventService;
+import com.dslab.commonapi.utils.MathUtil;
+import com.dslab.commonapi.utils.TimeUtil;
 import com.dslab.commonapi.vo.Result;
 import com.dslab.event.mapper.EventMapper;
 import com.dslab.event.mapper.UserEventRelationMapper;
 import com.dslab.event.mapper.UserMapper;
-import com.dslab.commonapi.utils.MathUtil;
-import com.dslab.commonapi.utils.TimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -119,13 +119,22 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result<?> addEvent(Event event, User user) {
-        if (!TimeUtil.checkTimeValid(event)) {
-            // 校验日程时间是否合法
-            return Result.error("日程时间不合法");
-        }
-        if (!this.identifyUser(user.getType(), event.getEventType())) {
-            //校验用户是否有操作权限
-            return Result.error("用户没有添加权限");
+        try {
+            if (!TimeUtil.checkTimeValid(event)) {
+                // 校验日程时间是否合法
+                return Result.error("日程时间不合法");
+            }
+            if (!this.identifyUser(user.getType(), event.getEventType())) {
+                //校验用户是否有操作权限
+                return Result.error("用户没有添加权限");
+            }
+            if (eventMapper.getByEventName(event.getName()) != null) {
+                // 不能添加同名日程
+                return Result.error("不能添加同名日程");
+            }
+        } catch (Exception e) {
+            // 不能添加同名日程
+            return Result.error("数据不合法, 校验出错");
         }
 
         Result<?> result;
@@ -254,6 +263,7 @@ public class EventServiceImpl implements EventService {
     }
 
     /**
+     * todo
      * 获取用户在某个时间的课程
      *
      * @param nowTime 传入的时间
@@ -262,10 +272,8 @@ public class EventServiceImpl implements EventService {
      */
     @Override
     public Result<String> checkUserEventInTime(Date nowTime, String userId) {
-        String time = nowTime.toString();
-        String t = String.valueOf(nowTime.getTime());
-        long nowDay = TimeUtil.TimestampToDate(t);
-        int nowHour = TimeUtil.TimestampToHour(t);
+        long nowDay = TimeUtil.dateToDay(nowTime);
+        int nowHour = TimeUtil.dateToHour(nowTime);
 
         String res;
         if (nowHour < 23) {
@@ -363,6 +371,8 @@ public class EventServiceImpl implements EventService {
      * @return 成功返回success, 失败返回error
      */
     private Result<?> addEventByStudent(Event event, User user) {
+        System.out.println(event);
+        System.out.println(user);
         // 闹钟不会和其他日程产生冲突, 可以直接添加
         if (EventType.EVENT_CLOCK.getValue().equals(event.getEventType())) {
             return addSuccess(event, user);
@@ -389,6 +399,8 @@ public class EventServiceImpl implements EventService {
      * @return 返回信息
      */
     private Result<?> addSuccess(Event event, User user) {
+        System.out.println(event);
+        System.out.println(user);
         // 添加日程
         eventMapper.add(event);
         event = eventMapper.getByEventName(event.getName());
@@ -409,9 +421,15 @@ public class EventServiceImpl implements EventService {
      */
     private boolean checkConflict(Event event, User user) {
         // 选出该用户的所有日程id
+        // todo 抽象出来
         List<Integer> eventIds = new ArrayList<>();
-        int low = MathUtil.mySearch(userEventIdList, new User(user.getUserId()), Comparator.comparingInt(User::getUserId));
-        int high = MathUtil.mySearch(userEventIdList, new User(user.getUserId() + 1), Comparator.comparingInt(User::getUserId));
+        UserEventRelation userEventRelation = new UserEventRelation();
+        userEventRelation.setUserId(user.getUserId());
+        int low = MathUtil.mySearch(userEventIdList, userEventRelation, Comparator.comparingInt(UserEventRelation::getUserId));
+        System.out.println(low);
+        userEventRelation.setUserId(user.getUserId() + 1);
+        int high = MathUtil.mySearch(userEventIdList, userEventRelation, Comparator.comparingInt(UserEventRelation::getUserId));
+        System.out.println(low + "  " + high);
         for (int i = low; i < high; ++i) {
             eventIds.add(userEventIdList.get(i).getEventId());
         }
