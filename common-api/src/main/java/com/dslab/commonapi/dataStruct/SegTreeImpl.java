@@ -92,7 +92,7 @@ public class SegTreeImpl implements SegTree {
     }
     @Override
     public void rangeModify(int start, int end, int value){
-        modify(1,start,end,value);
+        modify(1,start,end,value,false);
     }
     @Override
     public List<Integer> rangeQuery(int start, int end){
@@ -102,6 +102,7 @@ public class SegTreeImpl implements SegTree {
     @Override
     public void addEvent(Event e){
         int sm= TimeUtil.dateToMin(e.getStartTime()),em=TimeUtil.dateToMin(e.getEndTime());
+
         rangeModify(sm,em,e.getEventId());
     }
 
@@ -115,14 +116,14 @@ public class SegTreeImpl implements SegTree {
         int sm= TimeUtil.dateToMin(source.getStartTime()),em=TimeUtil.dateToMin(source.getEndTime());
         int newSM= TimeUtil.dateToMin(dest.getStartTime()),newEM=TimeUtil.dateToMin(dest.getEndTime());
 
-        rangeModify(sm,em,-1);
+        deleteEvent(source);
         rangeModify(newSM,newEM,dest.getEventId());
     }
 
     @Override
     public void deleteEvent(Event e){
         int sm= TimeUtil.dateToMin(e.getStartTime()),em=TimeUtil.dateToMin(e.getEndTime());
-        rangeModify(sm,em,-1);
+        modify(1,sm,em,e.getEventId(), true);
     }
 
     private void pushUp(int a){
@@ -140,11 +141,11 @@ public class SegTreeImpl implements SegTree {
             seg[a].lazy=0;
         }
     }
-    private void modify(int i, int start, int end, int value){
+    private void modify(int i, int start, int end, int value,boolean isDelete){
         int l=seg[i].l,r=seg[i].r,mid=(l+r)/2;
         if(l>=start&&r<=end) {
             //a.value += value * (r - l + 1);
-            if(value==-1) seg[i].value.clear();//TODO:修改时间时清除原有的课程id用，感觉很可能会有bug
+            if(isDelete) seg[i].value.remove(value);//TODO:修改时间时清除原有的课程id用，感觉很可能会有bug
             if(!seg[i].value.contains(value)) {
                 seg[i].value.add(value);
                 seg[i].lazy = 1;
@@ -153,8 +154,8 @@ public class SegTreeImpl implements SegTree {
             return;
         }else if(l>end||r<start||r==l) return;
         pushDown(i);
-        if(mid>=start) modify(i<<1,start,end,value);
-        if(mid<=end) modify(i<<1|1,start,end,value);
+        if(mid>=start) modify(i<<1,start,end,value,isDelete);
+        if(mid<=end) modify(i<<1|1,start,end,value,isDelete);
         pushUp(i);
     }
     private segment query(int i, int start, int end){
