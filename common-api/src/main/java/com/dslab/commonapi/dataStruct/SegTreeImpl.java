@@ -1,6 +1,7 @@
 package com.dslab.commonapi.dataStruct;
 
 import com.dslab.commonapi.entity.Event;
+import com.dslab.commonapi.utils.TimeUtil;
 
 import java.util.HashSet;
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.stream.Collectors;
 
 ;
 
-public class SegTreeImpl{
+public class SegTreeImpl implements SegTree {
     /*
 	疑似常数过大/写假了，之后需尝试用segment【】数组重写一遍，看看能不能降到可接受的时间
 	现在貌似比ac时间多了几倍
@@ -88,20 +89,28 @@ public class SegTreeImpl{
             pushUp(index);
         }
     }
-    public void rangeModify(int start,int end,int value){
+    @Override
+    public void rangeModify(int start, int end, int value){
         modify(1,start,end,value);
     }
+    @Override
     public List<Integer> rangeQuery(int start, int end){
         segment query = query(1, start, end);
         return query.value.stream().sorted().collect(Collectors.toList());
     }
+    @Override
     public void addEvent(Event e){
-        //int sm= TimeUtil.dateToMin(e.get)
-
+        int sm= TimeUtil.dateToMin(e.getStartTime()),em=TimeUtil.dateToMin(e.getEndTime());
+        rangeModify(sm,em,e.getEventId());
     }
 
-    public void modifyEvent(Event source,Event dest){
+    @Override
+    public void modifyEvent(Event source, Event dest){
+        int sm= TimeUtil.dateToMin(source.getStartTime()),em=TimeUtil.dateToMin(source.getEndTime());
+        int newSM= TimeUtil.dateToMin(dest.getStartTime()),newEM=TimeUtil.dateToMin(dest.getEndTime());
 
+        rangeModify(sm,em,-1);
+        rangeModify(newSM,newEM,dest.getEventId());
     }
 
 
@@ -124,6 +133,7 @@ public class SegTreeImpl{
         int l=seg[i].l,r=seg[i].r,mid=(l+r)/2;
         if(l>=start&&r<=end) {
             //a.value += value * (r - l + 1);
+            if(value==-1) seg[i].value.clear();//TODO:修改时间时清除原有的课程id用，感觉很可能会有bug
             if(!seg[i].value.contains(value)) {
                 seg[i].value.add(value);
                 seg[i].lazy = 1;
