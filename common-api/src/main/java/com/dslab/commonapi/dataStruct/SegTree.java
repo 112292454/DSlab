@@ -15,4 +15,6 @@ public interface SegTree {
 	List<Integer> queryEvent(Date from, Date to);
 
 	void modifyEvent(Event source, Event dest);
+
+	void deleteEvent(Event e);
 }

@@ -106,9 +106,10 @@ public class SegTreeImpl implements SegTree {
     }
 
     @Override
-    public List<Integer> queryEvent(Date from,Date to){
+    public List<Integer> queryEvent(Date from, Date to){
         return rangeQuery(TimeUtil.dateToMin(from), TimeUtil.dateToMin(to));
     }
+
     @Override
     public void modifyEvent(Event source, Event dest){
         int sm= TimeUtil.dateToMin(source.getStartTime()),em=TimeUtil.dateToMin(source.getEndTime());
@@ -118,6 +119,11 @@ public class SegTreeImpl implements SegTree {
         rangeModify(newSM,newEM,dest.getEventId());
     }
 
+    @Override
+    public void deleteEvent(Event e){
+        int sm= TimeUtil.dateToMin(e.getStartTime()),em=TimeUtil.dateToMin(e.getEndTime());
+        rangeModify(sm,em,-1);
+    }
 
     private void pushUp(int a){
         seg[a].value= seg[a<<1].merge(seg[a<<1|1]);
