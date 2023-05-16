@@ -3,6 +3,7 @@ package com.dslab.commonapi.dataStruct;
 import com.dslab.commonapi.entity.Event;
 import com.dslab.commonapi.utils.TimeUtil;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -104,6 +105,10 @@ public class SegTreeImpl implements SegTree {
         rangeModify(sm,em,e.getEventId());
     }
 
+    @Override
+    public List<Integer> queryEvent(Date from,Date to){
+        return rangeQuery(TimeUtil.dateToMin(from), TimeUtil.dateToMin(to));
+    }
     @Override
     public void modifyEvent(Event source, Event dest){
         int sm= TimeUtil.dateToMin(source.getStartTime()),em=TimeUtil.dateToMin(source.getEndTime());

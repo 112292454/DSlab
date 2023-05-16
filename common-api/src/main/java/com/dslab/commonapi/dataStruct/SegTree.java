@@ -2,6 +2,7 @@ package com.dslab.commonapi.dataStruct;
 
 import com.dslab.commonapi.entity.Event;
 
+import java.util.Date;
 import java.util.List;
 
 public interface SegTree {
@@ -10,6 +11,8 @@ public interface SegTree {
 	List<Integer> rangeQuery(int start, int end);
 
 	void addEvent(Event e);
+
+	List<Integer> queryEvent(Date from, Date to);
 
 	void modifyEvent(Event source, Event dest);
 }
