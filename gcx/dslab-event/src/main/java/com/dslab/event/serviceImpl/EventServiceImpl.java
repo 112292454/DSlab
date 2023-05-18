@@ -3,6 +3,8 @@ package com.dslab.event.serviceImpl;
 import com.alibaba.fastjson.JSON;
 import com.dslab.commonapi.dataStruct.AVLTree;
 import com.dslab.commonapi.dataStruct.AVLTreeImpl;
+import com.dslab.commonapi.dataStruct.SegTree;
+import com.dslab.commonapi.dataStruct.SegTreeImpl;
 import com.dslab.commonapi.entity.*;
 import com.dslab.commonapi.services.EventService;
 import com.dslab.commonapi.utils.MathUtil;
@@ -18,10 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @program: dslab-event
@@ -66,6 +66,11 @@ public class EventServiceImpl implements EventService {
      * 一个用户有哪些日程
      */
     private List<UserEventRelation> userEventIdList = new ArrayList<>();
+    /**
+     * todo 待添加
+     * 每个用户一棵树, 记录其所有日程的时间
+     */
+    private Map<Integer, SegTree> timeTree = new ConcurrentHashMap<>();
 
     /**
      * 预加载函数
@@ -76,6 +81,15 @@ public class EventServiceImpl implements EventService {
         for (User u : users) {
             userIdTree.insert(u);
             userGroupIdList.add(u);
+            List<Event> eventList = new ArrayList<>();
+            List<Integer> eventIds = userEventRelationMapper.getByUserId(u.getUserId());
+            if (eventIds != null) {
+                for (int id : eventIds) {
+                    eventList.add(eventMapper.getByEventId(id));
+                }
+            }
+            SegTree segmentTree = new SegTreeImpl(eventList);
+            timeTree.put(u.getUserId(), segmentTree);
         }
         MathUtil.mySort(userGroupIdList, Comparator.comparingInt(User::getGroupId));
 
@@ -89,6 +103,8 @@ public class EventServiceImpl implements EventService {
         List<UserEventRelation> userEventRelations = userEventRelationMapper.getAll();
         userEventIdList.addAll(userEventRelations);
         MathUtil.mySort(userEventIdList, Comparator.comparingInt(UserEventRelation::getUserId));
+
+
         logger.info("init success!");
     }
 
@@ -201,11 +217,7 @@ public class EventServiceImpl implements EventService {
 
         // 闹钟不会和其他日程产生冲突, 可以直接修改
         if (EventType.EVENT_CLOCK.getValue().equals(event.getEventType())) {
-            eventMapper.update(event);
-            eventIdTree.remove(event);
-            eventIdTree.insert(event);
-            eventNameTree.remove(event);
-            eventNameTree.insert(event);
+            updateSuccess(event);
             return Result.success("修改成功");
         }
 
@@ -221,13 +233,22 @@ public class EventServiceImpl implements EventService {
             return Result.error("添加失败");
         } else {
             // 没有冲突, 可以直接修改
-            eventMapper.update(event);
-            eventIdTree.remove(event);
-            eventIdTree.insert(event);
-            eventNameTree.remove(event);
-            eventNameTree.insert(event);
+            updateSuccess(event);
             return Result.success("修改成功");
         }
+    }
+
+    /**
+     * 执行修改日程的操作
+     *
+     * @param event 日程
+     */
+    private void updateSuccess(Event event) {
+        eventMapper.update(event);
+        eventIdTree.remove(event);
+        eventIdTree.insert(event);
+        eventNameTree.remove(event);
+        eventNameTree.insert(event);
     }
 
     /**

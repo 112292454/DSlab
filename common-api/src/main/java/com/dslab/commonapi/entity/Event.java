@@ -39,6 +39,7 @@ public class Event implements Serializable {
     @Pattern(regexp = "^0|1|2|3|4$", message = "日程类型不正确")
     private String eventType;
     /**
+     * todo 待修改为boolean
      * 日程地点的形式 (online / offline)
      * online 的话就不用导航
      */
@@ -51,6 +52,8 @@ public class Event implements Serializable {
     @NotBlank(message = "人员类型不能为空")
     @Pattern(regexp = "^0|1$", message = "人员类型不正确")
     private String memberType;
+
+    private Boolean isGroup;
     /**
      * 活动的类型
      * 个人的包括有: 自习、锻炼、外出等

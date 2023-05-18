@@ -33,6 +33,15 @@ public class EventController {
     EventMapper eventMapper;
 
     /**
+     * todo 测试方法
+     */
+    @PostMapping("/test")
+    public Result<?> testEvent(@RequestBody @Valid RequestParams requestParams) {
+        System.out.println(requestParams);
+        return Result.success().data(requestParams);
+    }
+
+    /**
      * 添加日程
      *
      * @param requestParams 请求参数, 包含 event 和 user
@@ -45,7 +54,6 @@ public class EventController {
     }
 
     /**
-     *
      * @param eventId 日程id
      * @return 日程信息
      */
@@ -56,7 +64,6 @@ public class EventController {
     }
 
     /**
-     *
      * @param eventName 日程名称
      * @return 日程信息
      */
