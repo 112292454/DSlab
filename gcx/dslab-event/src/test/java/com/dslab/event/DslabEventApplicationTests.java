@@ -13,10 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @SpringBootTest
 class DslabEventApplicationTests {
@@ -95,5 +92,22 @@ class DslabEventApplicationTests {
         event.setStatus(1);
         eventMapper.add(event);
         System.out.println(userMapper.getAllUsers());
+    }
+
+    @Test
+    void testMySearch() {
+        List<Integer> list = new ArrayList<>();
+        list.add(1);
+        list.add(1);
+        list.add(2);
+        list.add(2);
+        list.add(2);
+        list.add(2);
+        list.add(3);
+        list.add(3);
+        list.add(3);
+        list.add(3);
+        System.out.println(MathUtil.mySearch(list, 2, Comparator.comparingInt(o -> o)));
+        System.out.println(MathUtil.mySearch(list, 4, Comparator.comparingInt(o -> o)));
     }
 }

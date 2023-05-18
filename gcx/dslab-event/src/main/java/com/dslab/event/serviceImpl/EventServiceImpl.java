@@ -67,7 +67,6 @@ public class EventServiceImpl implements EventService {
      */
     private List<UserEventRelation> userEventIdList = new ArrayList<>();
     /**
-     * todo 待添加
      * 每个用户一棵树, 记录其所有日程的时间
      */
     private Map<Integer, SegTree> timeTree = new ConcurrentHashMap<>();
@@ -91,8 +90,6 @@ public class EventServiceImpl implements EventService {
                     }
                 }
             }
-            System.out.println("*********************");
-            System.out.println(eventList);
             SegTree segmentTree = new SegTreeImpl(eventList);
             timeTree.put(u.getUserId(), segmentTree);
         }
@@ -115,19 +112,17 @@ public class EventServiceImpl implements EventService {
 
     /**
      * 验证用户身份是否可以添加/修改此日程
-     * 课程考试类日程只能由管理员操作, 其他日程只能由学生操作
+     * 集体类只能由管理员添加, 个人类只能由学生添加
      *
-     * @param userType  用户类型
-     * @param eventType 日程类型
+     * @param u 用户
+     * @param e 日程
      * @return 符合条件返回true, 否则返回false
      */
-    private boolean identifyUser(String userType, String eventType) {
-        if (EventType.EVENT_LESSON.getValue().equals(eventType)
-                || EventType.EVENT_EXAM.getValue().equals(eventType)) {
-            return UserType.USER_ADMIN.getValue().equals(userType);
-        } else {
-            return UserType.USER_STUDENT.getValue().equals(userType);
+    private boolean identifyUser(User u, Event e) {
+        if (UserType.USER_ADMIN.getValue().equals(u.getType())) {
+            return e.getIsGroup();
         }
+        return !e.getIsGroup();
     }
 
     /**
@@ -145,7 +140,7 @@ public class EventServiceImpl implements EventService {
                 // 校验日程时间是否合法
                 return Result.error("日程时间不合法");
             }
-            if (!this.identifyUser(user.getType(), event.getEventType())) {
+            if (!this.identifyUser(user, event)) {
                 //校验用户是否有操作权限
                 return Result.error("用户没有添加权限");
             }
@@ -183,7 +178,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result<?> deleteByEventId(Event event, User user) {
-        if (!this.identifyUser(user.getType(), event.getEventType())) {
+        if (!this.identifyUser(user, event)) {
             //校验用户是否有操作权限
             return Result.error("删除失败, 用户没有修改权限");
         }
@@ -212,7 +207,7 @@ public class EventServiceImpl implements EventService {
             // 校验日程时间是否合法
             return Result.error("日程时间不合法");
         }
-        if (!this.identifyUser(user.getType(), event.getEventType())) {
+        if (!this.identifyUser(user, event)) {
             //校验用户是否有操作权限
             return Result.error("用户没有修改权限");
         }
@@ -289,7 +284,6 @@ public class EventServiceImpl implements EventService {
     }
 
     /**
-     * todo
      * 获取用户在某个时间的课程
      *
      * @param nowTime 传入的时间
@@ -334,12 +328,7 @@ public class EventServiceImpl implements EventService {
      */
     private String checkNextDayEvent(long nowDay, Integer userId) {
         // 选出该用户的所有日程id
-        List<Integer> eventIds = new ArrayList<>();
-        int low = MathUtil.mySearch(userEventIdList, new User(userId), Comparator.comparingInt(User::getUserId));
-        int high = MathUtil.mySearch(userEventIdList, new User(userId), Comparator.comparingInt(User::getUserId));
-        for (int i = low; i < high; ++i) {
-            eventIds.add(userEventIdList.get(i).getEventId());
-        }
+        List<Integer> eventIds = selectEventIds(userId);
 
         // 根据用户的日程id找到对应日程, 并判断其是否是第二天的课程
         List<Event> events = new ArrayList<>();
@@ -361,12 +350,20 @@ public class EventServiceImpl implements EventService {
         boolean result = checkConflict(event, user);
         if (result) {
             // 添加失败
+            if (EventType.EVENT_ACTIVITY.getValue().equals(event.getEventType())) {
+                // 如果是活动类日程则需要找出三个可添加的时间段
+                return findTime(event, user);
+            }
             return Result.error("添加失败");
         } else {
             // 给组内每个学生添加该日程
             // 选出同一个组的用户
-            int low = MathUtil.mySearch(userGroupIdList, new User(user.getGroupId()), Comparator.comparingInt(User::getGroupId));
-            int high = MathUtil.mySearch(userGroupIdList, new User(user.getGroupId() + 1), Comparator.comparingInt(User::getGroupId));
+            User tempUser = new User();
+            tempUser.setGroupId(user.getGroupId());
+            int low = MathUtil.mySearch(userGroupIdList, tempUser, Comparator.comparingInt(User::getGroupId));
+            tempUser.setGroupId(user.getGroupId() + 1);
+            int high = MathUtil.mySearch(userGroupIdList, tempUser, Comparator.comparingInt(User::getGroupId));
+            high = (high == -1 ? userGroupIdList.size() : high);
             List<User> users = new ArrayList<>();
             for (int i = low; i < high; ++i) {
                 int id = userGroupIdList.get(i).getUserId();
@@ -374,16 +371,12 @@ public class EventServiceImpl implements EventService {
             }
 
             // 添加课程
-            eventMapper.add(event);
-            // 可以获取到日程的id
-            event = eventMapper.getByEventName(event.getName());
-            eventIdTree.insert(event);
-            eventNameTree.insert(event);
+            event = saveEvent(event);
 
             // 添加课程与用户映射关系
             for (User u : users) {
-                userEventRelationMapper.add(u.getGroupId(), u.getUserId(), event.getEventId());
-                userEventIdList.add(new UserEventRelation(u.getGroupId(), u.getUserId(), event.getEventId()));
+                addRelation(u, event);
+                addToTimeTree(u, event);
             }
             MathUtil.mySort(userEventIdList, Comparator.comparingInt(UserEventRelation::getUserId));
 
@@ -397,8 +390,6 @@ public class EventServiceImpl implements EventService {
      * @return 成功返回success, 失败返回error
      */
     private Result<?> addEventByStudent(Event event, User user) {
-        System.out.println(event);
-        System.out.println(user);
         // 闹钟不会和其他日程产生冲突, 可以直接添加
         if (EventType.EVENT_CLOCK.getValue().equals(event.getEventType())) {
             return addSuccess(event, user);
@@ -420,22 +411,53 @@ public class EventServiceImpl implements EventService {
     }
 
     /**
+     * 把日程保存到相关的树和表中
+     *
+     * @param event 日程
+     * @return 带有id的日程
+     */
+    private Event saveEvent(Event event) {
+        eventMapper.add(event);
+        event = eventMapper.getByEventName(event.getName());
+        eventIdTree.insert(event);
+        eventNameTree.insert(event);
+        return event;
+    }
+
+    /**
+     * 向用户的线段树里面添加日程
+     *
+     * @param user  用户
+     * @param event 日程
+     */
+    private void addToTimeTree(User user, Event event) {
+        SegTree tree = timeTree.getOrDefault(user.getUserId(), new SegTreeImpl(new ArrayList<>()));
+        tree.addEvent(event);
+        timeTree.put(user.getUserId(), tree);
+    }
+
+    /**
+     * 添加用户和日程映射关系
+     *
+     * @param user  用户
+     * @param event 日程
+     */
+    private void addRelation(User user, Event event) {
+        userEventRelationMapper.add(user.getGroupId(), user.getUserId(), event.getEventId());
+        userEventIdList.add(new UserEventRelation(user.getGroupId(), user.getUserId(), event.getEventId()));
+    }
+
+    /**
      * 学生用户成功添加日程
      *
      * @return 返回信息
      */
     private Result<?> addSuccess(Event event, User user) {
-        System.out.println(event);
-        System.out.println(user);
-        // 添加日程
-        eventMapper.add(event);
-        event = eventMapper.getByEventName(event.getName());
-        eventIdTree.insert(event);
-        eventNameTree.insert(event);
+        event = saveEvent(event);
+        addToTimeTree(user, event);
 
         // 添加日程和用户的映射关系
-        userEventRelationMapper.add(user.getGroupId(), user.getUserId(), event.getEventId());
-        userEventIdList.add(new UserEventRelation(user.getGroupId(), user.getUserId(), event.getEventId()));
+        addRelation(user, event);
         MathUtil.mySort(userEventIdList, Comparator.comparingInt(UserEventRelation::getUserId));
         return Result.success("添加成功");
     }
@@ -447,18 +469,8 @@ public class EventServiceImpl implements EventService {
      */
     private boolean checkConflict(Event event, User user) {
         // 选出该用户的所有日程id
-        // todo 抽象出来
-        List<Integer> eventIds = new ArrayList<>();
-        UserEventRelation userEventRelation = new UserEventRelation();
-        userEventRelation.setUserId(user.getUserId());
-        int low = MathUtil.mySearch(userEventIdList, userEventRelation, Comparator.comparingInt(UserEventRelation::getUserId));
-        System.out.println(low);
-        userEventRelation.setUserId(user.getUserId() + 1);
-        int high = MathUtil.mySearch(userEventIdList, userEventRelation, Comparator.comparingInt(UserEventRelation::getUserId));
-        System.out.println(low + "  " + high);
-        for (int i = low; i < high; ++i) {
-            eventIds.add(userEventIdList.get(i).getEventId());
-        }
+        List<Integer> eventIds = selectEventIds(user.getUserId());
+
         // 根据用户的日程id找到对应日程, 并判断是否有冲突
         List<Event> events = new ArrayList<>();
         for (Integer id : eventIds) {
@@ -471,8 +483,29 @@ public class EventServiceImpl implements EventService {
     }
 
     /**
+     * 根据用户选取其对应日程的id
+     *
+     * @param userId 用户id
+     * @return 日程id列表
+     */
+    private List<Integer> selectEventIds(Integer userId) {
+        List<Integer> eventIds = new ArrayList<>();
+        UserEventRelation userEventRelation = new UserEventRelation();
+        userEventRelation.setUserId(userId);
+        int low = MathUtil.mySearch(userEventIdList, userEventRelation, Comparator.comparingInt(UserEventRelation::getUserId));
+        userEventRelation.setUserId(userId + 1);
+        int high = MathUtil.mySearch(userEventIdList, userEventRelation, Comparator.comparingInt(UserEventRelation::getUserId));
+        high = (high == -1 ? userEventIdList.size() : high);
+        for (int i = low; i < high; ++i) {
+            eventIds.add(userEventIdList.get(i).getEventId());
+        }
+        return eventIds;
+    }
+
+    /**
      * todo 未完成
      * 活动类日程, 寻找没有冲突的时间段
+     * 集体活动至少找出三个和集体内成员冲突最少的三个时间段
      *
      * @param event 待添加日程
      * @param user  用户

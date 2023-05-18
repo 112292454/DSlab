@@ -33,7 +33,7 @@ public class EventController {
     EventMapper eventMapper;
 
     /**
-     * todo 测试方法
+     * 测试方法
      */
     @PostMapping("/test")
     public Result<?> testEvent(@RequestBody @Valid RequestParams requestParams) {
