@@ -7,8 +7,8 @@
         <result column="event_id" property="eventId"/>
         <result column="name" property="name"/>
         <result column="event_type" property="eventType"/>
-        <result column="position_type" property="positionType"/>
-        <result column="member_type" property="memberType"/>
+        <result column="is_online" property="isOnline" jdbcType="TINYINT"/>
+        <result column="is_group" property="isGroup" jdbcType="TINYINT"/>
         <result column="activity_type" property="activityType"/>
         <result column="building_id" property="buildingId"/>
         <result column="link" property="link"/>
@@ -24,8 +24,8 @@
         event_id,
         `name`,
         event_type,
-        position_type,
-        member_type,
+        is_online,
+        is_group,
         activity_type,
         building_id,
         link,
@@ -47,11 +47,11 @@
             <if test="null != eventType and '' != eventType">
                 event_type,
             </if>
-            <if test="null != positionType and '' != positionType">
-                position_type,
+            <if test="null != isOnline and '' != isOnline">
+                is_online,
             </if>
-            <if test="null != memberType and '' != memberType">
-                member_type,
+            <if test="null != isGroup and '' != isGroup">
+                is_group,
             </if>
             <if test="null != activityType and '' != activityType">
                 `activity_type`
@@ -88,11 +88,11 @@
             <if test="null != eventType and '' != eventType">
                 #{eventType},
             </if>
-            <if test="null != positionType and '' != positionType">
-                #{positionType},
+            <if test="null != isOnline and '' != isOnline">
+                #{isOnline},
             </if>
-            <if test="null != memberType and '' != memberType">
-                #{memberType},
+            <if test="null != isGroup and '' != isGroup">
+                #{isGroup},
             </if>
             <if test="null != activityType and '' != activityType">
                 #{activityType},
@@ -161,8 +161,8 @@
         <set>
             <if test="null != name and '' != name">name = #{name},</if>
             <if test="null != eventType and '' != eventType">event_type = #{eventType},</if>
-            <if test="null != positionType and '' != positionType">position_type = #{positionType},</if>
-            <if test="null != memberType and '' != memberType">member_type = #{memberType},</if>
+            <if test="null != isOnline and '' != isOnline">is_online = #{isOnline},</if>
+            <if test="null != isGroup and '' != isGroup">is_group = #{isGroup},</if>
             <if test="null != activityType and '' != activityType">activity_type = #{activityType},</if>
             <if test="null != buildingId and '' != buildingId">building_id = #{buildingId},</if>
             <if test="null != link and '' != link">link = #{link},</if>
