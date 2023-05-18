@@ -75,11 +75,10 @@ public class SegTreeImpl implements SegTree {
 
     segment[] seg;
     node[] source;
-    int size = 0;
+    private static final int size = 24*60;
 
     public SegTreeImpl(List<Event> userEvents) {
-        size = source.length;
-        seg = new segment[source.length << 2];
+        seg = new segment[size << 2];
         build(1, size, 1);
         userEvents.forEach(this::addEvent);
     }
