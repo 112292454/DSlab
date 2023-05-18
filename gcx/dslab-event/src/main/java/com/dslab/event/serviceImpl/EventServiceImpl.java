@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.dslab.commonapi.dataStruct.AVLTree;
 import com.dslab.commonapi.dataStruct.AVLTreeImpl;
 import com.dslab.commonapi.dataStruct.SegTree;
+import com.dslab.commonapi.dataStruct.SegTreeImpl;
 import com.dslab.commonapi.entity.*;
 import com.dslab.commonapi.services.EventService;
 import com.dslab.commonapi.utils.MathUtil;
@@ -80,15 +81,20 @@ public class EventServiceImpl implements EventService {
         for (User u : users) {
             userIdTree.insert(u);
             userGroupIdList.add(u);
-//            List<Event> eventList = new ArrayList<>();
-//            List<Integer> eventIds = userEventRelationMapper.getByUserId(u.getUserId());
-//            if (eventIds != null) {
-//                for (int id : eventIds) {
-//                    eventList.add(eventMapper.getByEventId(id));
-//                }
-//            }
-//            SegTree segmentTree = new SegTreeImpl(eventList);
-//            timeTree.put(u.getUserId(), segmentTree);
+            List<Event> eventList = new ArrayList<>();
+            List<Integer> eventIds = userEventRelationMapper.getByUserId(u.getUserId());
+            if (eventIds != null) {
+                for (int id : eventIds) {
+                    Event e = eventMapper.getByEventId(id);
+                    if (e != null) {
+                        eventList.add(e);
+                    }
+                }
+            }
+            System.out.println("*********************");
+            System.out.println(eventList);
+            SegTree segmentTree = new SegTreeImpl(eventList);
+            timeTree.put(u.getUserId(), segmentTree);
         }
         MathUtil.mySort(userGroupIdList, Comparator.comparingInt(User::getGroupId));
 

@@ -84,7 +84,9 @@ public class SegTreeImpl implements SegTree {
     }
 
     private void build(int l, int r, int index) {
-        if (seg[index] == null) seg[index] = new segment(l, r);
+        if (seg[index] == null) {
+            seg[index] = new segment(l, r);
+        }
         if (l == r) {
             segment s = new segment(l, r);
             //s.value=source[l-1].value;
@@ -156,17 +158,25 @@ public class SegTreeImpl implements SegTree {
         int l = seg[i].l, r = seg[i].r, mid = (l + r) / 2;
         if (l >= start && r <= end) {
             //a.value += value * (r - l + 1);
-            if (isDelete) seg[i].value.remove(value);//TODO:修改时间时清除原有的课程id用，感觉很可能会有bug
+            if (isDelete) {
+                seg[i].value.remove(value);//TODO:修改时间时清除原有的课程id用，感觉很可能会有bug
+            }
             if (!seg[i].value.contains(value)) {
                 seg[i].value.add(value);
                 seg[i].lazy = 1;
             }
             //视实现而定
             return;
-        } else if (l > end || r < start || r == l) return;
+        } else if (l > end || r < start || r == l) {
+            return;
+        }
         pushDown(i);
-        if (mid >= start) modify(i << 1, start, end, value, isDelete);
-        if (mid <= end) modify(i << 1 | 1, start, end, value, isDelete);
+        if (mid >= start) {
+            modify(i << 1, start, end, value, isDelete);
+        }
+        if (mid <= end) {
+            modify(i << 1 | 1, start, end, value, isDelete);
+        }
         pushUp(i);
     }
 
@@ -174,7 +184,9 @@ public class SegTreeImpl implements SegTree {
         int l = seg[i].l, r = seg[i].r;
         if (l >= start && r <= end) {
             return seg[i];
-        } else if (r < start || l > end) return new segment();
+        } else if (r < start || l > end) {
+            return new segment();
+        }
         pushDown(i);
         return new segment(query(i << 1, start, end).merge(query(i << 1 | 1, start, end)));
     }
