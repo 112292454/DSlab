@@ -1,27 +1,37 @@
+spring:
+  application:
+    name: DSlab-guide
+  cloud:
+    nacos:
+      username: nacos
+      password: nacos
+      server-addr: 10.28.166.24:8848
+      discovery:
+        server-addr: ${spring.cloud.nacos.server-addr}
+        namespace: 9af3ea75-52ab-4655-9d78-575a92fdafd7
+        group: DSlab
+      config:
+        server-addr: ${spring.cloud.nacos.server-addr}
+        namespace: 9af3ea75-52ab-4655-9d78-575a92fdafd7
+        group: DSlab
+        #file-extension: yaml
+        #name: ${spring.application.name}
+
 dubbo:
+  application:
+    name: ${spring.application.name}-dubbo
+    #serialize-check-status: warn
   scan:
     base-packages: com.dslab.server.guide
   protocol:
     name: dubbo
     port: -1
-  cloud:
-    subscribed-services: DSlab-guide-service
-spring:
-  application:
-    name: DSlab-guide-service
-  main:
-    allow-bean-definition-overriding: true
-  cloud:
-    nacos:
-      discovery:
-        server-addr: 10.28.166.24:8848
-        namespace: 9af3ea75-52ab-4655-9d78-575a92fdafd7
-        group: DSlab
-      username: nacos
-      password: nacos
-      config:
-        server-addr: 10.28.166.24:8848
-        namespace: 9af3ea75-52ab-4655-9d78-575a92fdafd7
-        group: DSlab
-    config:
-      allow-override: false
+  registry:
+    address: nacos://${spring.cloud.nacos.server-addr}?namespace=${spring.cloud.nacos.discovery.namespace}
+    group: ${spring.cloud.nacos.config.group}
+    username: ${spring.cloud.nacos.username}
+    password: ${spring.cloud.nacos.password}
+  metadata-report:
+    group: ${spring.cloud.nacos.config.group}
+    address: nacos://${spring.cloud.nacos.server-addr}?namespace=${spring.cloud.nacos.config.namespace}
+

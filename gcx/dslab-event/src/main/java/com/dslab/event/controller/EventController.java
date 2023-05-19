@@ -5,7 +5,7 @@ import com.dslab.commonapi.entity.RequestParams;
 import com.dslab.commonapi.services.EventService;
 import com.dslab.commonapi.services.SimulateService;
 import com.dslab.commonapi.vo.Result;
-import com.dslab.event.mapper.EventMapper;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.ibatis.annotations.Param;
@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -38,8 +37,6 @@ public class EventController {
     @DubboReference(group = "DSlab", interfaceClass = SimulateService.class, check = false)
     SimulateService simulateService;
 
-    @Resource
-    EventMapper eventMapper;
 
     /**
      * 测试方法

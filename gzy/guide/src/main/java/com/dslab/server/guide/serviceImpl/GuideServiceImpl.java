@@ -4,10 +4,10 @@ import com.dslab.commonapi.dataStruct.ShortestRoad;
 import com.dslab.commonapi.entity.Point;
 import com.dslab.commonapi.services.GuideService;
 import com.dslab.commonapi.services.PointService;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +17,7 @@ public class GuideServiceImpl implements GuideService {
     ShortestRoad sr;
 
     @Autowired
+//    @DubboReference(group = "DSlab",version = "1.0.0",interfaceClass = PointService.class)
     PointService pointService;
 
     @Override

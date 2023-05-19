@@ -1,6 +1,6 @@
 package com.dslab.event.serviceImpl;
 
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSON;
 import com.dslab.commonapi.dataStruct.AVLTree;
 import com.dslab.commonapi.dataStruct.AVLTreeImpl;
 import com.dslab.commonapi.dataStruct.SegTree;
@@ -13,13 +13,13 @@ import com.dslab.commonapi.vo.Result;
 import com.dslab.event.mapper.EventMapper;
 import com.dslab.event.mapper.UserEventRelationMapper;
 import com.dslab.event.mapper.UserMapper;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 

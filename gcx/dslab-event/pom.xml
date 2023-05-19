@@ -14,15 +14,11 @@
     <description>data struct course schedule part</description>
     <packaging>jar</packaging>
     <properties>
-        <java.version>8</java.version>
+        <java.version>17</java.version>
     </properties>
     <dependencies>
 
-        <dependency>
-            <groupId>jakarta.validation</groupId>
-            <artifactId>jakarta.validation-api</artifactId>
-            <version>3.0.2</version>
-        </dependency>
+
     </dependencies>
 
     <build>

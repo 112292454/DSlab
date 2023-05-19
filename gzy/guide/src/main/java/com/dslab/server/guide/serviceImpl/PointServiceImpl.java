@@ -3,21 +3,21 @@ package com.dslab.server.guide.serviceImpl;
 import com.dslab.commonapi.entity.Point;
 import com.dslab.commonapi.services.PointService;
 import com.dslab.server.guide.dao.PointMapper;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
-@DubboService(group = "DSlab", version = "1.0.0",interfaceClass = PointService.class)
+@DubboService(group = "DSlab",version = "1.0.0",interfaceClass = PointService.class)
 public class PointServiceImpl implements PointService {
 
     private static HashMap<Integer, Point> points;

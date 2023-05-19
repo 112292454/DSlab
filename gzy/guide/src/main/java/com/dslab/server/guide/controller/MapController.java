@@ -3,7 +3,7 @@ package com.dslab.server.guide.controller;
 import com.dslab.commonapi.entity.Point;
 import com.dslab.commonapi.services.PointService;
 import com.dslab.commonapi.vo.Result;
-import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,8 +12,8 @@ import java.util.List;
 @RequestMapping("/ds/guide/map")
 @CrossOrigin
 public class MapController {
-	// @Autowired
-	@DubboReference(group = "DSlab-guide", version = "1.0.0")
+	 @Autowired
+//	@DubboReference(group = "DSlab",version = "1.0.0",interfaceClass = PointService.class,check = false)
 	PointService pointService;
 
 	@GetMapping({"/add_point"})
