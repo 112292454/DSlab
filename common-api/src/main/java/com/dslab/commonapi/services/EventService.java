@@ -56,6 +56,15 @@ public interface EventService {
      */
     Result<Event> getByEventName(String eventName);
 
+
+    /**
+     * 获取用户给定日期的所有日程
+     * @param userId 用户id
+     * @param date 时间
+     * @return 日程列表
+     */
+    Result<String> getDayEvents(Integer userId, Date date);
+
     /**
      * 根据给定时间获取用户日程
      * 时间点在23点后获取第二天日程, 否则获取下一个小时的日程

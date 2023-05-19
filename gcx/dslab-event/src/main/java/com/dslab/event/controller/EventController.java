@@ -3,15 +3,21 @@ package com.dslab.event.controller;
 import com.dslab.commonapi.entity.Event;
 import com.dslab.commonapi.entity.RequestParams;
 import com.dslab.commonapi.services.EventService;
+import com.dslab.commonapi.services.SimulateService;
 import com.dslab.commonapi.vo.Result;
 import com.dslab.event.mapper.EventMapper;
 import jakarta.validation.Valid;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
 
 /**
  * @program: dslab-event
@@ -28,6 +34,9 @@ public class EventController {
     private static Logger logger = LoggerFactory.getLogger(EventController.class);
     @Resource
     EventService eventService;
+
+    @DubboReference(group = "DSlab", interfaceClass = SimulateService.class, check = false)
+    SimulateService simulateService;
 
     @Resource
     EventMapper eventMapper;
@@ -54,6 +63,8 @@ public class EventController {
     }
 
     /**
+     * 根据id获取日程信息
+     *
      * @param eventId 日程id
      * @return 日程信息
      */
@@ -64,15 +75,39 @@ public class EventController {
     }
 
     /**
+     * 根据名字获取日程信息
+     *
      * @param eventName 日程名称
      * @return 日程信息
      */
     @GetMapping("/eventName/{eventName}")
     @ResponseBody
-    public Result<Event> getByEventId(@PathVariable @Param("eventName") String eventName) {
+    public Result<Event> getByEventName(@PathVariable @Param("eventName") String eventName) {
         return eventService.getByEventName(eventName);
     }
 
+    /**
+     * 获取用户某一天的日程
+     *
+     * @param map 两个参数, 用户id和一个时间
+     * @return 日程列表
+     */
+    @GetMapping("/DayEvents")
+    @ResponseBody
+    public Result<String> getDayEvents(@RequestParam Map<String, String> map) throws ParseException {
+        Integer userId = Integer.valueOf(map.get("userId"));
+        Date date = null;
+        if (map.containsKey("date")) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            date = sdf.parse(map.get("date"));
+        } else {
+            date = simulateService.getUserSimulateTime(String.valueOf(userId));
+        }
+        System.out.println("*************");
+        System.out.println(userId);
+        System.out.println(date);
+        return eventService.getDayEvents(userId, date);
+    }
 
     /**
      * 删除日程

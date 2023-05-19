@@ -10,12 +10,13 @@ import com.dslab.event.mapper.UserEventRelationMapper;
 import com.dslab.event.mapper.UserMapper;
 import com.dslab.event.serviceImpl.EventServiceImpl;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
-@SpringBootTest
+//@SpringBootTest
 class DslabEventApplicationTests {
 
     @Resource
@@ -109,5 +110,13 @@ class DslabEventApplicationTests {
         list.add(3);
         System.out.println(MathUtil.mySearch(list, 2, Comparator.comparingInt(o -> o)));
         System.out.println(MathUtil.mySearch(list, 4, Comparator.comparingInt(o -> o)));
+    }
+
+    @Test
+    void testDate() throws ParseException {
+        String d = "2013-07-11 01:25:12";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = sdf.parse(d);
+        System.out.println(date);
     }
 }

@@ -284,6 +284,20 @@ public class EventServiceImpl implements EventService {
     }
 
     /**
+     * 获取用户给定日期的所有日程
+     *
+     * @param userId 用户id
+     * @param date   时间
+     * @return 日程列表
+     */
+    @Override
+    public Result<String> getDayEvents(Integer userId, Date date) {
+        long nowDay = TimeUtil.dateToDay(date);
+        String res = checkDayEvents(nowDay, userId);
+        return Result.<String>success("查询成功").data(res);
+    }
+
+    /**
      * 获取用户在某个时间的课程
      *
      * @param nowTime 传入的时间
@@ -301,14 +315,14 @@ public class EventServiceImpl implements EventService {
             res = checkNextHourEvent(nowDay, nowHour, Integer.valueOf(userId));
         } else {
             // 否则是查询第二天的日程
-            res = checkNextDayEvent(nowDay, Integer.valueOf(userId));
+            res = checkDayEvents(nowDay + 1, Integer.valueOf(userId));
         }
         return Result.<String>success("查询成功").data(res);
     }
 
     /**
      * todo
-     * 检查用户下一个小时的日程
+     * 检查用户当前小时的日程
      *
      * @param nowDay  当前天
      * @param nowHour 当前小时
@@ -320,13 +334,13 @@ public class EventServiceImpl implements EventService {
     }
 
     /**
-     * 检查用户第二天的日程
+     * 检查用户当前天的日程
      *
      * @param nowDay 当前天
      * @param userId 用户id
      * @return JSON化字符串
      */
-    private String checkNextDayEvent(long nowDay, Integer userId) {
+    private String checkDayEvents(long nowDay, Integer userId) {
         // 选出该用户的所有日程id
         List<Integer> eventIds = selectEventIds(userId);
 
@@ -334,7 +348,7 @@ public class EventServiceImpl implements EventService {
         List<Event> events = new ArrayList<>();
         for (Integer id : eventIds) {
             Event e = eventIdTree.search(new Event(id)).getKey();
-            if (e != null && TimeUtil.IsInOneDay(nowDay + 1, e)) {
+            if (e != null && TimeUtil.IsInOneDay(nowDay, e)) {
                 events.add(e);
             }
         }
