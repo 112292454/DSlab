@@ -26,6 +26,7 @@ dubbo:
   protocol:
     name: dubbo
     port: -1
+    host: 10.28.166.24
   registry:
     address: nacos://${spring.cloud.nacos.server-addr}?namespace=${spring.cloud.nacos.discovery.namespace}
     group: ${spring.cloud.nacos.config.group}
@@ -34,4 +35,6 @@ dubbo:
   metadata-report:
     group: ${spring.cloud.nacos.config.group}
     address: nacos://${spring.cloud.nacos.server-addr}?namespace=${spring.cloud.nacos.config.namespace}
+  provider:
+    host: ${dubbo.protocol.host}
 
