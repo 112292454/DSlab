@@ -102,7 +102,10 @@ public class TimeUtil {
      *
      * @return 在同一天则返回true, 否则返回false
      */
-    public static Boolean IsInOneDay(Event a, Event b) {
+    public static Boolean isInOneDay(Event a, Event b) {
+        if (a == null || b == null) {
+            return false;
+        }
         long aDate = dateToDay(a.getStartTime());
         long bDate = dateToDay(b.getStartTime());
         // 根据周期是否为0分类讨论, 进行判断
@@ -131,7 +134,10 @@ public class TimeUtil {
      *
      * @return 在当天则返回true, 否则返回false
      */
-    public static Boolean IsInOneDay(Long nowDay, Event e) {
+    public static Boolean isInOneDay(Long nowDay, Event e) {
+        if (e == null) {
+            return false;
+        }
         long eDate = dateToDay(e.getStartTime());
         // 根据周期是否为0分类讨论, 进行判断
         if (e.getCycle() == 0) {

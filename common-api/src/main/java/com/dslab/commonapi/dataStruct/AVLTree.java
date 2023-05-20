@@ -85,4 +85,11 @@ public interface AVLTree<T> {
      * 打印树
      */
     void print();
+
+    /**
+     * 修改节点
+     * @param src 原节点
+     * @param dest 目标节点
+     */
+    void update(T src, T dest);
 }

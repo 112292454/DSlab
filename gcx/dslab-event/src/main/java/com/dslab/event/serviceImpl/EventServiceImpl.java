@@ -100,7 +100,6 @@ public class EventServiceImpl implements EventService {
             eventIdTree.insert(e);
             eventNameTree.insert(e);
         }
-        eventIdTree.preOrder();
 
         List<UserEventRelation> userEventRelations = userEventRelationMapper.getAll();
         userEventIdList.addAll(userEventRelations);
@@ -184,9 +183,9 @@ public class EventServiceImpl implements EventService {
         }
 
         int change = eventMapper.deleteByEventId(event.getEventId());
-        eventIdTree.remove(new Event(event.getEventId()));
-        eventNameTree.remove(new Event(event.getName()));
         if (change == 1) {
+            eventIdTree.remove(new Event(event.getEventId()));
+            eventNameTree.remove(new Event(event.getName()));
             return Result.success("删除成功");
         } else {
             return Result.error("删除失败");
@@ -212,17 +211,19 @@ public class EventServiceImpl implements EventService {
             return Result.error("用户没有修改权限");
         }
 
-        // 先把该日程删除, 以免检测冲突的时候出错
-        eventMapper.deleteByEventId(event.getEventId());
+        // todo 改, 和add一样分成管理员更新和学生更新
+
+        // 旧日程
+        Event oldEvent = eventIdTree.search(new Event(event.getEventId())).getKey();
 
         // 闹钟不会和其他日程产生冲突, 可以直接修改
         if (EventType.EVENT_CLOCK.getValue().equals(event.getEventType())) {
-            updateSuccess(event);
+            updateSuccess(user.getUserId(), oldEvent, event);
             return Result.success("修改成功");
         }
 
         // 判断是否有冲突
-        boolean result = checkConflict(event, user);
+        boolean result = studentCheckConflict(event, user);
         if (result) {
             // 修改失败
             if (EventType.EVENT_ACTIVITY.getValue().equals(event.getEventType())) {
@@ -233,22 +234,24 @@ public class EventServiceImpl implements EventService {
             return Result.error("添加失败");
         } else {
             // 没有冲突, 可以直接修改
-            updateSuccess(event);
+            updateSuccess(user.getUserId(), oldEvent, event);
             return Result.success("修改成功");
         }
     }
 
     /**
-     * 执行修改日程的操作
+     * 执行修改日程的操作, 将旧日程改为新日程
      *
-     * @param event 日程
+     * @param userId 用户id
+     * @param dest   新日程
+     * @param src    旧日程
      */
-    private void updateSuccess(Event event) {
-        eventMapper.update(event);
-        eventIdTree.remove(event);
-        eventIdTree.insert(event);
-        eventNameTree.remove(event);
-        eventNameTree.insert(event);
+    private void updateSuccess(Integer userId, Event src, Event dest) {
+        eventMapper.update(dest);
+        eventIdTree.update(src, dest);
+        eventNameTree.update(src, dest);
+        SegTree segTree = timeTree.get(userId);
+        segTree.modifyEvent(src, dest);
     }
 
     /**
@@ -275,7 +278,7 @@ public class EventServiceImpl implements EventService {
      */
     @Override
     public Result<Event> getByEventName(String eventName) {
-        Event event = eventIdTree.search(new Event(eventName)).getKey();
+        Event event = eventNameTree.search(new Event(eventName)).getKey();
         if (event != null) {
             return Result.<Event>success("查找成功").data(event);
         } else {
@@ -308,11 +311,12 @@ public class EventServiceImpl implements EventService {
     public Result<String> checkUserEventInTime(Date nowTime, String userId) {
         long nowDay = TimeUtil.dateToDay(nowTime);
         int nowHour = TimeUtil.dateToHour(nowTime);
+        int nowMin = TimeUtil.dateToMin(nowTime);
 
         String res;
         if (nowHour < 23) {
             // 如果当前时间小于23点, 则是判断查询下一个小时的日程
-            res = checkNextHourEvent(nowDay, nowHour, Integer.valueOf(userId));
+            res = checkPeriodTimeEvents(nowDay, nowMin, nowMin + 60, Integer.valueOf(userId));
         } else {
             // 否则是查询第二天的日程
             res = checkDayEvents(nowDay + 1, Integer.valueOf(userId));
@@ -321,34 +325,48 @@ public class EventServiceImpl implements EventService {
     }
 
     /**
-     * todo
-     * 检查用户当前小时的日程
+     * 检查用户一段时间内的日程
      *
-     * @param nowDay  当前天
-     * @param nowHour 当前小时
-     * @param userId  用户id
-     * @return JSON化字符串
-     */
-    private String checkNextHourEvent(long nowDay, int nowHour, Integer userId) {
-        return "";
-    }
-
-    /**
-     * 检查用户当前天的日程
-     *
-     * @param nowDay 当前天
+     * @param day    日期
+     * @param from   起始时间
+     * @param to     终止时间
      * @param userId 用户id
      * @return JSON化字符串
      */
-    private String checkDayEvents(long nowDay, Integer userId) {
+    private String checkPeriodTimeEvents(long day, int from, int to, Integer userId) {
+        // 获取这段时间内的日程
+        SegTree segTree = timeTree.get(userId);
+        List<Integer> eventIds = segTree.rangeQuery(from, to);
+        // 返回在同一天的日程
+        return selectSameDayEvents(day, eventIds);
+    }
+
+    /**
+     * 检查用户给定日期的日程
+     *
+     * @param day    给定日期
+     * @param userId 用户id
+     * @return JSON化字符串
+     */
+    private String checkDayEvents(long day, Integer userId) {
         // 选出该用户的所有日程id
         List<Integer> eventIds = selectEventIds(userId);
+        // 根据用户的日程id找到对应日程, 并判断其是否是在给定日期的课程
+        return selectSameDayEvents(day, eventIds);
+    }
 
-        // 根据用户的日程id找到对应日程, 并判断其是否是第二天的课程
+    /**
+     * 给定日期和日程id列表, 选取和给定日期在同一天的日程
+     *
+     * @param day      给定日期
+     * @param eventIds 日程id
+     * @return 日程的json字符串
+     */
+    private String selectSameDayEvents(long day, List<Integer> eventIds) {
         List<Event> events = new ArrayList<>();
         for (Integer id : eventIds) {
             Event e = eventIdTree.search(new Event(id)).getKey();
-            if (e != null && TimeUtil.IsInOneDay(nowDay, e)) {
+            if (TimeUtil.isInOneDay(day, e)) {
                 events.add(e);
             }
         }
@@ -361,7 +379,7 @@ public class EventServiceImpl implements EventService {
      * @return 成功返回success, 失败返回error
      */
     private Result<?> addEventByAdmin(Event event, User user) {
-        boolean result = checkConflict(event, user);
+        boolean result = adminCheckConflict(event, user);
         if (result) {
             // 添加失败
             if (EventType.EVENT_ACTIVITY.getValue().equals(event.getEventType())) {
@@ -372,17 +390,7 @@ public class EventServiceImpl implements EventService {
         } else {
             // 给组内每个学生添加该日程
             // 选出同一个组的用户
-            User tempUser = new User();
-            tempUser.setGroupId(user.getGroupId());
-            int low = MathUtil.mySearch(userGroupIdList, tempUser, Comparator.comparingInt(User::getGroupId));
-            tempUser.setGroupId(user.getGroupId() + 1);
-            int high = MathUtil.mySearch(userGroupIdList, tempUser, Comparator.comparingInt(User::getGroupId));
-            high = (high == -1 ? userGroupIdList.size() : high);
-            List<User> users = new ArrayList<>();
-            for (int i = low; i < high; ++i) {
-                int id = userGroupIdList.get(i).getUserId();
-                users.add(userIdTree.search(new User(id)).getKey());
-            }
+            List<User> users = selectSameGroupUsers(user);
 
             // 添加课程
             event = saveEvent(event);
@@ -410,7 +418,7 @@ public class EventServiceImpl implements EventService {
         }
 
         // 判断是否有冲突
-        boolean result = checkConflict(event, user);
+        boolean result = studentCheckConflict(event, user);
         if (result) {
             // 添加失败
             if (EventType.EVENT_ACTIVITY.getValue().equals(event.getEventType())) {
@@ -477,19 +485,35 @@ public class EventServiceImpl implements EventService {
     }
 
     /**
+     * 管理员查询冲突, 要查询和该管理员同组的所有用户是否有冲突
+     *
+     * @return 如果有冲突返回true, 否则返回false
+     */
+    private boolean adminCheckConflict(Event event, User user) {
+        List<User> users = selectSameGroupUsers(user);
+        for (User u : users) {
+            if (studentCheckConflict(event, u)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * 判断该用户是否有冲突的日程
      *
      * @return 如果有冲突返回true, 否则返回false
      */
-    private boolean checkConflict(Event event, User user) {
+    private boolean studentCheckConflict(Event event, User user) {
         // 选出该用户的所有日程id
         List<Integer> eventIds = selectEventIds(user.getUserId());
 
         // 根据用户的日程id找到对应日程, 并判断是否有冲突
-        List<Event> events = new ArrayList<>();
         for (Integer id : eventIds) {
             Event e = eventIdTree.search(new Event(id)).getKey();
-            if (e != null && TimeUtil.IsInOneDay(e, event) && TimeUtil.compareTime(event, e)) {
+            if (e != null && !e.getEventId().equals(event.getEventId())
+                    && TimeUtil.isInOneDay(e, event)
+                    && TimeUtil.compareTime(event, e)) {
                 return true;
             }
         }
@@ -506,14 +530,37 @@ public class EventServiceImpl implements EventService {
         List<Integer> eventIds = new ArrayList<>();
         UserEventRelation userEventRelation = new UserEventRelation();
         userEventRelation.setUserId(userId);
-        int low = MathUtil.mySearch(userEventIdList, userEventRelation, Comparator.comparingInt(UserEventRelation::getUserId));
+        int low = MathUtil.lowerBound(userEventIdList, userEventRelation, Comparator.comparingInt(UserEventRelation::getUserId));
         userEventRelation.setUserId(userId + 1);
-        int high = MathUtil.mySearch(userEventIdList, userEventRelation, Comparator.comparingInt(UserEventRelation::getUserId));
-        high = (high == -1 ? userEventIdList.size() : high);
-        for (int i = low; i < high; ++i) {
-            eventIds.add(userEventIdList.get(i).getEventId());
+        int high = MathUtil.lowerBound(userEventIdList, userEventRelation, Comparator.comparingInt(UserEventRelation::getUserId));
+        if (low != -1) {
+            high = (high == -1 ? userEventIdList.size() : high);
+            for (int i = low; i < high; ++i) {
+                eventIds.add(userEventIdList.get(i).getEventId());
+            }
         }
         return eventIds;
+    }
+
+    /**
+     * 选取同一组的用户
+     *
+     * @param user 管理员
+     * @return 同组用户
+     */
+    private List<User> selectSameGroupUsers(User user) {
+        User tempUser = new User();
+        tempUser.setGroupId(user.getGroupId());
+        int low = MathUtil.lowerBound(userGroupIdList, tempUser, Comparator.comparingInt(User::getGroupId));
+        tempUser.setGroupId(user.getGroupId() + 1);
+        int high = MathUtil.lowerBound(userGroupIdList, tempUser, Comparator.comparingInt(User::getGroupId));
+        high = (high == -1 ? userGroupIdList.size() : high);
+        List<User> users = new ArrayList<>();
+        for (int i = low; i < high; ++i) {
+            int id = userGroupIdList.get(i).getUserId();
+            users.add(userIdTree.search(new User(id)).getKey());
+        }
+        return users;
     }
 
     /**

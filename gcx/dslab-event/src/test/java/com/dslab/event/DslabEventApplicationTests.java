@@ -108,8 +108,8 @@ class DslabEventApplicationTests {
         list.add(3);
         list.add(3);
         list.add(3);
-        System.out.println(MathUtil.mySearch(list, 2, Comparator.comparingInt(o -> o)));
-        System.out.println(MathUtil.mySearch(list, 4, Comparator.comparingInt(o -> o)));
+        System.out.println(MathUtil.lowerBound(list, 2, Comparator.comparingInt(o -> o)));
+        System.out.println(MathUtil.lowerBound(list, 4, Comparator.comparingInt(o -> o)));
     }
 
     @Test

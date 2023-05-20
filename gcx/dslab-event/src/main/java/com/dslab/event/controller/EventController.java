@@ -100,9 +100,6 @@ public class EventController {
         } else {
             date = simulateService.getUserSimulateTime(String.valueOf(userId));
         }
-        System.out.println("*************");
-        System.out.println(userId);
-        System.out.println(date);
         return eventService.getDayEvents(userId, date);
     }
 
