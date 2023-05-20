@@ -1,4 +1,4 @@
-create table dslab.event
+create table ds_lab.event
 (
     event_id      int auto_increment comment '日程id'
         primary key,
@@ -19,27 +19,27 @@ create table dslab.event
     comment '日程表';
 
 create index building_index
-    on dslab.event (building_id);
+    on ds_lab.event (building_id);
 
 create index event_index
-    on dslab.event (event_type);
+    on ds_lab.event (event_type);
 
 create index member_index
-    on dslab.event (is_group);
+    on ds_lab.event (is_group);
 
 create index activity_index
-    on dslab.event (activity_type);
+    on ds_lab.event (activity_type);
 
 create index name_index
-    on dslab.event (`name`);
+    on ds_lab.event (`name`);
 
 create index pos_index
-    on dslab.event (is_online);
+    on ds_lab.event (is_online);
 
 create index start_index
-    on dslab.event (start_time);
+    on ds_lab.event (start_time);
 
-create table dslab.user
+create table ds_lab.user
 (
     user_id    int auto_increment comment '用户id'
         primary key,
@@ -52,18 +52,18 @@ create table dslab.user
     comment '用户表';
 
 create index mail_index
-    on dslab.user (mail);
+    on ds_lab.user (mail);
 
 create index user_name
-    on dslab.user (username);
+    on ds_lab.user (username);
 
 create index type_index
-    on dslab.user (type);
+    on ds_lab.user (type);
 
 create index group_index
-    on dslab.user (group_id);
+    on ds_lab.user (group_id);
 
-create table dslab.user_event_relation
+create table ds_lab.user_event_relation
 (
     id       int auto_increment
         primary key,
@@ -73,13 +73,13 @@ create table dslab.user_event_relation
 )
     comment '联系表';
 create index group_index
-    on dslab.user_event_relation (group_id);
+    on ds_lab.user_event_relation (group_id);
 
 create index user_index
-    on dslab.user_event_relation (user_id);
+    on ds_lab.user_event_relation (user_id);
 
 create index event_index
-    on dslab.user_event_relation (event_id);
+    on ds_lab.user_event_relation (event_id);
 
 
 # 查询示范
