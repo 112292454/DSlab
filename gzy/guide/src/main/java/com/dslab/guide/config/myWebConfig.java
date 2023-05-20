@@ -1,4 +1,4 @@
-package com.dslab.server.guide.config;
+package com.dslab.guide.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

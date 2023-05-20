@@ -1,4 +1,4 @@
-package com.dslab.server.guide.controller;
+package com.dslab.guide.controller;
 
 import com.dslab.commonapi.entity.Point;
 import com.dslab.commonapi.services.PointService;

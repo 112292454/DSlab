@@ -1,4 +1,4 @@
-package com.dslab.server.guide.serviceImpl;
+package com.dslab.guide;
 
 import com.dslab.commonapi.dataStruct.ShortestRoad;
 import com.dslab.commonapi.entity.Point;

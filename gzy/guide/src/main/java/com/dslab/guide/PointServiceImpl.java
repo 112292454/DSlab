@@ -1,8 +1,8 @@
-package com.dslab.server.guide.serviceImpl;
+package com.dslab.guide;
 
 import com.dslab.commonapi.entity.Point;
 import com.dslab.commonapi.services.PointService;
-import com.dslab.server.guide.dao.PointMapper;
+import com.dslab.guide.dao.PointMapper;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;

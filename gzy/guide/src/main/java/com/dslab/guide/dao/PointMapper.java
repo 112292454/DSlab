@@ -1,4 +1,4 @@
-package com.dslab.server.guide.dao;
+package com.dslab.guide.dao;
 
 import com.dslab.commonapi.entity.Point;
 import org.apache.ibatis.annotations.Mapper;

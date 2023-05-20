@@ -1,4 +1,4 @@
-package com.dslab.server.guide;
+package com.dslab.guide;
 
 import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 import org.springframework.boot.SpringApplication;
@@ -7,7 +7,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@EnableDubbo(scanBasePackages = "com.dslab.server.guide")
+@EnableDubbo(scanBasePackages = "com.dslab.guide")
 public class GuideApplication {
 
 	public static void main(String[] args) {
