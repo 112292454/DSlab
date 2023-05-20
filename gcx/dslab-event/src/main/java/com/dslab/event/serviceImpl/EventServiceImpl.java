@@ -4,7 +4,10 @@ import com.dslab.commonapi.dataStruct.AVLTree;
 import com.dslab.commonapi.dataStruct.AVLTreeImpl;
 import com.dslab.commonapi.dataStruct.SegTree;
 import com.dslab.commonapi.dataStruct.SegTreeImpl;
-import com.dslab.commonapi.entity.*;
+import com.dslab.commonapi.entity.Event;
+import com.dslab.commonapi.entity.EventType;
+import com.dslab.commonapi.entity.User;
+import com.dslab.commonapi.entity.UserEventRelation;
 import com.dslab.commonapi.services.EventService;
 import com.dslab.commonapi.utils.MathUtil;
 import com.dslab.commonapi.utils.TimeUtil;
@@ -447,15 +450,14 @@ public class EventServiceImpl implements EventService {
         List<Event> res;
         if (nowHour < 23) {
             // 如果当前时间小于23点, 则是判断查询下一个小时的日程
-            //res = checkNextHourEvent(nowDay, nowHour, Integer.valueOf(userId));
-            res=new ArrayList<>();
-            //TODO
-
-
+            res=timeTree.get(Integer.parseInt(userId)).rangeQuery(nowHour*60, (nowHour+1)*60).stream()
+                    .map(a->eventIdTree.search(new Event(a)).getKey()).toList();
         } else {
             // 否则是查询第二天的日程
             res = getEventsByDay(Integer.valueOf(userId),nowDay + 1).getData();
         }
+
+        //TODO:是所有的事件都要发提醒吗？那闹钟的区别在哪呢。还是说只需要给标了闹钟的事件和一整天晚上检测第二天的那些才提醒？或者说闹钟不是之前说的事件的一个属性，而就是单独的事务？
 
         return res.isEmpty()?
                 Result.error("无需要提醒的事件"):
