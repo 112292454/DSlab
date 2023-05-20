@@ -42,7 +42,7 @@ public class EventController {
      * 测试方法
      */
     @PostMapping("/test")
-    public Result<?> testEvent(@RequestBody @Valid RequestParams requestParams) {
+    public Result<?> testEvent(@RequestBody @Valid Event requestParams) {
         System.out.println(requestParams);
         return Result.success().data(requestParams);
     }
