@@ -30,12 +30,12 @@ public class UserController {
     @DubboReference(group = "DSlab-guide", version = "1.0.0", check = false)
     PointService pointService;
 
-    @GetMapping("/dubbo_test")
+    @PostMapping("/dubbo_test")
     public Result<List<Point>> testMethod() {
         return Result.<List<Point>>success("测试dubbo远程调用成功，获取地图：").data(pointService.listAll());
     }
 
-    @GetMapping("/userId/{userId}")
+    @PostMapping("/userId/{userId}")
     public Result<User> getByUserId(@PathVariable @RequestParam(defaultValue = "1", required = true) Integer userId) {
         System.out.println(userId);
         User user = userMapper.getByUserId(userId);
@@ -45,7 +45,7 @@ public class UserController {
         return Result.<User>success("登陆成功").data(user);
     }
 
-    @GetMapping("/username/{username}")
+    @PostMapping("/username/{username}")
     public Result<User> getByUsername(@PathVariable @Valid String username) throws UnsupportedEncodingException {
         System.out.println(username);
         User user = userMapper.getByUsername(username);
@@ -55,7 +55,7 @@ public class UserController {
         return Result.<User>success("登陆成功").data(user);
     }
 
-    @GetMapping("/groupId/{groupId}")
+    @PostMapping("/groupId/{groupId}")
     public Result<List> getByGroupId(@PathVariable Integer groupId) {
         System.out.println(groupId);
         List<User> users = userMapper.getByGroupId(groupId);
@@ -77,7 +77,7 @@ public class UserController {
         return Result.<User>success("登陆成功").data(user);
     }
 
-    @GetMapping
+    @PostMapping
     public Result<List> getAll() {
         List<User> list = userMapper.getAllUsers();
         return Result.<List>success("登陆成功").data(list);

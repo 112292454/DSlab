@@ -19,14 +19,14 @@ public class GuideController {
 	//像素点转换到实际距离（米）的系数
 	private static final double PIXEL_2_METER_ARG = 0.25;
 
-	@GetMapping({"/p2p"})
+	@PostMapping({"/p2p"})
 	public Result<List<Point>> P2Pguide(int from, int to) {
 		List<Point> guidePaths = guideService.directGuide(from, to);
 		return getResult(guidePaths);
 	}
 
 
-	@GetMapping({"/by_many"})
+	@PostMapping({"/by_many"})
 	//注意，传入参数中，第一个点是起始点的id，后面的是需要经过的点的id，不用把最终回到原点的需求也写进来
 	public Result<List<Point>> byManyguide(@RequestBody List<Integer> points) {
 		List<Point> guidePaths = guideService.byManyPointsGuide(points);
