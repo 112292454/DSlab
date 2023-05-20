@@ -1,5 +1,6 @@
 package com.dslab.simulate.ServiceImpl;
 
+import com.dslab.commonapi.entity.Event;
 import com.dslab.commonapi.services.EventService;
 import com.dslab.commonapi.services.SimulateService;
 import com.dslab.commonapi.vo.Result;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -87,7 +89,11 @@ public class SimulateServiceImpl implements SimulateService {
 
 	@Override
 	public Date getUserSimulateTime(String user) {
-		return threadMap.get(user).getNow();
+		simulateThread simulateThread = threadMap.get(user);
+		if(simulateThread==null||simulateThread.getNow()==null){
+			return new Date();
+		}
+		return simulateThread.getNow();
 	}
 
 	@Override
@@ -153,7 +159,7 @@ public class SimulateServiceImpl implements SimulateService {
 						//查询应该发送什么提醒
 						//这个消息的内容格式应该是和前端约定一下：socket收到这种消息就给用户弹一个提示，
 						// 比方说result的{code=201，data=[课程a、课程b]}之类
-						Result<String> result = eventService.checkUserEventInTime(now, user);
+						Result<List<Event>> result = eventService.checkUserEventInTime(now, user);
 						WebsocketUtil.sendMessage(user, result);
 
 						//每过1s跳动一下时间
