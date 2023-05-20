@@ -65,7 +65,7 @@ public class EventController {
      * @param eventId 日程id
      * @return 日程信息
      */
-    @PostMapping("/eventId/{eventId}")
+    @GetMapping("/eventId/{eventId}")
     @ResponseBody
     public Result<Event> getByEventId(@PathVariable @Param("eventId") Integer eventId) {
         return eventService.getByEventId(eventId);
@@ -77,7 +77,7 @@ public class EventController {
      * @param eventName 日程名称
      * @return 日程信息
      */
-    @PostMapping("/eventName/{eventName}")
+    @GetMapping("/eventName/{eventName}")
     @ResponseBody
     public Result<Event> getByEventName(@PathVariable @Param("eventName") String eventName) {
         return eventService.getByEventName(eventName);
@@ -89,7 +89,7 @@ public class EventController {
      * @param map 两个参数, 用户id和一个时间
      * @return 日程列表
      */
-    @PostMapping("/DayEvents")
+    @GetMapping("/DayEvents")
     @ResponseBody
     public Result<String> getDayEvents(@RequestParam Map<String, String> map) throws ParseException {
         Integer userId = Integer.valueOf(map.get("userId"));

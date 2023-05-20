@@ -35,7 +35,7 @@ public class UserController {
         return Result.<List<Point>>success("测试dubbo远程调用成功，获取地图：").data(pointService.listAll());
     }
 
-    @PostMapping("/userId/{userId}")
+    @GetMapping("/userId/{userId}")
     public Result<User> getByUserId(@PathVariable @RequestParam(defaultValue = "1", required = true) Integer userId) {
         System.out.println(userId);
         User user = userMapper.getByUserId(userId);
@@ -45,7 +45,7 @@ public class UserController {
         return Result.<User>success("登陆成功").data(user);
     }
 
-    @PostMapping("/username/{username}")
+    @GetMapping("/username/{username}")
     public Result<User> getByUsername(@PathVariable @Valid String username) throws UnsupportedEncodingException {
         System.out.println(username);
         User user = userMapper.getByUsername(username);
@@ -55,7 +55,7 @@ public class UserController {
         return Result.<User>success("登陆成功").data(user);
     }
 
-    @PostMapping("/groupId/{groupId}")
+    @GetMapping("/groupId/{groupId}")
     public Result<List> getByGroupId(@PathVariable Integer groupId) {
         System.out.println(groupId);
         List<User> users = userMapper.getByGroupId(groupId);
@@ -77,7 +77,7 @@ public class UserController {
         return Result.<User>success("登陆成功").data(user);
     }
 
-    @PostMapping
+    @GetMapping
     public Result<List> getAll() {
         List<User> list = userMapper.getAllUsers();
         return Result.<List>success("登陆成功").data(list);
