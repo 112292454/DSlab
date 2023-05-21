@@ -105,7 +105,11 @@ public class EventController {
         System.out.println("*************");
         System.out.println(userId);
         System.out.println(date);
+<<<<<<< HEAD
         return eventService.getEventsByDay(userId, TimeUtil.dateToDay(date));
+=======
+        return eventService.getDayEvents(userId, date);
+>>>>>>> parent of a32814c (更新)
     }
 
     /**

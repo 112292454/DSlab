@@ -495,10 +495,4 @@ public class AVLTreeImpl<T> implements AVLTree<T> {
             print(root, root.getKey(), 0);
         }
     }
-
-    @Override
-    public void update(T src, T dest) {
-        this.remove(src);
-        this.insert(dest);
-    }
 }

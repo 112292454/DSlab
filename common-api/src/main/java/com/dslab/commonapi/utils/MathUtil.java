@@ -137,8 +137,21 @@ public class MathUtil {
      * @param c      自定义比较器
      * @return 对升序数组二分查找, 大于等于target的第一个数下标，均大于时返回0，均小于时返回-1
      */
+<<<<<<< HEAD
     public static <T> int lowerBound(List<T> a, T target, Comparator<? super T> c) {
         int l = 0, r = 0, mid, half, len = a.size() - 1;
+=======
+    public static <T, E> int mySearch(List<E> list, T target, Comparator<? super T> c) {
+        Object[] arr = list.toArray();
+        return lowerBound(arr, target, (Comparator) c);
+    }
+
+    /**
+     * @return 对升序数组二分查找, 大于等于target的第一个数下标，均大于时返回0，均小于时返回-1
+     */
+    private static <T> int lowerBound(T[] a, T target, Comparator<? super T> c) {
+        int l = 0, r = 0, mid, half, len = a.length - 1;
+>>>>>>> parent of a32814c (更新)
         while (len > 0) {
             half = len / 2;
             mid = l + half;

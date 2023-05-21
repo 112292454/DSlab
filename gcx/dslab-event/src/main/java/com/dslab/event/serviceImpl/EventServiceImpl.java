@@ -304,9 +304,195 @@ public class EventServiceImpl implements EventService {
             return Result.error("数据不合法, 出现未知错误");
         }
 
+<<<<<<< HEAD
         return addRes?
                 Result.success("添加成功"):
                 Result.error("添加失败");
+=======
+    /**
+     * 删除日程
+     *
+     * @return 是否删除成功
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Result<?> deleteByEventId(Event event, User user) {
+        if (!this.identifyUser(user, event)) {
+            //校验用户是否有操作权限
+            return Result.error("删除失败, 用户没有修改权限");
+        }
+
+        int change = eventMapper.deleteByEventId(event.getEventId());
+        eventIdTree.remove(new Event(event.getEventId()));
+        eventNameTree.remove(new Event(event.getName()));
+        if (change == 1) {
+            return Result.success("删除成功");
+        } else {
+            return Result.error("删除失败");
+        }
+    }
+
+    /**
+     * 修改日程
+     *
+     * @param event 待添加的日程
+     * @param user  用户信息
+     * @return 返回修改信息
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Result<?> updateEvent(Event event, User user) {
+        if (!TimeUtil.checkTimeValid(event)) {
+            // 校验日程时间是否合法
+            return Result.error("日程时间不合法");
+        }
+        if (!this.identifyUser(user, event)) {
+            //校验用户是否有操作权限
+            return Result.error("用户没有修改权限");
+        }
+
+        // 先把该日程删除, 以免检测冲突的时候出错
+        eventMapper.deleteByEventId(event.getEventId());
+
+        // 闹钟不会和其他日程产生冲突, 可以直接修改
+        if (EventType.EVENT_CLOCK.getValue().equals(event.getEventType())) {
+            updateSuccess(event);
+            return Result.success("修改成功");
+        }
+
+        // 判断是否有冲突
+        boolean result = checkConflict(event, user);
+        if (result) {
+            // 修改失败
+            if (EventType.EVENT_ACTIVITY.getValue().equals(event.getEventType())) {
+                // 如果是活动类日程则需要找出三个可添加的时间段
+                return findTime(event, user);
+            }
+            eventMapper.restartByEventId(event.getEventId());
+            return Result.error("添加失败");
+        } else {
+            // 没有冲突, 可以直接修改
+            updateSuccess(event);
+            return Result.success("修改成功");
+        }
+    }
+
+    /**
+     * 执行修改日程的操作
+     *
+     * @param event 日程
+     */
+    private void updateSuccess(Event event) {
+        eventMapper.update(event);
+        eventIdTree.remove(event);
+        eventIdTree.insert(event);
+        eventNameTree.remove(event);
+        eventNameTree.insert(event);
+    }
+
+    /**
+     * 根据日程id获取日程
+     *
+     * @param eventId 日程id
+     * @return 日程信息
+     */
+    @Override
+    public Result<Event> getByEventId(Integer eventId) {
+        Event event = eventIdTree.search(new Event(eventId)).getKey();
+        if (event != null) {
+            return Result.<Event>success("查找成功").data(event);
+        } else {
+            return Result.<Event>error("查找失败");
+        }
+    }
+
+    /**
+     * 根据日程名称获取日程
+     *
+     * @param eventName 日程名称
+     * @return 日程信息
+     */
+    @Override
+    public Result<Event> getByEventName(String eventName) {
+        Event event = eventIdTree.search(new Event(eventName)).getKey();
+        if (event != null) {
+            return Result.<Event>success("查找成功").data(event);
+        } else {
+            return Result.error("查找失败");
+        }
+    }
+
+    /**
+     * 获取用户给定日期的所有日程
+     *
+     * @param userId 用户id
+     * @param date   时间
+     * @return 日程列表
+     */
+    @Override
+    public Result<String> getDayEvents(Integer userId, Date date) {
+        long nowDay = TimeUtil.dateToDay(date);
+        String res = checkDayEvents(nowDay, userId);
+        return Result.<String>success("查询成功").data(res);
+    }
+
+    /**
+     * 获取用户在某个时间的课程
+     *
+     * @param nowTime 传入的时间
+     * @param userId  用户id
+     * @return 用户满足要求的日程
+     */
+    @Override
+    public Result<String> checkUserEventInTime(Date nowTime, String userId) {
+        long nowDay = TimeUtil.dateToDay(nowTime);
+        int nowHour = TimeUtil.dateToHour(nowTime);
+
+        String res;
+        if (nowHour < 23) {
+            // 如果当前时间小于23点, 则是判断查询下一个小时的日程
+            res = checkNextHourEvent(nowDay, nowHour, Integer.valueOf(userId));
+        } else {
+            // 否则是查询第二天的日程
+            res = checkDayEvents(nowDay + 1, Integer.valueOf(userId));
+        }
+        return Result.<String>success("查询成功").data(res);
+    }
+
+    /**
+     * todo
+     * 检查用户当前小时的日程
+     *
+     * @param nowDay  当前天
+     * @param nowHour 当前小时
+     * @param userId  用户id
+     * @return JSON化字符串
+     */
+    private String checkNextHourEvent(long nowDay, int nowHour, Integer userId) {
+        return "";
+    }
+
+    /**
+     * 检查用户当前天的日程
+     *
+     * @param nowDay 当前天
+     * @param userId 用户id
+     * @return JSON化字符串
+     */
+    private String checkDayEvents(long nowDay, Integer userId) {
+        // 选出该用户的所有日程id
+        List<Integer> eventIds = selectEventIds(userId);
+
+        // 根据用户的日程id找到对应日程, 并判断其是否是第二天的课程
+        List<Event> events = new ArrayList<>();
+        for (Integer id : eventIds) {
+            Event e = eventIdTree.search(new Event(id)).getKey();
+            if (e != null && TimeUtil.IsInOneDay(nowDay, e)) {
+                events.add(e);
+            }
+        }
+        return JSON.toJSONString(events);
+>>>>>>> parent of a32814c (更新)
     }
 
     /**
@@ -314,7 +500,11 @@ public class EventServiceImpl implements EventService {
      *
      * @return 成功返回success, 失败返回error
      */
+<<<<<<< HEAD
     private boolean addEventByAdmin(Event event, User user) {
+=======
+    private Result<?> addEventByAdmin(Event event, User user) {
+>>>>>>> parent of a32814c (更新)
         boolean result = checkConflict(event, user);
         if (result) {
             // 添加失败
@@ -329,9 +519,15 @@ public class EventServiceImpl implements EventService {
             // 选出同一个组的用户
             User tempUser = new User();
             tempUser.setGroupId(user.getGroupId());
+<<<<<<< HEAD
             int low = MathUtil.lowerBound(userGroupIdList, tempUser, Comparator.comparingInt(User::getGroupId));
             tempUser.setGroupId(user.getGroupId() + 1);
             int high = MathUtil.lowerBound(userGroupIdList, tempUser, Comparator.comparingInt(User::getGroupId));
+=======
+            int low = MathUtil.mySearch(userGroupIdList, tempUser, Comparator.comparingInt(User::getGroupId));
+            tempUser.setGroupId(user.getGroupId() + 1);
+            int high = MathUtil.mySearch(userGroupIdList, tempUser, Comparator.comparingInt(User::getGroupId));
+>>>>>>> parent of a32814c (更新)
             high = (high == -1 ? userGroupIdList.size() : high);
             List<User> users = new ArrayList<>();
             for (int i = low; i < high; ++i) {
@@ -436,6 +632,7 @@ public class EventServiceImpl implements EventService {
     /**========================================send notify func=========================================================*/
 
     /**
+<<<<<<< HEAD
      * 获取用户在某个时间的课程
      *
      * @param nowTime 传入的时间
@@ -469,6 +666,8 @@ public class EventServiceImpl implements EventService {
 
 
     /**
+=======
+>>>>>>> parent of a32814c (更新)
      * 判断该用户是否有冲突的日程
      *
      * @return 如果有冲突返回true, 否则返回false
@@ -478,8 +677,15 @@ public class EventServiceImpl implements EventService {
         List<Event> events = getUserAllEvent(user.getUserId());
 
         // 根据用户的日程id找到对应日程, 并判断是否有冲突
+<<<<<<< HEAD
         for (Event e : events) {
             if (e != null && TimeUtil.isInOneDay(e, event) && TimeUtil.compareTime(event, e)) {
+=======
+        List<Event> events = new ArrayList<>();
+        for (Integer id : eventIds) {
+            Event e = eventIdTree.search(new Event(id)).getKey();
+            if (e != null && TimeUtil.IsInOneDay(e, event) && TimeUtil.compareTime(event, e)) {
+>>>>>>> parent of a32814c (更新)
                 return true;
             }
         }
@@ -492,6 +698,7 @@ public class EventServiceImpl implements EventService {
      * @param userId 用户id
      * @return 日程id列表
      */
+<<<<<<< HEAD
     //TODO：给前端提供的接口里面没有这样获取整个课程表的吗？应该有的吧，或者分开一下课程、活动、事务
     //或者刚看了一下，写的是提供get by day的接口，然后前端一天一天获取？好像也行。我要睡了，再说吧
     private List<Event> getUserAllEvent(Integer userId) {
@@ -510,6 +717,22 @@ public class EventServiceImpl implements EventService {
         return events;
     }
 
+=======
+    private List<Integer> selectEventIds(Integer userId) {
+        List<Integer> eventIds = new ArrayList<>();
+        UserEventRelation userEventRelation = new UserEventRelation();
+        userEventRelation.setUserId(userId);
+        int low = MathUtil.mySearch(userEventIdList, userEventRelation, Comparator.comparingInt(UserEventRelation::getUserId));
+        userEventRelation.setUserId(userId + 1);
+        int high = MathUtil.mySearch(userEventIdList, userEventRelation, Comparator.comparingInt(UserEventRelation::getUserId));
+        high = (high == -1 ? userEventIdList.size() : high);
+        for (int i = low; i < high; ++i) {
+            eventIds.add(userEventIdList.get(i).getEventId());
+        }
+        return eventIds;
+    }
+
+>>>>>>> parent of a32814c (更新)
     /**
      * todo 未完成
      * 活动类日程, 寻找没有冲突的时间段
