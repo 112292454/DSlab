@@ -62,7 +62,7 @@ public interface EventService {
      * 获取用户给定日期的所有日程
      *
      * @param userId 用户id
-     * @param date   时间
+     * @param day   时间
      * @return 日程列表
      */
 

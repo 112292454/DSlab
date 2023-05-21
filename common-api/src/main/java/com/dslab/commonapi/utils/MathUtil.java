@@ -138,7 +138,6 @@ public class MathUtil {
      * @return 对升序数组二分查找, 大于等于target的第一个数下标，均大于时返回0，均小于时返回-1
      */
     public static <T> int lowerBound(List<T> a, T target, Comparator<? super T> c) {
-
         int l = 0, r = 0, mid, half, len = a.size() - 1;
         while (len > 0) {
             half = len / 2;
