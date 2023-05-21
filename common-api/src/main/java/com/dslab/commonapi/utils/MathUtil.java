@@ -132,16 +132,12 @@ public class MathUtil {
     /**
      * 查找
      *
-     * @param a   要查找的列表
+     * @param list   要查找的列表
      * @param target 目标对象
      * @param c      自定义比较器
      * @return 对升序数组二分查找, 大于等于target的第一个数下标，均大于时返回0，均小于时返回-1
      */
-<<<<<<< HEAD
-    public static <T> int lowerBound(List<T> a, T target, Comparator<? super T> c) {
-        int l = 0, r = 0, mid, half, len = a.size() - 1;
-=======
-    public static <T, E> int mySearch(List<E> list, T target, Comparator<? super T> c) {
+    public static <T, E> int lowerBound(List<E> list, T target, Comparator<? super T> c) {
         Object[] arr = list.toArray();
         return lowerBound(arr, target, (Comparator) c);
     }
@@ -151,18 +147,17 @@ public class MathUtil {
      */
     private static <T> int lowerBound(T[] a, T target, Comparator<? super T> c) {
         int l = 0, r = 0, mid, half, len = a.length - 1;
->>>>>>> parent of a32814c (更新)
         while (len > 0) {
             half = len / 2;
             mid = l + half;
-            if (c.compare(a.get(mid), target) < 0) {
+            if (c.compare(a[mid], target) < 0) {
                 l = mid + 1;
                 len = len - half - 1;
             } else {
                 len = half;
             }
         }
-        if (len < 0 || c.compare(target, a.get(l)) > 0) {
+        if (len < 0 || c.compare(target, a[l]) > 0) {
             return -1;
         }
         return l;

@@ -5,7 +5,6 @@ import com.dslab.commonapi.entity.User;
 import com.dslab.commonapi.vo.Result;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * @program: dslab-event
@@ -30,7 +29,7 @@ public interface EventService {
      *
      * @return 是否删除成功
      */
-    Result<?> deleteEventById(Event event, User user);
+    Result<?> deleteByEventId(Event event, User user);
 
     /**
      * 修改日程
@@ -47,7 +46,7 @@ public interface EventService {
      * @param eventId 日程id
      * @return 日程信息
      */
-    Result<Event> getEventById(Integer eventId);
+    Result<Event> getByEventId(Integer eventId);
 
     /**
      * 根据日程名称获取日程
@@ -55,18 +54,16 @@ public interface EventService {
      * @param eventName 日程名称
      * @return 日程信息
      */
-    Result<Event> getEventByName(String eventName);
+    Result<Event> getByEventName(String eventName);
 
 
     /**
      * 获取用户给定日期的所有日程
-     *
      * @param userId 用户id
-     * @param day   时间
+     * @param date 时间
      * @return 日程列表
      */
-
-    Result<List<Event>> getEventsByDay(Integer userId, long day);
+    Result<String> getDayEvents(Integer userId, Date date);
 
     /**
      * 根据给定时间获取用户日程
@@ -76,5 +73,5 @@ public interface EventService {
      * @param userId  用户id
      * @return 日程
      */
-    Result<List<Event>> checkUserEventInTime(Date nowTime, String userId);
+    Result<String> checkUserEventInTime(Date nowTime, String userId);
 }

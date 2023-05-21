@@ -1,4 +1,4 @@
-//package com.dslab.event.exception;
+package com.dslab.event.exception;//package com.dslab.event.exception;
 //
 //import lombok.Data;
 //import lombok.EqualsAndHashCode;

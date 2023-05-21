@@ -32,8 +32,8 @@ public class UserEventRelation implements Serializable {
     public UserEventRelation() {
     }
 
-    public UserEventRelation(Integer userId) {
-        this.userId = userId;
+    public UserEventRelation(Integer groupId) {
+        this.groupId = groupId;
     }
 
     public UserEventRelation(Integer groupId, Integer userId, Integer eventId) {

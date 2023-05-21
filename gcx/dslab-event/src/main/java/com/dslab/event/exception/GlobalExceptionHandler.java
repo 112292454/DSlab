@@ -1,4 +1,4 @@
-//package com.dslab.event.exception;
+package com.dslab.event.exception;//package com.dslab.event.exception;
 //
 //import com.dslab.commonapi.vo.Result;
 //import org.slf4j.Logger;

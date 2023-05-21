@@ -4,7 +4,6 @@ import com.dslab.commonapi.entity.Event;
 import com.dslab.commonapi.entity.RequestParams;
 import com.dslab.commonapi.services.EventService;
 import com.dslab.commonapi.services.SimulateService;
-import com.dslab.commonapi.utils.TimeUtil;
 import com.dslab.commonapi.vo.Result;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -70,7 +68,7 @@ public class EventController {
     @GetMapping("/eventId/{eventId}")
     @ResponseBody
     public Result<Event> getByEventId(@PathVariable @Param("eventId") Integer eventId) {
-        return eventService.getEventById(eventId);
+        return eventService.getByEventId(eventId);
     }
 
     /**
@@ -82,7 +80,7 @@ public class EventController {
     @GetMapping("/eventName/{eventName}")
     @ResponseBody
     public Result<Event> getByEventName(@PathVariable @Param("eventName") String eventName) {
-        return eventService.getEventByName(eventName);
+        return eventService.getByEventName(eventName);
     }
 
     /**
@@ -93,7 +91,7 @@ public class EventController {
      */
     @GetMapping("/DayEvents")
     @ResponseBody
-    public Result<List<Event>> getDayEvents(@RequestParam Map<String, String> map) throws ParseException {
+    public Result<String> getDayEvents(@RequestParam Map<String, String> map) throws ParseException {
         Integer userId = Integer.valueOf(map.get("userId"));
         Date date = null;
         if (map.containsKey("date")) {
@@ -102,14 +100,7 @@ public class EventController {
         } else {
             date = simulateService.getUserSimulateTime(String.valueOf(userId));
         }
-        System.out.println("*************");
-        System.out.println(userId);
-        System.out.println(date);
-<<<<<<< HEAD
-        return eventService.getEventsByDay(userId, TimeUtil.dateToDay(date));
-=======
         return eventService.getDayEvents(userId, date);
->>>>>>> parent of a32814c (更新)
     }
 
     /**
@@ -121,7 +112,7 @@ public class EventController {
     @DeleteMapping("/deleteEvent")
     @ResponseBody
     public Result<?> deleteByEventId(@RequestBody @Valid RequestParams requestParams) {
-        return eventService.deleteEventById(requestParams.getEvent(), requestParams.getUser());
+        return eventService.deleteByEventId(requestParams.getEvent(), requestParams.getUser());
     }
 
     /**

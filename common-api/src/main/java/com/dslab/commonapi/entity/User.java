@@ -55,12 +55,4 @@ public class User implements Serializable {
     public User(Integer userId) {
         this.userId = userId;
     }
-
-    public boolean isAdmin() {
-        return UserType.USER_ADMIN.getValue().equals(type);
-    }
-
-    public boolean isStudent() {
-        return UserType.USER_STUDENT.getValue().equals(type);
-    }
 }
