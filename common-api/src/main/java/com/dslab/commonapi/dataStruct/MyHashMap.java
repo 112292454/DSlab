@@ -74,6 +74,29 @@ public class MyHashMap<K, V> implements MyMap<K, V> {
         return null;
     }
 
+    /**
+     * 获取对应键的节点
+     *
+     * @param key 键
+     * @return 节点
+     */
+    private Node<K, V> getNode(Object key) {
+        int hashValue = hash(key);
+        int i = indexFor(hashValue, table.length);
+        for (Node<K, V> node = table[i]; node != null; node = node.next) {
+            if (node.key.equals(key) && hashValue == node.hash) {
+                return node;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public V getOrDefault(Object key, V defaultValue) {
+        Node<K, V> e;
+        return (e = getNode(key)) == null ? defaultValue : e.value;
+    }
+
     @Override
     public V remove(Object key) {
         // 通过key获取hash值

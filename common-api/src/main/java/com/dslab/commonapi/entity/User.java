@@ -1,8 +1,8 @@
 package com.dslab.commonapi.entity;
 
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
-import jakarta.validation.constraints.*;
 import java.io.Serializable;
 
 /**
@@ -54,5 +54,14 @@ public class User implements Serializable {
 
     public User(Integer userId) {
         this.userId = userId;
+    }
+
+    /**
+     * 判断是不是管理员
+     *
+     * @return 是返回true, 否则返回false
+     */
+    public boolean isAdmin() {
+        return UserType.USER_ADMIN.getValue().equals(type);
     }
 }

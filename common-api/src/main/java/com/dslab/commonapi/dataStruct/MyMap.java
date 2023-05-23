@@ -32,6 +32,15 @@ public interface MyMap<K, V> {
     V get(Object key);
 
     /**
+     * 根据key获取value
+     *
+     * @param key          键
+     * @param defaultValue 默认值
+     * @return 根据键返回的value, 不存在则返回默认值
+     */
+    V getOrDefault(Object key, V defaultValue);
+
+    /**
      * 添加元素
      *
      * @param key   键
