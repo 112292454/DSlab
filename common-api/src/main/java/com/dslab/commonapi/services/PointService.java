@@ -70,6 +70,8 @@ public interface PointService {
      */
     HashMap<Integer, Point> showPoints();
 
+    Point getPoint(Integer id);
+
 
     void dubboTestMethod();
 

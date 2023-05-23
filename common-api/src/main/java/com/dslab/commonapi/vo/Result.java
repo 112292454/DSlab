@@ -59,6 +59,11 @@ public class Result<T> {
 		return result;
 	}
 
+	public boolean isSuccess() {
+		return this.statusCode==HttpServletResponse.SC_OK;
+	}
+
+
 	public Result<T> data(T data) {
 		this.data = data;
 		return this;

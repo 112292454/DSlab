@@ -1,4 +1,4 @@
-package com.dslab.guide;
+package com.dslab.guide.serviceImpl;
 
 import com.dslab.commonapi.dataStruct.ShortestRoad;
 import com.dslab.commonapi.entity.Point;
@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -30,7 +31,7 @@ public class GuideServiceImpl implements GuideService {
     @Override
     public List<Point> byManyPointsGuide(List<Integer> passedPoints) {
         Point start=sr.getPoint(passedPoints.get(0));
-        passedPoints.remove(0);
+//        passedPoints.remove(0);
 
         List<Point> res=new ArrayList<>();
         res.add(start);
@@ -59,6 +60,11 @@ public class GuideServiceImpl implements GuideService {
             for (int i = 0; i < atPointDist.length; i++) {
                 atPointPaths[i]=new ArrayList<>();
             }
+            for (int i = 0; i < dp.length; i++) {
+                Arrays.fill(dp[i], Integer.MAX_VALUE/2);
+            }
+            dp[1][0]=0;
+
 
             for(int i=0;i<(1<<passedSize);i++) {//i代表的是一个方案的集合，其中每个位置的0/1代表没有/有经过这个点
                 for(int j=0;j<passedSize;j++) {//枚举当前在哪个点
@@ -69,7 +75,8 @@ public class GuideServiceImpl implements GuideService {
                                 if(dp[i-(1<<j)][k]+dist<dp[i][j]){//如果从k走到j比原先的更短
                                     dp[i][j]=dp[i-(1<<j)][k]+ dist;
                                     atPointPaths[j]=new ArrayList<>(atPointPaths[k]);//那么走到j点的路径就必然是走到k点，再到j的
-                                    atPointPaths[j].add(sr.getPoint( passedPoints.get(j)));
+                                    while(atPointPaths[j].remove(sr.getPoint(passedPoints.get(j))));
+                                    atPointPaths[j].add(sr.getPoint(passedPoints.get(j)));//atPP存储了从起点到达每一个点的路径
                                     atPointDist[j]=atPointDist[k]+dist;
                                 }
                             }
@@ -80,15 +87,31 @@ public class GuideServiceImpl implements GuideService {
             //计算完成了遍历需要pass的所有点的距离，也就是得到了所有的哈密顿路径值，然后还需要走回到出发点（由于项目要求）
             int min=0;
             for (int i = 0; i < atPointPaths.length; i++) {
+                if(atPointPaths[i].isEmpty()) continue;
                 atPointDist[i]+=sr.floydAsk(atPointPaths[i].get(atPointPaths[i].size()-1).getId(),start.getId());//获得再回到start的距离
                 atPointPaths[i].add(start);
                 if(atPointDist[i]>atPointDist[min]) min=i;
             }
             res=atPointPaths[min];
         }
+        res.add(0, start);
 
-        return res;
+        List<Point> expandRes=new ArrayList<>();
+        for (int i = 1; i < res.size(); i++) {
+            List<Point> temp = directGuide(res.get(i - 1).getId(), res.get(i).getId());
+            temp.remove(0);
+            expandRes.addAll(temp);
+        }
+        expandRes.add(0, start);
+
+        for (Integer passedPoint : passedPoints) {
+            if(!expandRes.contains(sr.getPoint(passedPoint))) expandRes.clear();
+        }
+
+        return expandRes;
     }
+
+
 
     @PostConstruct
     private void init() {

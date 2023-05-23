@@ -1,4 +1,4 @@
-package com.dslab.guide;
+package com.dslab.guide.serviceImpl;
 
 import com.dslab.commonapi.entity.Point;
 import com.dslab.commonapi.services.PointService;
@@ -140,5 +140,10 @@ public class PointServiceImpl implements PointService {
                 //更新：因为对每个点都会跑，所以只需要添加当前点的邻居有谁就好了，否则会重复两遍
             });
         });
+    }
+
+    @Override
+    public Point getPoint(Integer id) {
+        return points.get(id);
     }
 }

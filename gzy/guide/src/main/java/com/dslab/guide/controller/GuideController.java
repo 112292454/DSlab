@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/ds/guide")
+@RequestMapping("/guide")
 @CrossOrigin
 public class GuideController {
 
@@ -18,6 +18,7 @@ public class GuideController {
 
 	//像素点转换到实际距离（米）的系数
 	private static final double PIXEL_2_METER_ARG = 0.25;
+	//TODO：根据前端图的像素大小确定比例尺
 
 	@PostMapping({"/p2p"})
 	public Result<List<Point>> P2Pguide(int from, int to) {
@@ -40,7 +41,7 @@ public class GuideController {
 		}
 		len *= PIXEL_2_METER_ARG;
 
-		Result<List<Point>> res = guidePaths.isEmpty() ?
+		Result<List<Point>> res = guidePaths.size()<=1 ?
 				Result.error("导航失败！") : Result.success("导航成功，路线长度约" + len + "米");
 		res.data(guidePaths);
 		return res;
