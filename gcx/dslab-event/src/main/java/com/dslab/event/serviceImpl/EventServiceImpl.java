@@ -1,7 +1,10 @@
 package com.dslab.event.serviceImpl;
 
 import com.alibaba.fastjson2.JSON;
-import com.dslab.commonapi.dataStruct.*;
+import com.dslab.commonapi.dataStruct.MyHashMap;
+import com.dslab.commonapi.dataStruct.MyMap;
+import com.dslab.commonapi.dataStruct.SegTree;
+import com.dslab.commonapi.dataStruct.SegTreeImpl;
 import com.dslab.commonapi.entity.Event;
 import com.dslab.commonapi.entity.User;
 import com.dslab.commonapi.services.EventService;
@@ -19,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -48,26 +50,22 @@ public class EventServiceImpl implements EventService {
     UserService userService;
 
     /**
-     * 根据日程id进行排序的树
-     */
-    private AVLTree<Event> eventIdTree = new AVLTreeImpl<>(Comparator.comparingInt(Event::getEventId));
-    /**
      * 每个用户一棵树, 记录其所有日程的时间
      */
-    private MyMap<Integer, SegTree> timeMap = new MyHashMap<>();
+    private static MyMap<Integer, SegTree> timeMap = new MyHashMap<>();
     /**
      * 根据用户id获取对应日程
      * 一个用户有哪些日程
      */
-    private MyMap<Integer, List<Event>> userEventRelationMap = new MyHashMap<>();
+    private static MyMap<Integer, List<Event>> userEventRelationMap = new MyHashMap<>();
     /**
      * 以日程id为键
      */
-    private MyMap<Integer, Event> eventIdMap = new MyHashMap<>();
+    private static MyMap<Integer, Event> eventIdMap = new MyHashMap<>();
     /**
      * 以日程名字为键
      */
-    private MyMap<String, Event> eventNameMap = new MyHashMap<>();
+    private static MyMap<String, Event> eventNameMap = new MyHashMap<>();
 
     /**
      * 预加载函数
@@ -115,36 +113,31 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result<?> addEvent(Event event, User user) {
-        try {
-            if (!TimeUtil.checkTimeValid(event)) {
-                // 校验日程时间是否合法
-                return Result.error("日程时间不合法");
-            }
-            if (!userService.identifyUser(user, event)) {
-                //校验用户是否有操作权限
-                return Result.error("用户没有添加权限");
-            }
-            if (eventNameMap.get(event.getName()) != null) {
-                // 不能添加同名日程
-                return Result.error("不能添加同名日程");
-            }
-        } catch (Exception e) {
+        if (!TimeUtil.checkTimeValid(event)) {
+            // 校验日程时间是否合法
+            return Result.error("日程时间不合法");
+        }
+        if (!userService.identifyUser(user, event)) {
+            //校验用户是否有操作权限
+            return Result.error("用户没有添加权限");
+        }
+        if (eventNameMap.get(event.getName()) != null) {
             // 不能添加同名日程
-            return Result.error("数据不合法, 校验出错");
+            return Result.error("不能添加同名日程");
         }
 
         Result<?> result;
-        try {
-            // 判断用户类别, 如果是admin则和他同组的所有用户都将会有该日程
-            if (user.isAdmin()) {
-                result = this.addEventByAdmin(event, user);
-            } else {
-                result = this.addEventByStudent(event, user);
-            }
-        } catch (Exception e) {
-            logger.warn("添加日程时出现错误");
-            return Result.error("数据不合法, 出现未知错误");
+//        try {
+        // 判断用户类别, 如果是admin则和他同组的所有用户都将会有该日程
+        if (user.isAdmin()) {
+            result = this.addEventByAdmin(event, user);
+        } else {
+            result = this.addEventByStudent(event, user);
         }
+//        } catch (Exception e) {
+//            logger.warn("添加日程时出现错误");
+//            return Result.error("数据不合法, 出现未知错误");
+//        }
         return result;
     }
 
@@ -181,41 +174,36 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result<?> updateEvent(Event event, User user) {
-        try {
-            if (!TimeUtil.checkTimeValid(event)) {
-                // 校验日程时间是否合法
-                return Result.error("日程时间不合法");
-            }
-            if (!userService.identifyUser(user, event)) {
-                //校验用户是否有操作权限
-                return Result.error("用户没有添加权限");
-            }
-            if (eventNameMap.get(event.getName()) != null
-                    && !(eventNameMap.get(event.getName())
-                    .getEventId().equals(event.getEventId()))) {
-                // 不能添加同名日程
-                return Result.error("不能添加同名日程");
-            }
-        } catch (Exception e) {
+        if (!TimeUtil.checkTimeValid(event)) {
+            // 校验日程时间是否合法
+            return Result.error("日程时间不合法");
+        }
+        if (!userService.identifyUser(user, event)) {
+            //校验用户是否有操作权限
+            return Result.error("用户没有添加权限");
+        }
+        if (eventNameMap.get(event.getName()) != null
+                && !(eventNameMap.get(event.getName())
+                .getEventId().equals(event.getEventId()))) {
             // 不能添加同名日程
-            return Result.error("数据不合法, 校验出错");
+            return Result.error("不能添加同名日程");
         }
 
         // 旧日程
         Event oldEvent = eventIdMap.get(event.getEventId());
 
         Result<?> result;
-        try {
-            // 判断用户类别, 如果是admin则和他同组的所有用户都将会有该日程
-            if (user.isAdmin()) {
-                result = this.updateEventByAdmin(user, oldEvent, event);
-            } else {
-                result = this.updateEventByStudent(user, oldEvent, event);
-            }
-        } catch (Exception e) {
-            logger.warn("修改日程时出现错误");
-            return Result.error("数据不合法, 出现未知错误");
+//        try {
+        // 判断用户类别, 如果是admin则和他同组的所有用户都将会有该日程
+        if (user.isAdmin()) {
+            result = this.updateEventByAdmin(user, oldEvent, event);
+        } else {
+            result = this.updateEventByStudent(user, oldEvent, event);
         }
+//        } catch (Exception e) {
+//            logger.warn("修改日程时出现错误");
+//            return Result.error("数据不合法, 出现未知错误");
+//        }
         return result;
 
 
@@ -255,9 +243,15 @@ public class EventServiceImpl implements EventService {
             // 添加失败
             if (dest.isActivity()) {
                 // 如果是活动类日程则需要找出三个可添加的时间段
-                return findTime(dest, user);
+                // todo 测试用例
+                List<int[]> list = new ArrayList<>();
+                list.add(new int[]{6, 7});
+                list.add(new int[]{7, 8});
+                list.add(new int[]{8, 9});
+                return Result.error("时间冲突, 修改失败").data(list);
+//                return findTime(dest, user);
             }
-            return Result.error("修改失败");
+            return Result.error("时间冲突, 修改失败");
         } else {
             // 给组内每个学生添加该日程
             // 选出同一个组的用户
@@ -292,7 +286,13 @@ public class EventServiceImpl implements EventService {
             // 添加失败
             if (dest.isActivity()) {
                 // 如果是活动类日程则需要找出三个可添加的时间段
-                return findTime(dest, user);
+                // todo测试用例
+                List<int[]> list = new ArrayList<>();
+                list.add(new int[]{6, 7});
+                list.add(new int[]{7, 8});
+                list.add(new int[]{8, 9});
+                return Result.error("时间冲突, 修改失败").data(list);
+//                return findTime(dest, user);
             }
             return Result.error("修改失败");
         } else {
@@ -326,7 +326,7 @@ public class EventServiceImpl implements EventService {
      */
     @Override
     public Result<Event> getByEventId(Integer eventId) {
-        Event event = eventIdTree.search(new Event(eventId)).getKey();
+        Event event = eventIdMap.get(eventId);
         if (event != null) {
             return Result.<Event>success("查找成功").data(event);
         } else {
@@ -453,9 +453,15 @@ public class EventServiceImpl implements EventService {
             // 添加失败
             if (event.isActivity()) {
                 // 如果是活动类日程则需要找出三个可添加的时间段
-                return findTime(event, user);
+                // todo 测试用例
+                List<int[]> list = new ArrayList<>();
+                list.add(new int[]{6, 7});
+                list.add(new int[]{7, 8});
+                list.add(new int[]{8, 9});
+                return Result.error("时间冲突, 添加失败").data(list);
+//                return findTime(event, user);
             }
-            return Result.error("添加失败");
+            return Result.error("时间冲突, 添加失败");
         } else {
             // 给组内每个学生添加该日程
             // 选出同一个组的用户
@@ -489,9 +495,15 @@ public class EventServiceImpl implements EventService {
             // 添加失败
             if (event.isActivity()) {
                 // 如果是活动类日程则需要找出三个可添加的时间段
-                return findTime(event, user);
+                // todo 测试用例
+                List<int[]> list = new ArrayList<>();
+                list.add(new int[]{6, 7});
+                list.add(new int[]{7, 8});
+                list.add(new int[]{8, 9});
+                return Result.error("时间冲突, 添加失败").data(list);
+//                return findTime(event, user);
             }
-            return Result.error("添加失败");
+            return Result.error("时间冲突, 添加失败");
         } else {
             // 没有冲突, 可以添加
             event = saveEvent(event);
@@ -692,7 +704,7 @@ public class EventServiceImpl implements EventService {
      * @return 添加结果
      */
     private Result<?> findTimeByAdmin(Event event, User user) {
-
+        return null;
     }
 
     /**
@@ -706,6 +718,7 @@ public class EventServiceImpl implements EventService {
         List<Event> events = userEventRelationMap.get(user.getUserId());
         SegTree segTree = timeMap.get(user.getUserId());
         List<Integer> eventIds = segTree.queryEvent(event.getStartTime(), event.getEndTime());
-        for ()
+//        for ()
+        return null;
     }
 }

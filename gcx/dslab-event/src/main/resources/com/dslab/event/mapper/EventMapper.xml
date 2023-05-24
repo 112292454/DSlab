@@ -11,6 +11,7 @@
         <result column="is_group" property="isGroup" jdbcType="TINYINT"/>
         <result column="activity_type" property="activityType"/>
         <result column="building_id" property="buildingId"/>
+        <result column="building_name" property="buildingName"/>
         <result column="link" property="link"/>
         <result column="date" property="date" jdbcType="TIMESTAMP"/>
         <result column="start_time" property="startTime" jdbcType="TIMESTAMP"/>
@@ -28,6 +29,7 @@
         is_group,
         activity_type,
         building_id,
+        building_name,
         link,
         `date`,
         start_time,
@@ -58,6 +60,9 @@
             </if>
             <if test="null != buildingId and '' != buildingId">
                 building_id,
+            </if>
+            <if test="null != buildingName and '' != buildingName">
+                building_name,
             </if>
             <if test="null != link and '' != link">
                 link,
@@ -100,6 +105,9 @@
             <if test="null != buildingId and '' != buildingId">
                 #{buildingId},
             </if>
+            <if test="null != buildingName and '' != buildingName">
+                #{buildingName},
+            </if>
             <if test="null != link and '' != link">
                 #{link},
             </if>
@@ -119,7 +127,7 @@
                 #{cycle},
             </if>
             <if test="null != status and '' != status">
-                #{status}
+                1
             </if>
         </trim>
     </insert>
@@ -165,13 +173,14 @@
             <if test="null != isGroup and '' != isGroup">is_group = #{isGroup},</if>
             <if test="null != activityType and '' != activityType">activity_type = #{activityType},</if>
             <if test="null != buildingId and '' != buildingId">building_id = #{buildingId},</if>
+            <if test="null != buildingName and '' != buildingName">building_name = #{buildingName},</if>
             <if test="null != link and '' != link">link = #{link},</if>
             <if test="null != date">`date` = #{date},</if>
             <if test="null != startTime">start_time = #{startTime},</if>
             <if test="null != endTime">end_time = #{endTime},</if>
             <if test="null != duration and '' != duration">duration = #{duration},</if>
             <if test="null != cycle and '' != cycle">`cycle` = #{cycle},</if>
-            <if test="null != status and '' != status">`status` = #{status}</if>
+            <if test="null != status and '' != status">`status` = 1</if>
         </set>
         WHERE event_id = #{eventId}
     </update>

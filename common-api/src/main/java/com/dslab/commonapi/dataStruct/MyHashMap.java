@@ -126,7 +126,11 @@ public class MyHashMap<K, V> implements MyMap<K, V> {
      * @return hash值
      */
     public int hash(Object key) {
-        return key.hashCode();
+        // todo 测试表增长hash是否变化
+        // 加个按位与操作避免出现负数的哈希值
+        int h;
+//        return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
+        return key.hashCode() & Integer.MAX_VALUE;
     }
 
     /**

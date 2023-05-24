@@ -13,12 +13,13 @@ import com.dslab.event.mapper.UserMapper;
 import com.dslab.event.serviceImpl.EventServiceImpl;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-//@SpringBootTest
+@SpringBootTest
 class DslabEventApplicationTests {
 
     @Resource
@@ -131,5 +132,16 @@ class DslabEventApplicationTests {
         System.out.println(map.get(1));
         map.remove(1);
         System.out.println(map.get(1) == null);
+    }
+
+    @Test
+    void testNameMap() {
+        MyMap<String, Event> eventNameMap = new MyHashMap<>();
+        System.out.println((eventNameMap.get("数据结构") != null));
+    }
+
+    @Test
+    void testUserEventRelationMapperAdd(){
+        userEventRelationMapper.add(1, 1, 1);
     }
 }

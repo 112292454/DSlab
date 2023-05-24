@@ -1,11 +1,11 @@
 package com.dslab.commonapi.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.hibernate.validator.constraints.Range;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -103,7 +103,7 @@ public class Event implements Serializable {
      * 该日程的状态
      * 1表示启用, 0表示禁用
      */
-    @Range(min = 0, max = 1, message = "请设置合法的日程状态")
+    @JsonIgnore
     private Integer status;
 
     public Event() {

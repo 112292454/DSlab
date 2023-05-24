@@ -17,7 +17,7 @@
         event_id
     </sql>
 
-    <insert id="add" useGeneratedKeys="true" keyColumn="id" keyProperty="id"
+    <insert id="add" keyColumn="id"
             parameterType="com.dslab.commonapi.entity.UserEventRelation">
         INSERT INTO user_event_relation
         <trim prefix="(" suffix=")" suffixOverrides=",">

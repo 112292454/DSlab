@@ -4,7 +4,6 @@ import com.dslab.commonapi.dataStruct.MyHashMap;
 import com.dslab.commonapi.dataStruct.MyMap;
 import com.dslab.commonapi.entity.Event;
 import com.dslab.commonapi.entity.User;
-import com.dslab.commonapi.services.EventService;
 import com.dslab.commonapi.services.UserService;
 import com.dslab.event.mapper.UserMapper;
 import jakarta.annotation.PostConstruct;
@@ -27,8 +26,6 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
     private final static Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
-    @Resource
-    EventService eventService;
 
     @Resource
     UserMapper userMapper;
@@ -36,11 +33,11 @@ public class UserServiceImpl implements UserService {
      * 根据群组id存储用户id的map
      * 一个群组有哪些用户
      */
-    private MyMap<Integer, List<User>> userGroupIdMap = new MyHashMap<>();
+    private static MyMap<Integer, List<User>> userGroupIdMap = new MyHashMap<>();
     /**
      * 根据用户id获取用户信息的map
      */
-    private MyMap<Integer, User> userIdMap = new MyHashMap<>();
+    private static MyMap<Integer, User> userIdMap = new MyHashMap<>();
 
     /**
      * 预加载函数
@@ -48,7 +45,7 @@ public class UserServiceImpl implements UserService {
     @PostConstruct
     public void init() {
         List<User> users = userMapper.getAllUsers();
-        if(users != null) {
+        if (users != null) {
             for (User u : users) {
                 // 加载用户
                 userIdMap.put(u.getUserId(), u);
