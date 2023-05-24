@@ -56,16 +56,16 @@ public class EventServiceImpl implements EventService {
      */
     private MyMap<Integer, SegTree> timeMap = new MyHashMap<>();
     /**
-     * 根据用户id获取对应日程的map
+     * 根据用户id获取对应日程
      * 一个用户有哪些日程
      */
     private MyMap<Integer, List<Event>> userEventRelationMap = new MyHashMap<>();
     /**
-     * 根据日程id进行排序的树
+     * 以日程id为键
      */
     private MyMap<Integer, Event> eventIdMap = new MyHashMap<>();
     /**
-     * 根据日程名称进行排序的树
+     * 以日程名字为键
      */
     private MyMap<String, Event> eventNameMap = new MyHashMap<>();
 
@@ -360,8 +360,9 @@ public class EventServiceImpl implements EventService {
     @Override
     public Result<String> getDayEvents(Integer userId, Date date) {
         long nowDay = TimeUtil.dateToDay(date);
-        String res = checkDayEvents(nowDay, userId);
-        return Result.<String>success("查询成功").data(res);
+        List<Event> res = checkDayEvents(nowDay, userId);
+        String result = JSON.toJSONString(res);
+        return Result.<String>success("查询成功").data(result);
     }
 
     /**
@@ -377,7 +378,7 @@ public class EventServiceImpl implements EventService {
         int nowHour = TimeUtil.dateToHour(nowTime);
         int nowMin = TimeUtil.dateToMin(nowTime);
 
-        String res;
+        List<Event> res;
         if (nowHour < 23) {
             // 如果当前时间小于23点, 则是判断查询下一个小时的日程
             res = checkPeriodTimeEvents(nowDay, nowMin, nowMin + 60, Integer.valueOf(userId));
@@ -385,7 +386,8 @@ public class EventServiceImpl implements EventService {
             // 否则是查询第二天的日程
             res = checkDayEvents(nowDay + 1, Integer.valueOf(userId));
         }
-        return Result.<String>success("查询成功").data(res);
+        String result = JSON.toJSONString(res);
+        return Result.<String>success("查询成功").data(result);
     }
 
     /**
@@ -397,7 +399,7 @@ public class EventServiceImpl implements EventService {
      * @param userId 用户id
      * @return JSON化字符串
      */
-    private String checkPeriodTimeEvents(long day, int from, int to, Integer userId) {
+    private List<Event> checkPeriodTimeEvents(long day, int from, int to, Integer userId) {
         // 获取这段时间内的日程
         SegTree segTree = timeMap.get(userId);
         List<Integer> eventIds = segTree.rangeQuery(from, to);
@@ -416,7 +418,7 @@ public class EventServiceImpl implements EventService {
      * @param userId 用户id
      * @return JSON化字符串
      */
-    private String checkDayEvents(long day, Integer userId) {
+    private List<Event> checkDayEvents(long day, Integer userId) {
         // 选出该用户的所有日程
         List<Event> events = selectEvents(userId);
         // 根据用户的日程id找到对应日程, 并判断其是否是在给定日期的课程
@@ -430,14 +432,14 @@ public class EventServiceImpl implements EventService {
      * @param events 日程
      * @return 日程的json字符串
      */
-    private String selectSameDayEvents(long day, List<Event> events) {
+    private List<Event> selectSameDayEvents(long day, List<Event> events) {
         List<Event> res = new ArrayList<>();
         for (Event e : events) {
             if (TimeUtil.isInOneDay(day, e)) {
                 res.add(e);
             }
         }
-        return JSON.toJSONString(res);
+        return res;
     }
 
     /**
@@ -570,18 +572,31 @@ public class EventServiceImpl implements EventService {
      * @return 如果有冲突返回true, 否则返回false
      */
     private boolean studentCheckConflict(Event event, User user) {
-        // 选出该用户的所有日程
-        List<Event> events = selectEvents(user.getUserId());
+        // 选取用户在这个时间段内的所有可能冲突的日程
+        List<Event> events = checkConflictEvents(event, user);
+        return events.size() != 0;
+    }
 
-        // 根据用户的日程id找到对应日程, 并判断是否有冲突
-        for (Event e : events) {
-            if (!e.getEventId().equals(event.getEventId())
-                    && TimeUtil.isInOneDay(e, event)
-                    && TimeUtil.compareTime(event, e)) {
-                return true;
+    /**
+     * 查询用户给定时间内可能冲突的日程
+     *
+     * @param event 日程
+     * @param user  用户
+     * @return 日程信息, 没有则返回空列表
+     */
+    private List<Event> checkConflictEvents(Event event, User user) {
+        List<Event> res = new ArrayList<>();
+        // 查询用户在时间段内的日程
+        SegTree segTree = timeMap.get(user.getUserId());
+        List<Integer> eventIds = segTree.queryEvent(event.getStartTime(), event.getEndTime());
+        for (Integer id : eventIds) {
+            Event e = eventIdMap.get(id);
+            // 判断两个日程是否会在同一天发生
+            if (e != null && TimeUtil.isInOneDay(e, event)) {
+                res.add(e);
             }
         }
-        return false;
+        return res;
     }
 
     /**
@@ -604,6 +619,13 @@ public class EventServiceImpl implements EventService {
      * @return 添加结果
      */
     private Result<?> findTime(Event event, User user) {
+        Result<?> result;
+        if (user.isAdmin()) {
+            result = findTimeByAdmin(event, user);
+        } else {
+            result = findTimeByStudent(event, user);
+        }
+        return result;
 //        // time[i] = 0 表示 [i, i+1) 内时间空闲
 //        int[] time = new int[24];
 //
@@ -660,6 +682,30 @@ public class EventServiceImpl implements EventService {
 //
 //            // 有可代替时间则直接返回
 //            return result;
-        return null;
+    }
+
+    /**
+     * 管理员寻找活动和可替代时间
+     *
+     * @param event 日程信息
+     * @param user  用户信息
+     * @return 添加结果
+     */
+    private Result<?> findTimeByAdmin(Event event, User user) {
+
+    }
+
+    /**
+     * 学生寻找活动和可替代时间
+     *
+     * @param event 日程信息
+     * @param user  用户信息
+     * @return 添加结果
+     */
+    private Result<?> findTimeByStudent(Event event, User user) {
+        List<Event> events = userEventRelationMap.get(user.getUserId());
+        SegTree segTree = timeMap.get(user.getUserId());
+        List<Integer> eventIds = segTree.queryEvent(event.getStartTime(), event.getEndTime());
+        for ()
     }
 }
