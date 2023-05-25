@@ -654,7 +654,7 @@ public class EventServiceImpl implements EventService {
         for (Integer id : eventIds) {
             Event e = eventIdMap.get(id);
             // 判断两个日程是否会在同一天发生
-            if (e != null && TimeUtil.isInOneDay(e, event)) {
+            if (e != null && !e.isClock() && TimeUtil.isInOneDay(e, event)) {
                 res.add(e);
             }
         }
