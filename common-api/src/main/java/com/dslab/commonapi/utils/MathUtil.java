@@ -2,7 +2,6 @@ package com.dslab.commonapi.utils;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Random;
 
 /**
@@ -63,6 +62,9 @@ public class MathUtil {
         return res;
     }
 
+    /**
+     * 求最大公因数
+     */
     public static long gcd(int a, int b) {
         return b == 0 ? a : gcd(b, a % b);
     }
@@ -74,13 +76,16 @@ public class MathUtil {
      * @param c    自定义比较器
      */
     public static <T, E> void mySort(List<E> list, Comparator<? super E> c) {
-        Object[] arr = list.toArray();
-        quickSort(arr, 0, arr.length - 1, (Comparator) c);
-        ListIterator<E> i = list.listIterator();
-        for (Object e : arr) {
-            i.next();
-            i.set((E) e);
-        }
+        quickSort(list, 0, list.size() - 1, c);
+    }
+
+    /**
+     * 两个元素交换位置
+     */
+    private static <T> void swap(List<T> arr, int i, int j) {
+        T temp = arr.get(i);
+        arr.set(i, arr.get(j));
+        arr.set(j, temp);
     }
 
     /**
@@ -91,7 +96,7 @@ public class MathUtil {
      * @param high 右端点
      * @param c    自定义比较器
      */
-    private static <T> void quickSort(T[] arr, int low, int high, Comparator<? super T> c) {
+    private static <T> void quickSort(List<T> arr, int low, int high, Comparator<? super T> c) {
         int i, j;
         T pivot, t;
         if (low >= high) {
@@ -100,28 +105,28 @@ public class MathUtil {
         i = low;
         j = high;
         //随机选取元素作为枢轴
-        pivot = arr[new Random().nextInt(high - low) + low];
+        int p = new Random().nextInt(high - low) + low;
+        swap(arr, p, low);
+        pivot = arr.get(low);
 
         while (i < j) {
             //先看右边，依次往左递减
-            while (c.compare(pivot, arr[j]) <= 0 && i < j) {
+            while (c.compare(pivot, arr.get(j)) <= 0 && i < j) {
                 j--;
             }
             //再看左边，依次往右递增
-            while (c.compare(pivot, arr[i]) >= 0 && i < j) {
+            while (c.compare(pivot, arr.get(i)) >= 0 && i < j) {
                 i++;
             }
             //如果满足条件则交换
             if (i < j) {
-                t = arr[j];
-                arr[j] = arr[i];
-                arr[i] = t;
+                swap(arr, i, j);
             }
         }
 
-        //最后将基准为与i和j相等位置的数字交换
-        arr[low] = arr[i];
-        arr[i] = pivot;
+        //最后将基准位与i和j相等位置的数字交换
+        arr.set(low, arr.get(i));
+        arr.set(i, pivot);
 
         //递归调用左半数组
         quickSort(arr, low, j - 1, c);
@@ -132,32 +137,24 @@ public class MathUtil {
     /**
      * 查找
      *
-     * @param list   要查找的列表
+     * @param a      要查找的列表
      * @param target 目标对象
      * @param c      自定义比较器
      * @return 对升序数组二分查找, 大于等于target的第一个数下标，均大于时返回0，均小于时返回-1
      */
-    public static <T, E> int lowerBound(List<E> list, T target, Comparator<? super T> c) {
-        Object[] arr = list.toArray();
-        return lowerBound(arr, target, (Comparator) c);
-    }
-
-    /**
-     * @return 对升序数组二分查找, 大于等于target的第一个数下标，均大于时返回0，均小于时返回-1
-     */
-    private static <T> int lowerBound(T[] a, T target, Comparator<? super T> c) {
-        int l = 0, r = 0, mid, half, len = a.length - 1;
+    public static <T> int lowerBound(List<T> a, T target, Comparator<? super T> c) {
+        int l = 0, r = 0, mid, half, len = a.size() - 1;
         while (len > 0) {
             half = len / 2;
             mid = l + half;
-            if (c.compare(a[mid], target) < 0) {
+            if (c.compare(a.get(mid), target) < 0) {
                 l = mid + 1;
                 len = len - half - 1;
             } else {
                 len = half;
             }
         }
-        if (len < 0 || c.compare(target, a[l]) > 0) {
+        if (len < 0 || c.compare(target, a.get(l)) > 0) {
             return -1;
         }
         return l;

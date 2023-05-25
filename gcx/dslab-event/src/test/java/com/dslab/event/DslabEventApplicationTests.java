@@ -12,6 +12,7 @@ import com.dslab.event.mapper.UserEventRelationMapper;
 import com.dslab.event.mapper.UserMapper;
 import com.dslab.event.serviceImpl.EventServiceImpl;
 import jakarta.annotation.Resource;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.text.ParseException;
@@ -50,31 +51,20 @@ class DslabEventApplicationTests {
     void testSort() {
         List<Integer> list = new ArrayList<>();
         List<Integer> list2 = new ArrayList<>();
-        List<Integer> list3 = new ArrayList<>();
-        List<Integer> list4 = new ArrayList<>();
-        for (int i = 0; i < 10; ++i) {
-            for (int j = 0; j < 1000000; ++j) {
-                list.add(j);
-                list2.add(-j);
-                list3.add(new Random().nextInt(10000000));
-                list4.add(new Random().nextInt(10000000));
+        for (int i = 0; i < 1000; ++i) {
+            for (int j = 0; j < 1000; ++j) {
+                int x = new Random().nextInt(100000);
+                list.add(x);
+                list2.add(x);
             }
             long t1 = System.currentTimeMillis();
-            MathUtil.mySort(list, (o1, o2) -> o1 - o2);
+            list.sort((o1, o2) -> o1 - o2);
             long t2 = System.currentTimeMillis();
-            System.out.print(t2 - t1 + "    ");
             long t3 = System.currentTimeMillis();
             MathUtil.mySort(list2, (o1, o2) -> o1 - o2);
             long t4 = System.currentTimeMillis();
-            System.out.print(t4 - t3 + "       ");
-            long t5 = System.currentTimeMillis();
-            MathUtil.mySort(list3, (o1, o2) -> o1 - o2);
-            long t6 = System.currentTimeMillis();
-            System.out.println(t6 - t5);
-            long t7 = System.currentTimeMillis();
-            list4.sort((o1, o2) -> o1 - o2);
-            long t8 = System.currentTimeMillis();
-            System.out.println(t8 - t7);
+            System.out.println((t2 - t1) + "\t\t" + (t4 - t3));
+            Assertions.assertEquals(list, list2);
         }
     }
 
@@ -140,12 +130,42 @@ class DslabEventApplicationTests {
     }
 
     @Test
-    void testUserEventRelationMapperAdd(){
+    void testUserEventRelationMapperAdd() {
         userEventRelationMapper.add(1, 1, 1);
     }
 
     @Test
-    void testDateToMin(){
+    void testDateToMin() {
         System.out.println(TimeUtil.dateToMin(new Date()));
+    }
+
+    @Test
+    void testMapSort() {
+        Map<String, Integer> map = new MyHashMap<>();
+        map.put("123", 123);
+        map.put("13khu", 13);
+        map.put("198", 1);
+        map.put("0aji23", 12399);
+        List<String> list = new ArrayList<>();
+        list.add("123");
+        list.add("0aji23");
+        list.add("198");
+        list.add("13khu");
+        System.out.println(list);
+        MathUtil.mySort(list, Comparator.comparingInt(map::get));
+        System.out.println(list);
+        list.sort(Comparator.comparingInt(map::get));
+        System.out.println(list);
+    }
+
+    @Test
+    void testQuickSort() {
+        List<Integer> list = new ArrayList<>();
+        list.add(1);
+        list.add(2);
+        list.add(3);
+        System.out.println(list);
+        MathUtil.mySort(list, (o1, o2) -> o1 - o2);
+        System.out.println(list);
     }
 }

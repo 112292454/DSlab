@@ -59,11 +59,49 @@ public interface EventService {
 
     /**
      * 获取用户给定日期的所有日程
+     *
      * @param userId 用户id
-     * @param date 时间
+     * @param date   时间
      * @return 日程列表
      */
     Result<String> getDayEvents(Integer userId, Date date);
+
+    /**
+     * 获取用户给定日期的所有课程和考试日程
+     *
+     * @param userId 用户id
+     * @param date   时间
+     * @return 日程列表
+     */
+    Result<String> getLessonAndExam(Integer userId, Date date);
+
+    /**
+     * 获取用户给定日期的所有集体活动
+     *
+     * @param userId 用户id
+     * @param date   时间
+     * @return 日程列表
+     */
+    Result<String> getGroupActivities(Integer userId, Date date);
+
+    /**
+     * 获取用户给定日期的所有个人日程
+     *
+     * @param userId 用户id
+     * @param date   时间
+     * @return 日程列表
+     */
+    Result<String> getPersonalEvents(Integer userId, Date date);
+
+    /**
+     * 获取用户给定日期和类型的活动或者临时事务
+     *
+     * @param userId 用户id
+     * @param date   时间
+     * @param type   类型
+     * @return 日程列表
+     */
+    Result<String> getByTypeAndDate(Integer userId, Date date, String type);
 
     /**
      * 根据给定时间获取用户日程

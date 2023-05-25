@@ -11,11 +11,11 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -41,10 +41,20 @@ public class EventController {
     /**
      * 测试方法
      */
-    @PostMapping("/test")
-    public Result<?> testEvent(@RequestBody @Valid Event requestParams) {
-        System.out.println(requestParams);
-        return Result.success().data(requestParams);
+    @GetMapping("/test/{userId}&&{date}")
+    public Result<?> testEvent(@PathVariable(value = "userId") Integer userId,
+                               @PathVariable(value = "date", required = false)
+                               @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) {
+        System.out.println("----------");
+        System.out.println(userId);
+        System.out.println(date);
+        if (date == null) {
+            date = new Date();
+        }
+        System.out.println(date);
+        Map map = new HashMap();
+        map.put(userId, date);
+        return Result.success().data(map);
     }
 
     /**
@@ -84,23 +94,103 @@ public class EventController {
     }
 
     /**
-     * 获取用户某一天的日程
+     * 获取用户某一天的所有日程
      *
-     * @param map 两个参数, 用户id和一个时间
+     * @param userId 用户id
+     * @param date   时间
      * @return 日程列表
      */
-    @GetMapping("/DayEvents")
+    @GetMapping("/DayEvents/{userId}&&{date}")
     @ResponseBody
-    public Result<String> getDayEvents(@RequestParam Map<String, String> map) throws ParseException {
-        Integer userId = Integer.valueOf(map.get("userId"));
-        Date date = null;
-        if (map.containsKey("date")) {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            date = sdf.parse(map.get("date"));
-        } else {
+    public Result<String> getDayEvents(@PathVariable(value = "userId") Integer userId,
+                                       @PathVariable(value = "date", required = false)
+                                       @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) {
+//        Integer userId = Integer.valueOf(map.get("userId"));
+//        Date date = null;
+//        if (map.containsKey("date")) {
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            date = sdf.parse(map.get("date"));
+//        } else {
+//            date = simulateService.getUserSimulateTime(String.valueOf(userId));
+//        }
+        if (date == null) {
             date = simulateService.getUserSimulateTime(String.valueOf(userId));
         }
         return eventService.getDayEvents(userId, date);
+    }
+
+    /**
+     * 获取用户某一天的课程和考试
+     *
+     * @param userId 用户id
+     * @param date   时间
+     * @return 日程列表
+     */
+    @GetMapping("/LessonAndExam/{userId}&&{date}")
+    @ResponseBody
+    public Result<String> getLessonAndExam(@PathVariable(value = "userId") Integer userId,
+                                           @PathVariable(value = "date", required = false)
+                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) {
+        if (date == null) {
+            date = simulateService.getUserSimulateTime(String.valueOf(userId));
+        }
+        return eventService.getLessonAndExam(userId, date);
+    }
+
+    /**
+     * 获取用户某一天的集体活动
+     *
+     * @param userId 用户id
+     * @param date   时间
+     * @return 日程列表
+     */
+    @GetMapping("/GroupActivities/{userId}&&{date}")
+    @ResponseBody
+    public Result<String> getGroupActivities(@PathVariable(value = "userId") Integer userId,
+                                             @PathVariable(value = "date", required = false)
+                                             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) {
+        if (date == null) {
+            date = simulateService.getUserSimulateTime(String.valueOf(userId));
+        }
+        return eventService.getGroupActivities(userId, date);
+    }
+
+    /**
+     * 获取用户某一天的个人日程
+     *
+     * @param userId 用户id
+     * @param date   时间
+     * @return 日程列表
+     */
+    @GetMapping("/PersonalEvents/{userId}&&{date}")
+    @ResponseBody
+    public Result<String> getPersonalEvents(@PathVariable(value = "userId") Integer userId,
+                                            @PathVariable(value = "date", required = false)
+                                            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) {
+        if (date == null) {
+            date = simulateService.getUserSimulateTime(String.valueOf(userId));
+        }
+        return eventService.getPersonalEvents(userId, date);
+    }
+
+    /**
+     * 获取用户给定日期和类型的活动或者临时事务
+     *
+     * @param userId 用户id
+     * @param date   时间
+     * @param type   自定义的类型
+     * @return 日程列表
+     */
+    @GetMapping("/TypeAndDate/{userId}&&{date}&&{type}")
+    @ResponseBody
+    public Result<String> getByTypeAndDate(@PathVariable(value = "userId") Integer userId,
+                                           @PathVariable(value = "date", required = false)
+                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date,
+                                           @PathVariable(value = "type", required = false) String type) {
+        if (date == null) {
+            date = simulateService.getUserSimulateTime(String.valueOf(userId));
+        }
+        return eventService.getByTypeAndDate(userId, date, type);
     }
 
     /**

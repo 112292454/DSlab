@@ -33,7 +33,7 @@ public class Event implements Serializable {
     @NotBlank(message = "日程名称不能为空")
     private String name;
     /**
-     * 日程的形式 (lesson / exam / activity / clock / temporary)
+     * 日程的形式 (lesson / exam / activity / temporary / clock)
      */
     @NotBlank(message = "日程类型不能为空")
     @Pattern(regexp = "^0|1|2|3|4$", message = "日程类型不正确")
@@ -57,7 +57,7 @@ public class Event implements Serializable {
      * 集体活动包括有：班会、小组作业、创新创业、聚餐等
      * 临时事务类型包括有: 购物、洗澡、取外卖、取快递、送取东西等
      */
-    private String activityType;
+    private String customType;
     /**
      * 日程地点, 线下建筑物的id
      */
@@ -128,12 +128,21 @@ public class Event implements Serializable {
     }
 
     /**
-     * 判断是不是闹钟
+     * 判断是不是课程
      *
      * @return 是返回true, 否则返回false
      */
-    public boolean isClock() {
-        return EventType.EVENT_CLOCK.getValue().equals(eventType);
+    public boolean isLesson() {
+        return EventType.EVENT_LESSON.getValue().equals(eventType);
+    }
+
+    /**
+     * 判断是不是考试
+     *
+     * @return 是返回true, 否则返回false
+     */
+    public boolean isExam() {
+        return EventType.EVENT_EXAM.getValue().equals(eventType);
     }
 
     /**
@@ -143,5 +152,23 @@ public class Event implements Serializable {
      */
     public boolean isActivity() {
         return EventType.EVENT_ACTIVITY.getValue().equals(eventType);
+    }
+
+    /**
+     * 判断是不是临时事务
+     *
+     * @return 是返回true, 否则返回false
+     */
+    public boolean isTemporary() {
+        return EventType.EVENT_TEMPORARY.getValue().equals(eventType);
+    }
+
+    /**
+     * 判断是不是临时活动
+     *
+     * @return 是返回true, 否则返回false
+     */
+    public boolean isClock() {
+        return EventType.EVENT_CLOCK.getValue().equals(eventType);
     }
 }

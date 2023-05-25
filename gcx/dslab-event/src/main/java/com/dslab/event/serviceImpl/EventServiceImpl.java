@@ -330,6 +330,100 @@ public class EventServiceImpl implements EventService {
     }
 
     /**
+     * 获取用户给定日期的所有课程和考试日程
+     *
+     * @param userId 用户id
+     * @param date   时间
+     * @return 日程列表
+     */
+    @Override
+    public Result<String> getLessonAndExam(Integer userId, Date date) {
+        long nowDay = TimeUtil.dateToDay(date);
+        List<Event> events = checkDayEvents(nowDay, userId);
+        List<Event> res = new ArrayList<>();
+        for (Event e : events) {
+            if (e.isLesson() || e.isExam()) {
+                res.add(e);
+            }
+        }
+        MathUtil.mySort(res, Comparator.comparing(Event::getStartTime));
+        String result = JSON.toJSONString(res);
+        return Result.<String>success("查询成功").data(result);
+    }
+
+    /**
+     * 获取用户给定日期的所有集体活动
+     *
+     * @param userId 用户id
+     * @param date   时间
+     * @return 日程列表
+     */
+    @Override
+    public Result<String> getGroupActivities(Integer userId, Date date) {
+        long nowDay = TimeUtil.dateToDay(date);
+        List<Event> events = checkDayEvents(nowDay, userId);
+        List<Event> res = new ArrayList<>();
+        for (Event e : events) {
+            if (e.isActivity() && e.getIsGroup()) {
+                res.add(e);
+            }
+        }
+        MathUtil.mySort(res, Comparator.comparing(Event::getStartTime));
+        String result = JSON.toJSONString(res);
+        return Result.<String>success("查询成功").data(result);
+    }
+
+    /**
+     * 获取用户给定日期的所有个人日程
+     *
+     * @param userId 用户id
+     * @param date   时间
+     * @return 日程列表
+     */
+    @Override
+    public Result<String> getPersonalEvents(Integer userId, Date date) {
+        long nowDay = TimeUtil.dateToDay(date);
+        List<Event> events = checkDayEvents(nowDay, userId);
+        List<Event> res = new ArrayList<>();
+        for (Event e : events) {
+            if (!e.getIsGroup()) {
+                res.add(e);
+            }
+        }
+        MathUtil.mySort(res, Comparator.comparing(Event::getStartTime));
+        String result = JSON.toJSONString(res);
+        return Result.<String>success("查询成功").data(result);
+    }
+
+    /**
+     * 获取用户给定日期和类型的活动或者临时事务
+     *
+     * @param userId 用户id
+     * @param date   时间
+     * @param type   类型
+     * @return 日程列表
+     */
+    @Override
+    public Result<String> getByTypeAndDate(Integer userId, Date date, String type) {
+        long nowDay = TimeUtil.dateToDay(date);
+        List<Event> events = checkDayEvents(nowDay, userId);
+        List<Event> res = new ArrayList<>();
+        for (Event e : events) {
+            String t = e.getCustomType();
+            if (e.isLesson() || e.isExam()) {
+                continue;
+            } else if (type == null) {
+                res.add(e);
+            } else if (type.equals(t)) {
+                res.add(e);
+            }
+        }
+        MathUtil.mySort(res, Comparator.comparing(Event::getStartTime));
+        String result = JSON.toJSONString(res);
+        return Result.<String>success("查询成功").data(result);
+    }
+
+    /**
      * 获取用户在某个时间的课程
      *
      * @param nowTime 传入的时间
@@ -356,12 +450,13 @@ public class EventServiceImpl implements EventService {
 
     /**
      * 检查用户一段时间内的日程
+     * 只提醒 课程, 考试, 临时事务和闹钟类型
      *
      * @param day    日期
      * @param from   起始时间
      * @param to     终止时间
      * @param userId 用户id
-     * @return JSON化字符串
+     * @return 日程列表
      */
     private List<Event> checkPeriodTimeEvents(long day, int from, int to, Integer userId) {
         // 获取这段时间内的日程
@@ -369,7 +464,10 @@ public class EventServiceImpl implements EventService {
         List<Integer> eventIds = segTree.rangeQuery(from, to);
         List<Event> events = new ArrayList<>();
         for (Integer id : eventIds) {
-            events.add(eventIdMap.get(id));
+            Event e = eventIdMap.get(id);
+            if (!e.isActivity()) {
+                events.add(e);
+            }
         }
         // 返回在同一天的日程
         return selectSameDayEvents(day, events);
@@ -380,7 +478,7 @@ public class EventServiceImpl implements EventService {
      *
      * @param day    给定日期
      * @param userId 用户id
-     * @return JSON化字符串
+     * @return 日程列表
      */
     private List<Event> checkDayEvents(long day, Integer userId) {
         // 选出该用户的所有日程
@@ -394,7 +492,7 @@ public class EventServiceImpl implements EventService {
      *
      * @param day    给定日期
      * @param events 日程
-     * @return 日程的json字符串
+     * @return 日程列表
      */
     private List<Event> selectSameDayEvents(long day, List<Event> events) {
         List<Event> res = new ArrayList<>();

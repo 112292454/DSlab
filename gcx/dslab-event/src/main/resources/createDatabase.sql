@@ -6,7 +6,7 @@ create table ds_lab.event
     event_type    varchar(30) default '0' null comment '日程类型',
     is_online     tinyint                 null comment '日程地点类型, 是否是线上',
     is_group      tinyint     default 1   null comment '日程参与者类型, 是否是集体, 默认集体',
-    activity_type varchar(255)            null comment '活动的类型 个人的包括有: 自习、锻炼、外出等 集体活动包括有：班会、小组作业、创新创业、聚餐等',
+    custom_type varchar(255)            null comment '活动的类型 个人的包括有: 自习、锻炼、外出等 集体活动包括有：班会、小组作业、创新创业、聚餐等',
     building_id   int                     null comment '日程地点, 线下地点的id',
     building_name varchar(255)            null comment '日程地点, 线下地点的名称',
     link          varchar(255)            null comment '日程地点, 线上链接',
@@ -31,8 +31,8 @@ create index event_index
 create index member_index
     on ds_lab.event (is_group);
 
-create index activity_index
-    on ds_lab.event (activity_type);
+create index custom_index
+    on ds_lab.event (custom_type);
 
 create index name_index
     on ds_lab.event (`name`);
