@@ -734,7 +734,7 @@ public class EventServiceImpl implements EventService {
         SegTree segTree = timeMap.get(user.getUserId());
         // 可用时间, 以小时计算
         List<int[]> freeTime = new ArrayList<>();
-        for (int i = 6 * 60; i <= 22 * 60 && freeTime.size() < 3; i += 60) {
+        for (int i = 6 * 60; i <= 22 * 60; i += 60) {
             // 遍历6-22小时, 查询可用时间
             List<Integer> ids = segTree.rangeQuery(i, i + 60);
             if (ids.size() == 0) {
