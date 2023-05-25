@@ -2,11 +2,11 @@ package com.dslab.event;
 
 import com.alibaba.fastjson2.JSON;
 import com.dslab.commonapi.dataStruct.MyHashMap;
-import com.dslab.commonapi.dataStruct.Map;
 import com.dslab.commonapi.entity.Event;
 import com.dslab.commonapi.entity.User;
 import com.dslab.commonapi.entity.UserEventRelation;
 import com.dslab.commonapi.utils.MathUtil;
+import com.dslab.commonapi.utils.TimeUtil;
 import com.dslab.event.mapper.EventMapper;
 import com.dslab.event.mapper.UserEventRelationMapper;
 import com.dslab.event.mapper.UserMapper;
@@ -142,5 +142,10 @@ class DslabEventApplicationTests {
     @Test
     void testUserEventRelationMapperAdd(){
         userEventRelationMapper.add(1, 1, 1);
+    }
+
+    @Test
+    void testDateToMin(){
+        System.out.println(TimeUtil.dateToMin(new Date()));
     }
 }

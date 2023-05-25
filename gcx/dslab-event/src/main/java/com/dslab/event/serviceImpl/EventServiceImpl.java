@@ -8,6 +8,7 @@ import com.dslab.commonapi.entity.Event;
 import com.dslab.commonapi.entity.User;
 import com.dslab.commonapi.services.EventService;
 import com.dslab.commonapi.services.UserService;
+import com.dslab.commonapi.utils.MathUtil;
 import com.dslab.commonapi.utils.TimeUtil;
 import com.dslab.commonapi.vo.Result;
 import com.dslab.event.mapper.EventMapper;
@@ -20,10 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @program: dslab-event
@@ -52,20 +50,20 @@ public class EventServiceImpl implements EventService {
     /**
      * 每个用户一棵树, 记录其所有日程的时间
      */
-    private static Map<Integer, SegTree> timeMap = new MyHashMap<>();
+    private static final Map<Integer, SegTree> timeMap = new MyHashMap<>();
     /**
      * 根据用户id获取对应日程
      * 一个用户有哪些日程
      */
-    private static Map<Integer, List<Event>> userEventRelationMap = new MyHashMap<>();
+    private static final Map<Integer, List<Event>> userEventRelationMap = new MyHashMap<>();
     /**
      * 以日程id为键
      */
-    private static Map<Integer, Event> eventIdMap = new MyHashMap<>();
+    private static final Map<Integer, Event> eventIdMap = new MyHashMap<>();
     /**
      * 以日程名字为键
      */
-    private static Map<String, Event> eventNameMap = new MyHashMap<>();
+    private static final Map<String, Event> eventNameMap = new MyHashMap<>();
 
     /**
      * 预加载函数
@@ -205,28 +203,6 @@ public class EventServiceImpl implements EventService {
 //            return Result.error("数据不合法, 出现未知错误");
 //        }
         return result;
-
-
-//        // 闹钟不会和其他日程产生冲突, 可以直接修改
-//        if (event.isClock()) {
-//            updateSuccess(user.getUserId(), oldEvent, event);
-//            return Result.success("修改成功");
-//        }
-//
-//        // 判断是否有冲突
-//        boolean result = studentCheckConflict(event, user);
-//        if (result) {
-//            // 修改失败
-//            if (event.isActivity()) {
-//                // 如果是活动类日程则需要找出三个可添加的时间段
-//                return findTime(event, user);
-//            }
-//            return Result.error("添加失败");
-//        } else {
-//            // 没有冲突, 可以直接修改
-//            updateSuccess(user.getUserId(), oldEvent, event);
-//            return Result.success("修改成功");
-//        }
     }
 
     /**
@@ -240,20 +216,14 @@ public class EventServiceImpl implements EventService {
     private Result<?> updateEventByAdmin(User user, Event src, Event dest) {
         boolean result = adminCheckConflict(dest, user);
         if (result) {
-            // 添加失败
+            // 修改
             if (dest.isActivity()) {
                 // 如果是活动类日程则需要找出三个可添加的时间段
-                // todo 测试用例
-                List<int[]> list = new ArrayList<>();
-                list.add(new int[]{6, 7});
-                list.add(new int[]{7, 8});
-                list.add(new int[]{8, 9});
-                return Result.error("时间冲突, 修改失败").data(list);
-//                return findTime(dest, user);
+                return findTime(dest, user);
             }
             return Result.error("时间冲突, 修改失败");
         } else {
-            // 给组内每个学生添加该日程
+            // 给组内每个学生修改该日程
             // 选出同一个组的用户
             List<User> users = userService.selectSameGroupUsers(user);
             eventMapper.update(dest);
@@ -274,7 +244,7 @@ public class EventServiceImpl implements EventService {
      * @return 修改信息
      */
     private Result<?> updateEventByStudent(User user, Event src, Event dest) {
-        // 闹钟不会和其他日程产生冲突, 可以直接添加
+        // 闹钟不会和其他日程产生冲突, 可以直接修改
         if (dest.isClock()) {
             eventMapper.update(dest);
             return updateSuccess(user.getUserId(), src, dest);
@@ -283,20 +253,14 @@ public class EventServiceImpl implements EventService {
         // 判断是否有冲突
         boolean result = studentCheckConflict(dest, user);
         if (result) {
-            // 添加失败
+            // 修改失败
             if (dest.isActivity()) {
                 // 如果是活动类日程则需要找出三个可添加的时间段
-                // todo测试用例
-                List<int[]> list = new ArrayList<>();
-                list.add(new int[]{6, 7});
-                list.add(new int[]{7, 8});
-                list.add(new int[]{8, 9});
-                return Result.error("时间冲突, 修改失败").data(list);
-//                return findTime(dest, user);
+                return findTime(dest, user);
             }
             return Result.error("修改失败");
         } else {
-            // 没有冲突, 可以添加
+            // 没有冲突, 可以修改
             eventMapper.update(dest);
             return updateSuccess(user.getUserId(), src, dest);
         }
@@ -330,7 +294,7 @@ public class EventServiceImpl implements EventService {
         if (event != null) {
             return Result.<Event>success("查找成功").data(event);
         } else {
-            return Result.<Event>error("查找失败");
+            return Result.error("查找失败");
         }
     }
 
@@ -453,13 +417,7 @@ public class EventServiceImpl implements EventService {
             // 添加失败
             if (event.isActivity()) {
                 // 如果是活动类日程则需要找出三个可添加的时间段
-                // todo 测试用例
-                List<int[]> list = new ArrayList<>();
-                list.add(new int[]{6, 7});
-                list.add(new int[]{7, 8});
-                list.add(new int[]{8, 9});
-                return Result.error("时间冲突, 添加失败").data(list);
-//                return findTime(event, user);
+                return findTime(event, user);
             }
             return Result.error("时间冲突, 添加失败");
         } else {
@@ -495,13 +453,7 @@ public class EventServiceImpl implements EventService {
             // 添加失败
             if (event.isActivity()) {
                 // 如果是活动类日程则需要找出三个可添加的时间段
-                // todo 测试用例
-                List<int[]> list = new ArrayList<>();
-                list.add(new int[]{6, 7});
-                list.add(new int[]{7, 8});
-                list.add(new int[]{8, 9});
-                return Result.error("时间冲突, 添加失败").data(list);
-//                return findTime(event, user);
+                return findTime(event, user);
             }
             return Result.error("时间冲突, 添加失败");
         } else {
@@ -622,7 +574,6 @@ public class EventServiceImpl implements EventService {
     }
 
     /**
-     * todo 未完成
      * 活动类日程, 寻找没有冲突的时间段
      * 集体活动至少找出三个和集体内成员冲突最少的三个时间段
      *
@@ -631,69 +582,17 @@ public class EventServiceImpl implements EventService {
      * @return 添加结果
      */
     private Result<?> findTime(Event event, User user) {
-        Result<?> result;
+        List<int[]> freeTime;
         if (user.isAdmin()) {
-            result = findTimeByAdmin(event, user);
+            freeTime = findTimeByAdmin(event, user);
         } else {
-            result = findTimeByStudent(event, user);
+            freeTime = findTimeByStudent(event, user);
         }
-        return result;
-//        // time[i] = 0 表示 [i, i+1) 内时间空闲
-//        int[] time = new int[24];
-//
-//        int start = TimeUtils.TimestampToHour(e.getStartTime());
-//        int end = TimeUtils.TimestampToHour(e.getEndTime());
-//        for (int i = start; i < end; ++i) {
-//            if (time[i] == 0) {
-//                // 标记当前时间已被占用
-//                time[i] = time[i] + Integer.parseInt(e.getEventType()) + 1;
-//            }
-//        }
-//        if (ok) {
-//            // 检测发现没有时间冲突
-//            return false;
-//        } else {
-//            // 查找出合理的替代时间
-//            List<int[]> replace = new ArrayList<>();
-//            for (int i = 6; i <= 22 && replace.size() < 3; ++i) {
-//                if (time[i] == 0) {
-//                    // 当前时间空闲
-//                    replace.add(new int[]{i, i + 1});
-//                }
-//            }
-//
-//            Result<?> result = Result.error("时间冲突, 以下是可选时间").data(replace);
-//
-//            // 如果没有可以代替的时间
-//            if (replace.size() == 0) {
-//                if (MemberType.MEMBER_PERSONAL.getValue().equals(event.getMemberType())) {
-//                    // 如果是个人活动则直接返回错误
-//                    result = Result.error("时间冲突, 添加失败");
-//                } else if (MemberType.MEMBER_GROUP.getValue().equals(event.getMemberType())) {
-//                    // todo 活动持续时间固定为一小时的话, 所有日程均以整点开始结束, 那"冲突最少"似乎就没有意义
-//                    // todo 待定 查找可用时间的时候，最小冲突时间可以检测每个已有的课程，选取冲突最远的三个
-//                    // ?如果是集体活动则选择三个冲突最小的时间 (或许是可以和临时事务冲突)
-//                    for (int i = 6; i <= 22 && replace.size() < 3; ++i) {
-//                        if (time[i] == 4) {
-//                            // 当前时间为临时事务类型
-//                            replace.add(new int[]{i, i + 1});
-//                        }
-//                    }
-//                    // todo 待修改，查找最远冲突的日程，可能需要再遍历一遍list，应该可以优化
-//                    if (replace.size() == 0) {
-//                        // todo 可代替时间小于三个
-//                        replace.add(new int[]{6, 7});
-//                        replace.add(new int[]{7, 8});
-//                        replace.add(new int[]{8, 9});
-//                    }
-//                    result = Result.error("时间冲突, 以下是冲突最小的时间").data(replace);
-//                } else {
-//                    return Result.<String>error("时间冲突, 活动类型不明确, 无法给出可代替时间").data("请求失败");
-//                }
-//            }
-//
-//            // 有可代替时间则直接返回
-//            return result;
+        if (freeTime.size() == 0) {
+            return Result.error("时间段冲突, 找不到可用时间");
+        } else {
+            return Result.error("时间段冲突, 找到可用时间").data(freeTime);
+        }
     }
 
     /**
@@ -701,10 +600,29 @@ public class EventServiceImpl implements EventService {
      *
      * @param event 日程信息
      * @param user  用户信息
-     * @return 添加结果
+     * @return 可用时间列表(以小时记录)
      */
-    private Result<?> findTimeByAdmin(Event event, User user) {
-        return null;
+    private List<int[]> findTimeByAdmin(Event event, User user) {
+        List<User> users = userService.selectSameGroupUsers(user);
+        // 最终的结果
+        List<int[]> freeTime = new ArrayList<>();
+        // 同组用户的可用时间段
+        Map<int[], Integer> time = new MyHashMap<>();
+        for (User u : users) {
+            List<int[]> studentTime = findTimeByStudent(event, u);
+            for (int[] t : studentTime) {
+                time.put(t, time.getOrDefault(t, 0) + 1);
+                if (freeTime.size() < 3) {
+                    freeTime.add(t);
+                } else {
+                    MathUtil.mySort(freeTime, Comparator.comparingInt(time::get));
+                    if (time.get(freeTime.get(0)) < time.get(t)) {
+                        freeTime.set(0, t);
+                    }
+                }
+            }
+        }
+        return freeTime;
     }
 
     /**
@@ -712,13 +630,34 @@ public class EventServiceImpl implements EventService {
      *
      * @param event 日程信息
      * @param user  用户信息
-     * @return 添加结果
+     * @return 可用时间列表(以小时记录)
      */
-    private Result<?> findTimeByStudent(Event event, User user) {
-        List<Event> events = userEventRelationMap.get(user.getUserId());
+    private List<int[]> findTimeByStudent(Event event, User user) {
         SegTree segTree = timeMap.get(user.getUserId());
-        List<Integer> eventIds = segTree.queryEvent(event.getStartTime(), event.getEndTime());
-//        for ()
-        return null;
+        // 可用时间, 以小时计算
+        List<int[]> freeTime = new ArrayList<>();
+        for (int i = 6 * 60; i <= 22 * 60 && freeTime.size() < 3; i += 60) {
+            // 遍历6-22小时, 查询可用时间
+            List<Integer> ids = segTree.rangeQuery(i, i + 60);
+            if (ids.size() == 0) {
+                freeTime.add(new int[]{i, i + 1});
+            } else {
+                // 当前时间段有日程, 查询这个日程是否会和待添加在同一天发生
+                boolean flag = true;
+                for (int id : ids) {
+                    Event e;
+                    if ((e = eventIdMap.get(id)) != null
+                            && !e.isClock()
+                            && TimeUtil.isInOneDay(e, event)) {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag) {
+                    freeTime.add(new int[]{i, i + 1});
+                }
+            }
+        }
+        return freeTime;
     }
 }
