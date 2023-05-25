@@ -2,7 +2,7 @@ package com.dslab.event;
 
 import com.alibaba.fastjson2.JSON;
 import com.dslab.commonapi.dataStruct.MyHashMap;
-import com.dslab.commonapi.dataStruct.MyMap;
+import com.dslab.commonapi.dataStruct.Map;
 import com.dslab.commonapi.entity.Event;
 import com.dslab.commonapi.entity.User;
 import com.dslab.commonapi.entity.UserEventRelation;
@@ -13,13 +13,12 @@ import com.dslab.event.mapper.UserMapper;
 import com.dslab.event.serviceImpl.EventServiceImpl;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-@SpringBootTest
+//@SpringBootTest
 class DslabEventApplicationTests {
 
     @Resource
@@ -125,7 +124,7 @@ class DslabEventApplicationTests {
 
     @Test
     void testMap() {
-        MyMap<Integer, String> map = new MyHashMap<>();
+        Map<Integer, String> map = new MyHashMap<>();
         map.put(1, "aa");
         System.out.println(map.get(1));
         map.put(1, "bb");
@@ -136,7 +135,7 @@ class DslabEventApplicationTests {
 
     @Test
     void testNameMap() {
-        MyMap<String, Event> eventNameMap = new MyHashMap<>();
+        Map<String, Event> eventNameMap = new MyHashMap<>();
         System.out.println((eventNameMap.get("数据结构") != null));
     }
 

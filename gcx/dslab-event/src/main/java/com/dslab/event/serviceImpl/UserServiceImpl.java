@@ -1,7 +1,6 @@
 package com.dslab.event.serviceImpl;
 
 import com.dslab.commonapi.dataStruct.MyHashMap;
-import com.dslab.commonapi.dataStruct.MyMap;
 import com.dslab.commonapi.entity.Event;
 import com.dslab.commonapi.entity.User;
 import com.dslab.commonapi.services.UserService;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @program: DSlab
@@ -33,11 +33,11 @@ public class UserServiceImpl implements UserService {
      * 根据群组id存储用户id的map
      * 一个群组有哪些用户
      */
-    private static MyMap<Integer, List<User>> userGroupIdMap = new MyHashMap<>();
+    private static Map<Integer, List<User>> userGroupIdMap = new MyHashMap<>();
     /**
      * 根据用户id获取用户信息的map
      */
-    private static MyMap<Integer, User> userIdMap = new MyHashMap<>();
+    private static Map<Integer, User> userIdMap = new MyHashMap<>();
 
     /**
      * 预加载函数

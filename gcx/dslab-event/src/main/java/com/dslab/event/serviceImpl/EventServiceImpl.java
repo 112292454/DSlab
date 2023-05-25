@@ -2,7 +2,6 @@ package com.dslab.event.serviceImpl;
 
 import com.alibaba.fastjson2.JSON;
 import com.dslab.commonapi.dataStruct.MyHashMap;
-import com.dslab.commonapi.dataStruct.MyMap;
 import com.dslab.commonapi.dataStruct.SegTree;
 import com.dslab.commonapi.dataStruct.SegTreeImpl;
 import com.dslab.commonapi.entity.Event;
@@ -24,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @program: dslab-event
@@ -52,20 +52,20 @@ public class EventServiceImpl implements EventService {
     /**
      * 每个用户一棵树, 记录其所有日程的时间
      */
-    private static MyMap<Integer, SegTree> timeMap = new MyHashMap<>();
+    private static Map<Integer, SegTree> timeMap = new MyHashMap<>();
     /**
      * 根据用户id获取对应日程
      * 一个用户有哪些日程
      */
-    private static MyMap<Integer, List<Event>> userEventRelationMap = new MyHashMap<>();
+    private static Map<Integer, List<Event>> userEventRelationMap = new MyHashMap<>();
     /**
      * 以日程id为键
      */
-    private static MyMap<Integer, Event> eventIdMap = new MyHashMap<>();
+    private static Map<Integer, Event> eventIdMap = new MyHashMap<>();
     /**
      * 以日程名字为键
      */
-    private static MyMap<String, Event> eventNameMap = new MyHashMap<>();
+    private static Map<String, Event> eventNameMap = new MyHashMap<>();
 
     /**
      * 预加载函数
