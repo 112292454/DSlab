@@ -124,9 +124,8 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> {
      * @param key 键值
      */
     private static int hash(Object key) {
-//        int h;
-//        return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
-        return 100;
+        int h;
+        return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
     }
 
     /**
@@ -278,7 +277,7 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> {
                 index = indexFor(hash(iPair.getKey()), newBuckets.length);
                 // 若桶中为空，则创建链
                 if (newBuckets[index] == null) {
-                    newBuckets[index] = new MyLinkedList<Node<K, V>>();
+                    newBuckets[index] = new MyLinkedList<>();
                 }
                 // 找到桶中的链
                 MyLinkedList<Node<K, V>> bucketTemp = newBuckets[index];
@@ -323,16 +322,6 @@ public class MyHashMap<K, V> extends AbstractMap<K, V> {
 
     @Override
     public Set<Map.Entry<K, V>> entrySet() {
-//        Set<Map.Entry<K, V>> set = new HashSet<>();
-//        for (MyLinkedList<Node<K, V>> bucket : buckets) {
-//            if (bucket == null) {
-//                continue;
-//            }
-//            for (Node<K, V> mpair : bucket) {
-//                set.add(mpair);
-//            }
-//        }
-//        return set;
         return null;
     }
 }
