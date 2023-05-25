@@ -25,7 +25,7 @@ import java.util.Map;
 
 @Service
 public class UserServiceImpl implements UserService {
-    private final static Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Resource
     UserMapper userMapper;

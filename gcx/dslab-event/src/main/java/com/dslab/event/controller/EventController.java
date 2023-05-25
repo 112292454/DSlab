@@ -66,6 +66,9 @@ public class EventController {
     @PostMapping("/addEvent")
     @ResponseBody
     public Result<?> addEvent(@RequestBody @Valid RequestParams requestParams) {
+        logger.info(requestParams.getUser() + " 在 "
+                + simulateService.getUserSimulateSpeed(String.valueOf(requestParams.getUser().getUserId()))
+                + " 增加课程 " + requestParams.getEvent());
         return eventService.addEvent(requestParams.getEvent(), requestParams.getUser());
     }
 
@@ -78,6 +81,7 @@ public class EventController {
     @GetMapping("/eventId/{eventId}")
     @ResponseBody
     public Result<Event> getByEventId(@PathVariable @Param("eventId") Integer eventId) {
+        logger.info("用户获取id为 " + eventId + " 的日程");
         return eventService.getByEventId(eventId);
     }
 
@@ -134,6 +138,7 @@ public class EventController {
         if (date == null) {
             date = simulateService.getUserSimulateTime(String.valueOf(userId));
         }
+        logger.info(userId + " 获取 " + date + " 课程和考试");
         return eventService.getLessonAndExam(userId, date);
     }
 
@@ -152,6 +157,7 @@ public class EventController {
         if (date == null) {
             date = simulateService.getUserSimulateTime(String.valueOf(userId));
         }
+        logger.info(userId + " 获取 " + date + " 集体活动");
         return eventService.getGroupActivities(userId, date);
     }
 
@@ -170,6 +176,7 @@ public class EventController {
         if (date == null) {
             date = simulateService.getUserSimulateTime(String.valueOf(userId));
         }
+        logger.info(userId + " 获取 " + date + " 个人日程");
         return eventService.getPersonalEvents(userId, date);
     }
 
@@ -190,6 +197,7 @@ public class EventController {
         if (date == null) {
             date = simulateService.getUserSimulateTime(String.valueOf(userId));
         }
+        logger.info(userId + " 获取 " + date + " 的 " + type + " 类活动");
         return eventService.getByTypeAndDate(userId, date, type);
     }
 
@@ -202,6 +210,9 @@ public class EventController {
     @DeleteMapping("/deleteEvent")
     @ResponseBody
     public Result<?> deleteByEventId(@RequestBody @Valid RequestParams requestParams) {
+        logger.info(requestParams.getUser() + " 在 "
+                + simulateService.getUserSimulateSpeed(String.valueOf(requestParams.getUser().getUserId()))
+                + " 删除课程 " + requestParams.getEvent());
         return eventService.deleteByEventId(requestParams.getEvent(), requestParams.getUser());
     }
 
@@ -214,6 +225,9 @@ public class EventController {
     @PutMapping("/updateEvent")
     @ResponseBody
     public Result<?> updateEvent(@RequestBody @Valid RequestParams requestParams) {
+        logger.info(requestParams.getUser() + " 在 "
+                + simulateService.getUserSimulateSpeed(String.valueOf(requestParams.getUser().getUserId()))
+                + " 更新课程 " + requestParams.getEvent());
         return eventService.updateEvent(requestParams.getEvent(), requestParams.getUser());
     }
 }
