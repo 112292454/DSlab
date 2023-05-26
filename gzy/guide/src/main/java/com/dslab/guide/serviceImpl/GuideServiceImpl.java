@@ -105,7 +105,10 @@ public class GuideServiceImpl implements GuideService {
         expandRes.add(0, start);
 
         for (Integer passedPoint : passedPoints) {
-            if(!expandRes.contains(sr.getPoint(passedPoint))) expandRes.clear();
+            if(passedPoint!=0&&!expandRes.contains(sr.getPoint(passedPoint))) {
+                expandRes=expandRes.subList(0, 1);
+                break;
+            }
         }
 
         return expandRes;
