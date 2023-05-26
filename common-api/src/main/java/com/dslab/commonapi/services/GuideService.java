@@ -11,6 +11,6 @@ public interface GuideService {
 
     List<Point> directGuide(int from, int to);
 
-
     List<Point> byManyPointsGuide(List<Integer> passedPoints);
+
 }

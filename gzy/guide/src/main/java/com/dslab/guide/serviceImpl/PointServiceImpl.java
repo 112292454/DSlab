@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @DubboService(group = "DSlab",version = "1.0.0",interfaceClass = PointService.class)
@@ -28,9 +30,12 @@ public class PointServiceImpl implements PointService {
     @Resource
     PointMapper pointMapper;
 
+
+
     private int maxID = 0;
 
     public PointServiceImpl() {
+
         map= new ArrayList<>();
         points= new HashMap<>();
         //refreshMap();
@@ -75,12 +80,28 @@ public class PointServiceImpl implements PointService {
         return map;
     }
 
-    @Override
+//    @Override
     public void dubboTestMethod() {
         int i=0;
         while (true){
             logger.info("dubbo服务测试信息：{}",i++);
         }
+    }
+
+    @Override
+    public Point getByPos(int x, int y) {
+        Point p=new Point(-1,x,y);
+        AtomicReference<Point> res=new AtomicReference<>();
+        AtomicInteger dist= new AtomicInteger(1 << 30);
+        points.forEach((k,v)->{
+            int tempD=p.getDistance(v);
+            if(tempD< dist.get()) {
+                dist.set(tempD);
+                res.set(v);
+            }
+        });
+        assert res.get()!=null;
+        return res.get();
     }
 
     @Override
@@ -145,5 +166,10 @@ public class PointServiceImpl implements PointService {
     @Override
     public Point getPoint(Integer id) {
         return points.get(id);
+    }
+
+    @Override
+    public Point getByName(String name) {
+        return listAll().stream().filter(a -> a.getName().equals(name)).toList().get(0);
     }
 }

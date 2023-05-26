@@ -75,6 +75,10 @@ public interface PointService {
 
     void dubboTestMethod();
 
+    Point getByPos(int x,int y);
+
+    Point getByName(String name);
+
     /**
      * 勿动，删除数据库中的地图信息，测试期之后删除此方法
      *
