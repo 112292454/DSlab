@@ -1,7 +1,6 @@
 package com.dslab.commonapi.utils;
 
 import com.dslab.commonapi.entity.Event;
-import com.dslab.commonapi.entity.EventType;
 
 import java.util.Date;
 
@@ -42,9 +41,8 @@ public class TimeUtil {
     public static boolean checkTimeValid(Event e) {
         int start = dateToHour(e.getStartTime());
         int end = dateToHour(e.getEndTime());
-        if (start < end) {
-            if (!(EventType.EVENT_LESSON.getValue().equals(e.getEventType())
-                    || EventType.EVENT_EXAM.getValue().equals(e.getEventType()))) {
+        if (start <= end) {
+            if (e.getIsGroup()) {
                 return start >= ADMIN_START_TIME && end <= ADMIN_END_TIME;
             } else {
                 return start >= STU_START_TIME && end <= STU_END_TIME;

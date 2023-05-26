@@ -27,6 +27,7 @@ import java.util.Map;
  **/
 
 @RestController
+@CrossOrigin
 @RequestMapping("/events")
 public class EventController {
 
