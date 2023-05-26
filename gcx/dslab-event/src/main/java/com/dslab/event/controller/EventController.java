@@ -67,7 +67,7 @@ public class EventController {
     @ResponseBody
     public Result<?> addEvent(@RequestBody @Valid RequestParams requestParams) {
         logger.info(requestParams.getUser() + " 在 "
-                + simulateService.getUserSimulateSpeed(String.valueOf(requestParams.getUser().getUserId()))
+                + simulateService.getUserSimulateTime(String.valueOf(requestParams.getUser().getUserId()))
                 + " 增加课程 " + requestParams.getEvent());
         return eventService.addEvent(requestParams.getEvent(), requestParams.getUser());
     }
@@ -211,7 +211,7 @@ public class EventController {
     @ResponseBody
     public Result<?> deleteByEventId(@RequestBody @Valid RequestParams requestParams) {
         logger.info(requestParams.getUser() + " 在 "
-                + simulateService.getUserSimulateSpeed(String.valueOf(requestParams.getUser().getUserId()))
+                + simulateService.getUserSimulateTime(String.valueOf(requestParams.getUser().getUserId()))
                 + " 删除课程 " + requestParams.getEvent());
         return eventService.deleteByEventId(requestParams.getEvent(), requestParams.getUser());
     }
@@ -226,7 +226,7 @@ public class EventController {
     @ResponseBody
     public Result<?> updateEvent(@RequestBody @Valid RequestParams requestParams) {
         logger.info(requestParams.getUser() + " 在 "
-                + simulateService.getUserSimulateSpeed(String.valueOf(requestParams.getUser().getUserId()))
+                + simulateService.getUserSimulateTime(String.valueOf(requestParams.getUser().getUserId()))
                 + " 更新课程 " + requestParams.getEvent());
         return eventService.updateEvent(requestParams.getEvent(), requestParams.getUser());
     }

@@ -56,7 +56,7 @@
                 is_group,
             </if>
             <if test="null != customType and '' != customType">
-                `custom_type`
+                `custom_type`,
             </if>
             <if test="null != buildingId and '' != buildingId">
                 building_id,

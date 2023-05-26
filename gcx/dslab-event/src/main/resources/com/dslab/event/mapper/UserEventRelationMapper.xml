@@ -17,8 +17,7 @@
         event_id
     </sql>
 
-    <insert id="add" keyColumn="id"
-            parameterType="com.dslab.commonapi.entity.UserEventRelation">
+    <insert id="add" keyColumn="id" parameterType="com.dslab.commonapi.entity.UserEventRelation">
         INSERT INTO user_event_relation
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="null != groupId and '' != groupId">
