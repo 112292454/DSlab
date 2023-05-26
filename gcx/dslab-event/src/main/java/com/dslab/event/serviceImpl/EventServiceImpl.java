@@ -64,6 +64,10 @@ public class EventServiceImpl implements EventService {
      * 以日程名字为键
      */
     private static Map<String, Event> eventNameMap = new MyHashMap<>();
+    /**
+     * 活动冲突时, 需要选取的可用时间的数量
+     */
+    private static final int FREE_TIME_CNT = 3;
 
     /**
      * 预加载函数
@@ -479,7 +483,7 @@ public class EventServiceImpl implements EventService {
             List<int[]> studentTime = findTimeByStudent(event, u);
             for (int[] t : studentTime) {
                 time.put(t, time.getOrDefault(t, 0) + 1);
-                if (freeTime.size() < 3) {
+                if (freeTime.size() < FREE_TIME_CNT) {
                     freeTime.add(t);
                 } else {
                     MathUtil.mySort(freeTime, Comparator.comparingInt(time::get));
@@ -505,7 +509,7 @@ public class EventServiceImpl implements EventService {
         List<int[]> freeTime = new ArrayList<>();
         for (int i = 6 * 60; i <= 22 * 60; i += 60) {
             // 遍历6-22小时, 查询可用时间
-            List<Integer> ids = segTree.rangeQuery(i, i + 60);
+            List<Integer> ids = segTree.rangeQuery(i, i + 59);
             if (ids.size() == 0) {
                 freeTime.add(new int[]{i, i + 1});
             } else {
