@@ -761,7 +761,8 @@ public class EventServiceImpl implements EventService {
         List<Event> events = new ArrayList<>();
         for (Integer id : eventIds) {
             Event e = eventIdMap.get(id);
-            if (!e.isActivity()) {
+            if (!e.isActivity() && !e.isTemporary()) {
+                // 活动和临时事务不需要提前一小时提醒
                 events.add(e);
             }
         }

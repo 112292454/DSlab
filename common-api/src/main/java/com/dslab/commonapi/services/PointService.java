@@ -85,6 +85,5 @@ public interface PointService {
      */
 	Boolean deleteAll();
 
-
 }
 
