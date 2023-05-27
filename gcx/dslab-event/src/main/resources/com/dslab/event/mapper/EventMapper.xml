@@ -7,8 +7,8 @@
         <result column="event_id" property="eventId"/>
         <result column="name" property="name"/>
         <result column="event_type" property="eventType"/>
-        <result column="is_online" property="isOnline" jdbcType="TINYINT"/>
-        <result column="is_group" property="isGroup" jdbcType="TINYINT"/>
+        <result column="is_online" property="isOnline"/>
+        <result column="is_group" property="isGroup"/>
         <result column="custom_type" property="customType"/>
         <result column="building_id" property="buildingId"/>
         <result column="building_name" property="buildingName"/>
@@ -44,7 +44,7 @@
         INSERT INTO event
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="null != name and '' != name">
-                name,
+                `name`,
             </if>
             <if test="null != eventType and '' != eventType">
                 event_type,
@@ -83,7 +83,7 @@
                 `cycle`,
             </if>
             <if test="null != status and '' != status">
-                `status`,
+                `status`
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">

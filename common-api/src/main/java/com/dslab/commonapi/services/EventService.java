@@ -5,6 +5,7 @@ import com.dslab.commonapi.entity.User;
 import com.dslab.commonapi.vo.Result;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @program: dslab-event
@@ -64,7 +65,7 @@ public interface EventService {
      * @param date   时间
      * @return 日程列表
      */
-    Result<String> getDayEvents(Integer userId, Date date);
+    Result<List<Event>> getDayEvents(Integer userId, Date date);
 
     /**
      * 获取用户给定日期的所有课程和考试日程
@@ -73,7 +74,7 @@ public interface EventService {
      * @param date   时间
      * @return 日程列表
      */
-    Result<String> getLessonAndExam(Integer userId, Date date);
+    Result<List<Event>> getLessonAndExam(Integer userId, Date date);
 
     /**
      * 获取用户给定日期的所有集体活动
@@ -82,7 +83,7 @@ public interface EventService {
      * @param date   时间
      * @return 日程列表
      */
-    Result<String> getGroupActivities(Integer userId, Date date);
+    Result<List<Event>> getGroupActivities(Integer userId, Date date);
 
     /**
      * 获取用户给定日期的所有个人日程
@@ -91,7 +92,7 @@ public interface EventService {
      * @param date   时间
      * @return 日程列表
      */
-    Result<String> getPersonalEvents(Integer userId, Date date);
+    Result<List<Event>> getPersonalEvents(Integer userId, Date date);
 
     /**
      * 获取用户给定日期和类型的活动或者临时事务
@@ -101,7 +102,7 @@ public interface EventService {
      * @param type   类型
      * @return 日程列表
      */
-    Result<String> getByTypeAndDate(Integer userId, Date date, String type);
+    Result<List<Event>> getByTypeAndDate(Integer userId, Date date, String type);
 
     /**
      * 根据给定时间获取用户日程
@@ -111,5 +112,5 @@ public interface EventService {
      * @param userId  用户id
      * @return 日程
      */
-    Result<String> checkUserEventInTime(Date nowTime, String userId);
+    Result<List<Event>> checkUserEventInTime(Date nowTime, String userId);
 }

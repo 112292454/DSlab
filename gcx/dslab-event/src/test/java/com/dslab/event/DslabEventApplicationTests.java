@@ -14,12 +14,13 @@ import com.dslab.event.serviceImpl.EventServiceImpl;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-//@SpringBootTest
+@SpringBootTest
 class DslabEventApplicationTests {
 
     @Resource
@@ -167,5 +168,35 @@ class DslabEventApplicationTests {
         System.out.println(list);
         MathUtil.mySort(list, (o1, o2) -> o1 - o2);
         System.out.println(list);
+    }
+
+    @Test
+    void testAddEventMapper(){
+        Event e = new Event();
+        e.setIsGroup(true);
+        e.setIsOnline(true);
+        e.setName("1234");
+        e.setEventType("0");
+        eventMapper.add(e);
+        System.out.println(eventMapper.getByEventName(e.getName()));
+    }
+
+    @Test
+    void testDeleteEventMapper(){
+        Event e = new Event();
+        e.setIsGroup(true);
+        e.setEventId(7);
+        eventMapper.deleteByEventId(e.getEventId());
+        System.out.println(eventMapper.getByEventName(e.getName()));
+    }
+
+    @Test
+    void testGetEventMapper(){
+        Event byEventId = eventMapper.getByEventId(1);
+        if (byEventId.getIsGroup()){
+            System.out.println("true");
+        }else{
+            System.out.println("false");
+        }
     }
 }

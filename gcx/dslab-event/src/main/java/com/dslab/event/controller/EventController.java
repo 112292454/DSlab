@@ -69,7 +69,7 @@ public class EventController {
     public Result<?> addEvent(@RequestBody @Valid RequestParams requestParams) {
         logger.info(requestParams.getUser() + " 在 "
                 + simulateService.getUserSimulateTime(String.valueOf(requestParams.getUser().getUserId()))
-                + " 增加课程 " + requestParams.getEvent());
+                + " 增加日程 " + requestParams.getEvent());
         return eventService.addEvent(requestParams.getEvent(), requestParams.getUser());
     }
 
@@ -107,9 +107,9 @@ public class EventController {
      */
     @GetMapping("/DayEvents/{userId}&&{date}")
     @ResponseBody
-    public Result<String> getDayEvents(@PathVariable(value = "userId") Integer userId,
-                                       @PathVariable(value = "date", required = false)
-                                       @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) {
+    public Result<?> getDayEvents(@PathVariable(value = "userId") Integer userId,
+                                  @PathVariable(value = "date", required = false)
+                                  @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) {
 //        Integer userId = Integer.valueOf(map.get("userId"));
 //        Date date = null;
 //        if (map.containsKey("date")) {
@@ -133,9 +133,28 @@ public class EventController {
      */
     @GetMapping("/LessonAndExam/{userId}&&{date}")
     @ResponseBody
-    public Result<String> getLessonAndExam(@PathVariable(value = "userId") Integer userId,
-                                           @PathVariable(value = "date", required = false)
-                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) {
+    public Result<?> getLessonAndExam(@PathVariable(value = "userId") Integer userId,
+                                      @PathVariable(value = "date", required = false)
+                                      @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) {
+        if (date == null) {
+            date = simulateService.getUserSimulateTime(String.valueOf(userId));
+        }
+        logger.info(userId + " 获取 " + date + " 课程和考试");
+        return eventService.getLessonAndExam(userId, date);
+    }
+
+    /**
+     * todo  获取用户某一周的课程和考试
+     *
+     * @param userId 用户id
+     * @param date   时间
+     * @return 日程列表
+     */
+    @GetMapping("/WeekLessonAndExam/{userId}&&{date}")
+    @ResponseBody
+    public Result<?> getWeekLessonAndExam(@PathVariable(value = "userId") Integer userId,
+                                          @PathVariable(value = "date")
+                                          @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) {
         if (date == null) {
             date = simulateService.getUserSimulateTime(String.valueOf(userId));
         }
@@ -152,9 +171,9 @@ public class EventController {
      */
     @GetMapping("/GroupActivities/{userId}&&{date}")
     @ResponseBody
-    public Result<String> getGroupActivities(@PathVariable(value = "userId") Integer userId,
-                                             @PathVariable(value = "date", required = false)
-                                             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) {
+    public Result<?> getGroupActivities(@PathVariable(value = "userId") Integer userId,
+                                        @PathVariable(value = "date", required = false)
+                                        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) {
         if (date == null) {
             date = simulateService.getUserSimulateTime(String.valueOf(userId));
         }
@@ -171,9 +190,9 @@ public class EventController {
      */
     @GetMapping("/PersonalEvents/{userId}&&{date}")
     @ResponseBody
-    public Result<String> getPersonalEvents(@PathVariable(value = "userId") Integer userId,
-                                            @PathVariable(value = "date", required = false)
-                                            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) {
+    public Result<?> getPersonalEvents(@PathVariable(value = "userId") Integer userId,
+                                       @PathVariable(value = "date", required = false)
+                                       @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) {
         if (date == null) {
             date = simulateService.getUserSimulateTime(String.valueOf(userId));
         }
@@ -191,14 +210,14 @@ public class EventController {
      */
     @GetMapping("/TypeAndDate/{userId}&&{date}&&{type}")
     @ResponseBody
-    public Result<String> getByTypeAndDate(@PathVariable(value = "userId") Integer userId,
-                                           @PathVariable(value = "date", required = false)
-                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date,
-                                           @PathVariable(value = "type", required = false) String type) {
+    public Result<?> getByTypeAndDate(@PathVariable(value = "userId") Integer userId,
+                                      @PathVariable(value = "date", required = false)
+                                      @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date,
+                                      @PathVariable(value = "type", required = false) String type) {
         if (date == null) {
             date = simulateService.getUserSimulateTime(String.valueOf(userId));
         }
-        logger.info(userId + " 获取 " + date + " 的 " + type + " 类活动");
+        logger.info(userId + " 获取 " + date + " 的 " + type + " 活动");
         return eventService.getByTypeAndDate(userId, date, type);
     }
 

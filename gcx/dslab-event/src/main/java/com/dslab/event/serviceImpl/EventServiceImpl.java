@@ -1,6 +1,5 @@
 package com.dslab.event.serviceImpl;
 
-import com.alibaba.fastjson2.JSON;
 import com.dslab.commonapi.dataStruct.MyHashMap;
 import com.dslab.commonapi.dataStruct.SegTree;
 import com.dslab.commonapi.dataStruct.SegTreeImpl;
@@ -55,7 +54,7 @@ public class EventServiceImpl implements EventService {
      * 根据用户id获取对应日程
      * 一个用户有哪些日程
      */
-    private static Map<Integer, List<Event>> userEventRelationMap = new MyHashMap<>();
+    private static Map<Integer, List<Integer>> userEventRelationMap = new MyHashMap<>();
     /**
      * 以日程id为键
      */
@@ -77,17 +76,19 @@ public class EventServiceImpl implements EventService {
         List<User> users = userMapper.getAllUsers();
         for (User u : users) {
             List<Event> eventList = new ArrayList<>();
+            List<Integer> ids = new ArrayList<>();
             List<Integer> eventIds = userEventRelationMapper.getByUserId(u.getUserId());
             if (eventIds != null) {
                 for (int id : eventIds) {
                     Event e = eventMapper.getByEventId(id);
                     if (e != null) {
                         eventList.add(e);
+                        ids.add(e.getEventId());
                     }
                 }
             }
             // 加载用户日程
-            userEventRelationMap.put(u.getUserId(), eventList);
+            userEventRelationMap.put(u.getUserId(), ids);
             // 加载用户的线段树
             SegTree segmentTree = new SegTreeImpl(eventList);
             timeMap.put(u.getUserId(), segmentTree);
@@ -119,17 +120,17 @@ public class EventServiceImpl implements EventService {
     public Result<?> addEvent(Event event, User user) {
         if (!TimeUtil.checkTimeValid(event)) {
             // 校验日程时间是否合法
-            logger.debug("日程时间不合法");
+            logger.warn("日程时间不合法");
             return Result.error("日程时间不合法");
         }
         if (!userService.identifyUser(user, event)) {
             //校验用户是否有操作权限
-            logger.debug("用户没有添加权限");
+            logger.warn("用户没有添加权限");
             return Result.error("用户没有添加权限");
         }
         if (eventNameMap.get(event.getName()) != null) {
             // 不能添加同名日程
-            logger.debug("不能添加同名日程");
+            logger.warn("不能添加同名日程");
             return Result.error("不能添加同名日程");
         }
 
@@ -162,7 +163,7 @@ public class EventServiceImpl implements EventService {
                 // 如果是活动类日程则需要找出三个可添加的时间段
                 return findTime(event, user);
             }
-            logger.debug("时间冲突, 添加失败");
+            logger.warn("时间冲突, 添加失败");
             return Result.error("时间冲突, 添加失败");
         } else {
             // 给组内每个学生添加该日程
@@ -175,7 +176,7 @@ public class EventServiceImpl implements EventService {
             for (User u : users) {
                 addSuccess(event, u);
             }
-            logger.debug("添加成功");
+            logger.info("添加成功");
             return Result.success("添加成功");
         }
     }
@@ -197,9 +198,10 @@ public class EventServiceImpl implements EventService {
             // 添加失败
             if (event.isActivity()) {
                 // 如果是活动类日程则需要找出三个可添加的时间段
+                logger.warn("时间冲突, 返回可用时间段");
                 return findTime(event, user);
             }
-            logger.debug("时间冲突, 添加失败");
+            logger.warn("时间冲突, 添加失败");
             return Result.error("时间冲突, 添加失败");
         } else {
             // 没有冲突, 可以添加
@@ -232,7 +234,7 @@ public class EventServiceImpl implements EventService {
         addToTimeTree(user, event);
         // 添加日程和用户的映射关系
         addRelation(user, event);
-        logger.debug("添加成功");
+        logger.info("添加成功");
         return Result.success("添加成功");
     }
 
@@ -256,9 +258,10 @@ public class EventServiceImpl implements EventService {
      */
     private void addRelation(User user, Event event) {
         userEventRelationMapper.add(user.getGroupId(), user.getUserId(), event.getEventId());
-        List<Event> list = userEventRelationMap.getOrDefault(user.getUserId(), new ArrayList<>());
-        list.add(event);
+        List<Integer> list = userEventRelationMap.getOrDefault(user.getUserId(), new ArrayList<>());
+        list.add(event.getEventId());
         userEventRelationMap.put(user.getUserId(), list);
+        System.out.println(list);
     }
 
 //===============================================修改日程==============================================
@@ -275,19 +278,19 @@ public class EventServiceImpl implements EventService {
     public Result<?> updateEvent(Event event, User user) {
         if (!TimeUtil.checkTimeValid(event)) {
             // 校验日程时间是否合法
-            logger.debug("日程时间不合法");
+            logger.warn("日程时间不合法");
             return Result.error("日程时间不合法");
         }
         if (!userService.identifyUser(user, event)) {
             //校验用户是否有操作权限
-            logger.debug("用户没有修改权限");
+            logger.warn("用户没有修改权限");
             return Result.error("用户没有修改权限");
         }
         if (eventNameMap.get(event.getName()) != null
                 && !(eventNameMap.get(event.getName())
                 .getEventId().equals(event.getEventId()))) {
             // 不能添加同名日程
-            logger.debug("不能添加同名日程");
+            logger.warn("不能添加同名日程");
             return Result.error("不能添加同名日程");
         }
 
@@ -325,7 +328,7 @@ public class EventServiceImpl implements EventService {
                 // 如果是活动类日程则需要找出三个可添加的时间段
                 return findTime(dest, user);
             }
-            logger.debug("时间冲突, 修改失败");
+            logger.warn("时间冲突, 修改失败");
             return Result.error("时间冲突, 修改失败");
         } else {
             // 给组内每个学生修改该日程
@@ -336,7 +339,7 @@ public class EventServiceImpl implements EventService {
             for (User u : users) {
                 updateSuccess(u.getUserId(), src, dest);
             }
-            logger.debug("修改成功");
+            logger.info("修改成功");
             return Result.success("修改成功");
         }
     }
@@ -364,7 +367,7 @@ public class EventServiceImpl implements EventService {
                 // 如果是活动类日程则需要找出三个可添加的时间段
                 return findTime(dest, user);
             }
-            logger.debug("修改失败");
+            logger.warn("修改失败");
             return Result.error("修改失败");
         } else {
             // 没有冲突, 可以修改
@@ -386,7 +389,7 @@ public class EventServiceImpl implements EventService {
         eventNameMap.put(dest.getName(), dest);
         SegTree segTree = timeMap.get(userId);
         segTree.modifyEvent(src, dest);
-        logger.debug("修改成功");
+        logger.info("修改成功");
         return Result.success("修改成功");
     }
 
@@ -458,10 +461,10 @@ public class EventServiceImpl implements EventService {
             freeTime = findTimeByStudent(event, user);
         }
         if (freeTime.size() == 0) {
-            logger.debug("时间段冲突, 找不到可用时间");
+            logger.warn("时间段冲突, 找不到可用时间");
             return Result.error("时间段冲突, 找不到可用时间");
         } else {
-            logger.debug("时间段冲突, 找到可用时间: " + freeTime);
+            logger.warn("时间段冲突, 找到可用时间: " + freeTime);
             return Result.error("时间段冲突, 找到可用时间").data(freeTime);
         }
     }
@@ -511,7 +514,7 @@ public class EventServiceImpl implements EventService {
             // 遍历6-22小时, 查询可用时间
             List<Integer> ids = segTree.rangeQuery(i, i + 59);
             if (ids.size() == 0) {
-                freeTime.add(new int[]{i, i + 1});
+                freeTime.add(new int[]{i / 60, i / 60 + 1});
             } else {
                 // 当前时间段有日程, 查询这个日程是否会和待添加在同一天发生
                 boolean flag = true;
@@ -525,7 +528,7 @@ public class EventServiceImpl implements EventService {
                     }
                 }
                 if (flag) {
-                    freeTime.add(new int[]{i, i + 1});
+                    freeTime.add(new int[]{i / 60, i / 60 + 1});
                 }
             }
         }
@@ -544,7 +547,7 @@ public class EventServiceImpl implements EventService {
     public Result<?> deleteByEventId(Event event, User user) {
         if (!userService.identifyUser(user, event)) {
             //校验用户是否有操作权限
-            logger.debug("删除失败, 用户没有修改权限");
+            logger.warn("删除失败, 用户没有修改权限");
             return Result.error("删除失败, 用户没有修改权限");
         }
 
@@ -562,10 +565,10 @@ public class EventServiceImpl implements EventService {
                 SegTree segTree = timeMap.get(user.getUserId());
                 segTree.deleteEvent(event);
             }
-            logger.debug("删除成功");
+            logger.info("删除成功");
             return Result.success("删除成功");
         } else {
-            logger.debug("删除失败");
+            logger.warn("删除失败");
             return Result.error("删除失败");
         }
     }
@@ -582,10 +585,10 @@ public class EventServiceImpl implements EventService {
     public Result<Event> getByEventId(Integer eventId) {
         Event event = eventIdMap.get(eventId);
         if (event != null) {
-            logger.debug("查询成功 " + event);
+            logger.info("查询成功 " + event);
             return Result.<Event>success("查找成功").data(event);
         } else {
-            logger.debug("查询失败 " + eventId);
+            logger.warn("查询失败 " + eventId);
             return Result.error("查找失败");
         }
     }
@@ -600,10 +603,10 @@ public class EventServiceImpl implements EventService {
     public Result<Event> getByEventName(String eventName) {
         Event event = eventNameMap.get(eventName);
         if (event != null) {
-            logger.debug("查询成功 " + event);
+            logger.info("查询成功 " + event);
             return Result.<Event>success("查找成功").data(event);
         } else {
-            logger.debug("查询失败 " + eventName);
+            logger.warn("查询失败 " + eventName);
             return Result.error("查找失败");
         }
     }
@@ -616,12 +619,11 @@ public class EventServiceImpl implements EventService {
      * @return 日程列表
      */
     @Override
-    public Result<String> getDayEvents(Integer userId, Date date) {
+    public Result<List<Event>> getDayEvents(Integer userId, Date date) {
         long nowDay = TimeUtil.dateToDay(date);
         List<Event> res = checkDayEvents(nowDay, userId);
-        String result = JSON.toJSONString(res);
-        logger.debug("查询日程成功 " + date + " " + result);
-        return Result.<String>success("查询成功").data(result);
+        logger.info("查询日程成功 " + date + " " + res);
+        return Result.<List<Event>>success("查询成功").data(res);
     }
 
     /**
@@ -632,7 +634,7 @@ public class EventServiceImpl implements EventService {
      * @return 日程列表
      */
     @Override
-    public Result<String> getLessonAndExam(Integer userId, Date date) {
+    public Result<List<Event>> getLessonAndExam(Integer userId, Date date) {
         long nowDay = TimeUtil.dateToDay(date);
         List<Event> events = checkDayEvents(nowDay, userId);
         List<Event> res = new ArrayList<>();
@@ -642,9 +644,8 @@ public class EventServiceImpl implements EventService {
             }
         }
         MathUtil.mySort(res, Comparator.comparing(Event::getStartTime));
-        String result = JSON.toJSONString(res);
-        logger.debug("查询日程成功 " + date + " " + result);
-        return Result.<String>success("查询成功").data(result);
+        logger.info("查询课程考试成功 " + date + " " + res);
+        return Result.<List<Event>>success("查询成功").data(res);
     }
 
     /**
@@ -655,7 +656,7 @@ public class EventServiceImpl implements EventService {
      * @return 日程列表
      */
     @Override
-    public Result<String> getGroupActivities(Integer userId, Date date) {
+    public Result<List<Event>> getGroupActivities(Integer userId, Date date) {
         long nowDay = TimeUtil.dateToDay(date);
         List<Event> events = checkDayEvents(nowDay, userId);
         List<Event> res = new ArrayList<>();
@@ -665,9 +666,8 @@ public class EventServiceImpl implements EventService {
             }
         }
         MathUtil.mySort(res, Comparator.comparing(Event::getStartTime));
-        String result = JSON.toJSONString(res);
-        logger.debug("查询日程成功 " + date + " " + result);
-        return Result.<String>success("查询成功").data(result);
+        logger.info("查询集体活动成功 " + date + " " + res);
+        return Result.<List<Event>>success("查询成功").data(res);
     }
 
     /**
@@ -678,7 +678,7 @@ public class EventServiceImpl implements EventService {
      * @return 日程列表
      */
     @Override
-    public Result<String> getPersonalEvents(Integer userId, Date date) {
+    public Result<List<Event>> getPersonalEvents(Integer userId, Date date) {
         long nowDay = TimeUtil.dateToDay(date);
         List<Event> events = checkDayEvents(nowDay, userId);
         List<Event> res = new ArrayList<>();
@@ -688,9 +688,8 @@ public class EventServiceImpl implements EventService {
             }
         }
         MathUtil.mySort(res, Comparator.comparing(Event::getStartTime));
-        String result = JSON.toJSONString(res);
-        logger.debug("查询日程成功 " + date + " " + result);
-        return Result.<String>success("查询成功").data(result);
+        logger.info("查询个人活动成功 " + date + " " + res);
+        return Result.<List<Event>>success("查询成功").data(res);
     }
 
     /**
@@ -702,7 +701,7 @@ public class EventServiceImpl implements EventService {
      * @return 日程列表
      */
     @Override
-    public Result<String> getByTypeAndDate(Integer userId, Date date, String type) {
+    public Result<List<Event>> getByTypeAndDate(Integer userId, Date date, String type) {
         long nowDay = TimeUtil.dateToDay(date);
         List<Event> events = checkDayEvents(nowDay, userId);
         List<Event> res = new ArrayList<>();
@@ -717,9 +716,8 @@ public class EventServiceImpl implements EventService {
             }
         }
         MathUtil.mySort(res, Comparator.comparing(Event::getStartTime));
-        String result = JSON.toJSONString(res);
-        logger.debug("查询日程成功 " + date + " " + result);
-        return Result.<String>success("查询成功").data(result);
+        logger.info("查询成功 " + date + " " + res);
+        return Result.<List<Event>>success("查询成功").data(res);
     }
 
     /**
@@ -730,7 +728,7 @@ public class EventServiceImpl implements EventService {
      * @return 用户满足要求的日程
      */
     @Override
-    public Result<String> checkUserEventInTime(Date nowTime, String userId) {
+    public Result<List<Event>> checkUserEventInTime(Date nowTime, String userId) {
         long nowDay = TimeUtil.dateToDay(nowTime);
         int nowHour = TimeUtil.dateToHour(nowTime);
         int nowMin = TimeUtil.dateToMin(nowTime);
@@ -743,9 +741,8 @@ public class EventServiceImpl implements EventService {
             // 否则是查询第二天的日程
             res = checkDayEvents(nowDay + 1, Integer.valueOf(userId));
         }
-        String result = JSON.toJSONString(res);
-        logger.debug("查询日程成功 " + nowTime + " " + result);
-        return Result.<String>success("查询成功").data(result);
+        logger.info("查询日程成功 " + nowTime + " " + res);
+        return Result.<List<Event>>success("查询成功").data(res);
     }
 
     /**
@@ -762,12 +759,12 @@ public class EventServiceImpl implements EventService {
         // 获取这段时间内的日程
         SegTree segTree = timeMap.get(userId);
         List<Integer> eventIds = segTree.rangeQuery(from, to);
-        List<Event> events = new ArrayList<>();
+        List<Integer> events = new ArrayList<>();
         for (Integer id : eventIds) {
             Event e = eventIdMap.get(id);
             if (!e.isActivity() && !e.isTemporary()) {
                 // 活动和临时事务不需要提前一小时提醒
-                events.add(e);
+                events.add(e.getEventId());
             }
         }
         // 返回在同一天的日程
@@ -783,7 +780,7 @@ public class EventServiceImpl implements EventService {
      */
     private List<Event> checkDayEvents(long day, Integer userId) {
         // 选出该用户的所有日程
-        List<Event> events = userEventRelationMap.get(userId);
+        List<Integer> events = userEventRelationMap.get(userId);
         // 根据用户的日程id找到对应日程, 并判断其是否是在给定日期的课程
         return selectSameDayEvents(day, events);
     }
@@ -795,10 +792,11 @@ public class EventServiceImpl implements EventService {
      * @param events 日程
      * @return 日程列表
      */
-    private List<Event> selectSameDayEvents(long day, List<Event> events) {
+    private List<Event> selectSameDayEvents(long day, List<Integer> events) {
         List<Event> res = new ArrayList<>();
-        for (Event e : events) {
-            if (TimeUtil.isInOneDay(day, e)) {
+        for (Integer id : events) {
+            Event e;
+            if ((e = eventIdMap.get(id)) != null && TimeUtil.isInOneDay(day, e)) {
                 res.add(e);
             }
         }
