@@ -152,17 +152,10 @@ public class EventController {
     public Result<?> getDayEvents(@PathVariable(value = "userId") Integer userId,
                                   @PathVariable(value = "date", required = false)
                                   @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) {
-//        Integer userId = Integer.valueOf(map.get("userId"));
-//        Date date = null;
-//        if (map.containsKey("date")) {
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            date = sdf.parse(map.get("date"));
-//        } else {
-//            date = simulateService.getUserSimulateTime(String.valueOf(userId));
-//        }
         if (date == null) {
             date = simulateService.getUserSimulateTime(String.valueOf(userId));
         }
+        logger.info(userId + " 获取 " + date + " 日程");
         List<Event> res = eventService.getDayEvents(userId, date);
         return Result.<List<Event>>success("查询成功").data(res);
     }
