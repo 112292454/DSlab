@@ -14,13 +14,12 @@ import com.dslab.event.serviceImpl.EventServiceImpl;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-@SpringBootTest
+//@SpringBootTest
 class DslabEventApplicationTests {
 
     @Resource
@@ -171,7 +170,7 @@ class DslabEventApplicationTests {
     }
 
     @Test
-    void testAddEventMapper(){
+    void testAddEventMapper() {
         Event e = new Event();
         e.setIsGroup(true);
         e.setIsOnline(true);
@@ -182,7 +181,7 @@ class DslabEventApplicationTests {
     }
 
     @Test
-    void testDeleteEventMapper(){
+    void testDeleteEventMapper() {
         Event e = new Event();
         e.setIsGroup(true);
         e.setEventId(7);
@@ -191,12 +190,24 @@ class DslabEventApplicationTests {
     }
 
     @Test
-    void testGetEventMapper(){
+    void testGetEventMapper() {
         Event byEventId = eventMapper.getByEventId(1);
-        if (byEventId.getIsGroup()){
+        if (byEventId.getIsGroup()) {
             System.out.println("true");
-        }else{
+        } else {
             System.out.println("false");
         }
+    }
+
+    @Test
+    void testAddCycle() {
+        Event e = new Event();
+        e.setDate(new Date());
+        e.setStartTime(new Date());
+        e.setEndTime(new Date());
+        e.setCycle(3);
+        System.out.println(e);
+        e.addCycle();
+        System.out.println(e);
     }
 }

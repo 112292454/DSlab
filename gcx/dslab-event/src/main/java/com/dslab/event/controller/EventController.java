@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -140,11 +141,11 @@ public class EventController {
             date = simulateService.getUserSimulateTime(String.valueOf(userId));
         }
         logger.info(userId + " 获取 " + date + " 课程和考试");
-        return eventService.getLessonAndExam(userId, date);
+        List<Event> res = eventService.getLessonAndExam(userId, date);
+        return Result.<List<Event>>success("查询成功").data(res);
     }
 
     /**
-     * todo  获取用户某一周的课程和考试
      *
      * @param userId 用户id
      * @param date   时间
@@ -156,10 +157,12 @@ public class EventController {
                                           @PathVariable(value = "date")
                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) {
         if (date == null) {
-            date = simulateService.getUserSimulateTime(String.valueOf(userId));
+            logger.info(userId + " 获取以 " + date + " 为起始的一周的课程和考试, 但date为空, 获取失败");
+            return Result.<List<Event>>error("日期为空, 查询失败");
         }
-        logger.info(userId + " 获取 " + date + " 课程和考试");
-        return eventService.getLessonAndExam(userId, date);
+        logger.info(userId + " 获取以 " + date + " 为起始的一周的课程和考试");
+        List<Event> res = eventService.getWeekLessonAndExam(userId, date);
+        return Result.<List<Event>>success("查询成功").data(res);
     }
 
     /**

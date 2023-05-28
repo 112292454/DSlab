@@ -634,7 +634,7 @@ public class EventServiceImpl implements EventService {
      * @return 日程列表
      */
     @Override
-    public Result<List<Event>> getLessonAndExam(Integer userId, Date date) {
+    public List<Event> getLessonAndExam(Integer userId, Date date) {
         long nowDay = TimeUtil.dateToDay(date);
         List<Event> events = checkDayEvents(nowDay, userId);
         List<Event> res = new ArrayList<>();
@@ -645,7 +645,30 @@ public class EventServiceImpl implements EventService {
         }
         MathUtil.mySort(res, Comparator.comparing(Event::getStartTime));
         logger.info("查询课程考试成功 " + date + " " + res);
-        return Result.<List<Event>>success("查询成功").data(res);
+        return res;
+    }
+
+    /**
+     * 获取用户给定日期的所有课程和考试日程
+     *
+     * @param userId 用户id
+     * @param date   时间
+     * @return 日程列表
+     */
+    @Override
+    public List<Event> getWeekLessonAndExam(Integer userId, Date date) {
+        List<Event> res = new ArrayList<>();
+        for (long i = 0; i < 6; ++i) {
+            Date d = TimeUtil.addDate(date, i);
+            List<Event> week = getLessonAndExam(userId, d);
+            for (Event e : week) {
+                while (e.getDate().before(date)) {
+                    e.addCycle();
+                }
+                res.add(e);
+            }
+        }
+        return res;
     }
 
     /**

@@ -65,6 +65,21 @@ public class TimeUtil {
     }
 
     /**
+     * 日期加上指定天数
+     *
+     * @param date 日期
+     * @param day  天数
+     * @return 加上天数后的日期
+     */
+    public static Date addDate(Date date, long day) {
+        long time = date.getTime();
+        day = day * 24 * 60 * 60 * 1000;
+        time += day;
+        return new Date(time);
+    }
+
+
+    /**
      * 将日期转换成天数
      *
      * @param date 日期

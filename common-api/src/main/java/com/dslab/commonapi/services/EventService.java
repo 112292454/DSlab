@@ -74,7 +74,15 @@ public interface EventService {
      * @param date   时间
      * @return 日程列表
      */
-    Result<List<Event>> getLessonAndExam(Integer userId, Date date);
+    List<Event> getLessonAndExam(Integer userId, Date date);
+
+    /**
+     * 获取用户给定以给定日期为起始的一周的课程和考试
+     *
+     * @param userId 用户id
+     * @param date   一周的起始
+     */
+    List<Event> getWeekLessonAndExam(Integer userId, Date date);
 
     /**
      * 获取用户给定日期的所有集体活动
