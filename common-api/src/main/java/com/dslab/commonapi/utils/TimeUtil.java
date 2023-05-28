@@ -2,7 +2,9 @@ package com.dslab.commonapi.utils;
 
 import com.dslab.commonapi.entity.Event;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -158,5 +160,23 @@ public class TimeUtil {
         } else {
             return eDate <= nowDay && (nowDay - eDate) % e.getCycle() == 0;
         }
+    }
+
+    /**
+     * 将日程日期调整到指定日期之后
+     *
+     * @param e 日程列表
+     * @param date 指定日期
+     * @return 调整后日程列表
+     */
+    public static List<Event> adjustDate(List<Event> events, Date date) {
+        List<Event> res = new ArrayList<>();
+        for (Event e : events) {
+            while (e.getDate().before(date)) {
+                e.addCycle();
+            }
+            res.add(e);
+        }
+        return res;
     }
 }

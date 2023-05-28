@@ -47,7 +47,7 @@ public interface EventService {
      * @param eventId 日程id
      * @return 日程信息
      */
-    Result<Event> getByEventId(Integer eventId);
+    Event getByEventId(Integer eventId);
 
     /**
      * 根据日程名称获取日程
@@ -55,7 +55,7 @@ public interface EventService {
      * @param eventName 日程名称
      * @return 日程信息
      */
-    Result<Event> getByEventName(String eventName);
+    Event getByEventName(String eventName);
 
 
     /**
@@ -65,7 +65,7 @@ public interface EventService {
      * @param date   时间
      * @return 日程列表
      */
-    Result<List<Event>> getDayEvents(Integer userId, Date date);
+    List<Event> getDayEvents(Integer userId, Date date);
 
     /**
      * 获取用户给定日期的所有课程和考试日程
@@ -91,7 +91,7 @@ public interface EventService {
      * @param date   时间
      * @return 日程列表
      */
-    Result<List<Event>> getGroupActivities(Integer userId, Date date);
+    List<Event> getGroupActivities(Integer userId, Date date);
 
     /**
      * 获取用户给定日期的所有个人日程
@@ -100,7 +100,7 @@ public interface EventService {
      * @param date   时间
      * @return 日程列表
      */
-    Result<List<Event>> getPersonalEvents(Integer userId, Date date);
+    List<Event> getPersonalEvents(Integer userId, Date date);
 
     /**
      * 获取用户给定日期和类型的活动或者临时事务
@@ -110,7 +110,7 @@ public interface EventService {
      * @param type   类型
      * @return 日程列表
      */
-    Result<List<Event>> getByTypeAndDate(Integer userId, Date date, String type);
+    List<Event> getByTypeAndDate(Integer userId, Date date, String type);
 
     /**
      * 根据给定时间获取用户日程

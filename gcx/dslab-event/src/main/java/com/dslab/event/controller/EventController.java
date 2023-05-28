@@ -75,6 +75,36 @@ public class EventController {
     }
 
     /**
+     * 删除日程
+     *
+     * @param requestParams 请求参数, 包含 event 和 user
+     * @return 修改成功返回成功信息, 失败则根据不同活动类型进行判断返回内容
+     */
+    @DeleteMapping("/deleteEvent")
+    @ResponseBody
+    public Result<?> deleteByEventId(@RequestBody @Valid RequestParams requestParams) {
+        logger.info(requestParams.getUser() + " 在 "
+                + simulateService.getUserSimulateTime(String.valueOf(requestParams.getUser().getUserId()))
+                + " 删除课程 " + requestParams.getEvent());
+        return eventService.deleteByEventId(requestParams.getEvent(), requestParams.getUser());
+    }
+
+    /**
+     * 修改日程
+     *
+     * @param requestParams 请求参数, 包含 event 和 user
+     * @return 修改成功返回成功信息, 失败则根据不同活动类型进行判断返回内容
+     */
+    @PutMapping("/updateEvent")
+    @ResponseBody
+    public Result<?> updateEvent(@RequestBody @Valid RequestParams requestParams) {
+        logger.info(requestParams.getUser() + " 在 "
+                + simulateService.getUserSimulateTime(String.valueOf(requestParams.getUser().getUserId()))
+                + " 更新课程 " + requestParams.getEvent());
+        return eventService.updateEvent(requestParams.getEvent(), requestParams.getUser());
+    }
+
+    /**
      * 根据id获取日程信息
      *
      * @param eventId 日程id
@@ -84,7 +114,12 @@ public class EventController {
     @ResponseBody
     public Result<Event> getByEventId(@PathVariable @Param("eventId") Integer eventId) {
         logger.info("用户获取id为 " + eventId + " 的日程");
-        return eventService.getByEventId(eventId);
+        Event e = eventService.getByEventId(eventId);
+        if (e == null) {
+            return Result.error("查询失败");
+        } else {
+            return Result.<Event>success("查询成功").data(e);
+        }
     }
 
     /**
@@ -96,7 +131,13 @@ public class EventController {
     @GetMapping("/eventName/{eventName}")
     @ResponseBody
     public Result<Event> getByEventName(@PathVariable @Param("eventName") String eventName) {
-        return eventService.getByEventName(eventName);
+        logger.info("用户获取id为 " + eventName + " 的日程");
+        Event e = eventService.getByEventName(eventName);
+        if (e == null) {
+            return Result.error("查询失败");
+        } else {
+            return Result.<Event>success("查询成功").data(e);
+        }
     }
 
     /**
@@ -122,7 +163,8 @@ public class EventController {
         if (date == null) {
             date = simulateService.getUserSimulateTime(String.valueOf(userId));
         }
-        return eventService.getDayEvents(userId, date);
+        List<Event> res = eventService.getDayEvents(userId, date);
+        return Result.<List<Event>>success("查询成功").data(res);
     }
 
     /**
@@ -146,9 +188,10 @@ public class EventController {
     }
 
     /**
+     * 获取用户一周的课程和考试
      *
      * @param userId 用户id
-     * @param date   时间
+     * @param date   指定周的第一天
      * @return 日程列表
      */
     @GetMapping("/WeekLessonAndExam/{userId}&&{date}")
@@ -181,7 +224,8 @@ public class EventController {
             date = simulateService.getUserSimulateTime(String.valueOf(userId));
         }
         logger.info(userId + " 获取 " + date + " 集体活动");
-        return eventService.getGroupActivities(userId, date);
+        List<Event> res = eventService.getGroupActivities(userId, date);
+        return Result.<List<Event>>success("查询成功").data(res);
     }
 
     /**
@@ -200,7 +244,8 @@ public class EventController {
             date = simulateService.getUserSimulateTime(String.valueOf(userId));
         }
         logger.info(userId + " 获取 " + date + " 个人日程");
-        return eventService.getPersonalEvents(userId, date);
+        List<Event> res = eventService.getPersonalEvents(userId, date);
+        return Result.<List<Event>>success("查询成功").data(res);
     }
 
     /**
@@ -221,36 +266,7 @@ public class EventController {
             date = simulateService.getUserSimulateTime(String.valueOf(userId));
         }
         logger.info(userId + " 获取 " + date + " 的 " + type + " 活动");
-        return eventService.getByTypeAndDate(userId, date, type);
-    }
-
-    /**
-     * 删除日程
-     *
-     * @param requestParams 请求参数, 包含 event 和 user
-     * @return 修改成功返回成功信息, 失败则根据不同活动类型进行判断返回内容
-     */
-    @DeleteMapping("/deleteEvent")
-    @ResponseBody
-    public Result<?> deleteByEventId(@RequestBody @Valid RequestParams requestParams) {
-        logger.info(requestParams.getUser() + " 在 "
-                + simulateService.getUserSimulateTime(String.valueOf(requestParams.getUser().getUserId()))
-                + " 删除课程 " + requestParams.getEvent());
-        return eventService.deleteByEventId(requestParams.getEvent(), requestParams.getUser());
-    }
-
-    /**
-     * 修改日程
-     *
-     * @param requestParams 请求参数, 包含 event 和 user
-     * @return 修改成功返回成功信息, 失败则根据不同活动类型进行判断返回内容
-     */
-    @PutMapping("/updateEvent")
-    @ResponseBody
-    public Result<?> updateEvent(@RequestBody @Valid RequestParams requestParams) {
-        logger.info(requestParams.getUser() + " 在 "
-                + simulateService.getUserSimulateTime(String.valueOf(requestParams.getUser().getUserId()))
-                + " 更新课程 " + requestParams.getEvent());
-        return eventService.updateEvent(requestParams.getEvent(), requestParams.getUser());
+        List<Event> res = eventService.getByTypeAndDate(userId, date, type);
+        return Result.<List<Event>>success("查询成功").data(res);
     }
 }
