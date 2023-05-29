@@ -1,5 +1,6 @@
 package com.dslab.commonapi.entity;
 
+import com.dslab.commonapi.utils.TimeUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
@@ -170,5 +171,14 @@ public class Event implements Serializable {
      */
     public boolean isClock() {
         return EventType.EVENT_CLOCK.getValue().equals(eventType);
+    }
+
+    /**
+     * 日程日期加上一个周期
+     */
+    public void addCycle() {
+        date = TimeUtil.addDate(date, cycle);
+        startTime = TimeUtil.addDate(startTime, cycle);
+        endTime = TimeUtil.addDate(endTime, cycle);
     }
 }

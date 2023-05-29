@@ -2,7 +2,9 @@ package com.dslab.commonapi.utils;
 
 import com.dslab.commonapi.entity.Event;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -63,6 +65,21 @@ public class TimeUtil {
         int bEndHour = dateToHour(b.getEndTime());
         return !(aStartHour >= bEndHour || aEndHour <= bStartHour);
     }
+
+    /**
+     * 日期加上指定天数
+     *
+     * @param date 日期
+     * @param day  天数
+     * @return 加上天数后的日期
+     */
+    public static Date addDate(Date date, long day) {
+        long time = date.getTime();
+        day = day * 24 * 60 * 60 * 1000;
+        time += day;
+        return new Date(time);
+    }
+
 
     /**
      * 将日期转换成天数
@@ -143,5 +160,23 @@ public class TimeUtil {
         } else {
             return eDate <= nowDay && (nowDay - eDate) % e.getCycle() == 0;
         }
+    }
+
+    /**
+     * 将日程日期调整到指定日期之后
+     *
+     * @param e 日程列表
+     * @param date 指定日期
+     * @return 调整后日程列表
+     */
+    public static List<Event> adjustDate(List<Event> events, Date date) {
+        List<Event> res = new ArrayList<>();
+        for (Event e : events) {
+            while (e.getDate().before(date)) {
+                e.addCycle();
+            }
+            res.add(e);
+        }
+        return res;
     }
 }

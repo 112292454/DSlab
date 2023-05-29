@@ -168,4 +168,46 @@ class DslabEventApplicationTests {
         MathUtil.mySort(list, (o1, o2) -> o1 - o2);
         System.out.println(list);
     }
+
+    @Test
+    void testAddEventMapper() {
+        Event e = new Event();
+        e.setIsGroup(true);
+        e.setIsOnline(true);
+        e.setName("1234");
+        e.setEventType("0");
+        eventMapper.add(e);
+        System.out.println(eventMapper.getByEventName(e.getName()));
+    }
+
+    @Test
+    void testDeleteEventMapper() {
+        Event e = new Event();
+        e.setIsGroup(true);
+        e.setEventId(7);
+        eventMapper.deleteByEventId(e.getEventId());
+        System.out.println(eventMapper.getByEventName(e.getName()));
+    }
+
+    @Test
+    void testGetEventMapper() {
+        Event byEventId = eventMapper.getByEventId(1);
+        if (byEventId.getIsGroup()) {
+            System.out.println("true");
+        } else {
+            System.out.println("false");
+        }
+    }
+
+    @Test
+    void testAddCycle() {
+        Event e = new Event();
+        e.setDate(new Date());
+        e.setStartTime(new Date());
+        e.setEndTime(new Date());
+        e.setCycle(3);
+        System.out.println(e);
+        e.addCycle();
+        System.out.println(e);
+    }
 }
