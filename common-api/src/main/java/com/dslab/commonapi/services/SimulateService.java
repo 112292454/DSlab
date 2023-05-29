@@ -68,6 +68,8 @@ public interface SimulateService {
 	 */
 	boolean resetSimulate(String user);
 
+	boolean inverseSimulate(String user);
+
 	/**
 	 * 暂停模拟，可调用start（user）恢复
 	 *
@@ -77,6 +79,8 @@ public interface SimulateService {
 	 * @Return boolean
 	 */
 	boolean stopSimulate(String user);
+
+	boolean containsSimulateThread(String user);
 
 	/**
 	 * 彻底中止该用户的模拟
@@ -97,7 +101,7 @@ public interface SimulateService {
 	 * @CreateTime 2023-05-09 03:20
 	 * @Return void
 	 */
-	void setSimulateSpeed(int sToMin, String user);
+	void setSimulateSpeed(double sToMin, String user);
 
 	void setSimulateInv(String user, boolean isInv);
 
@@ -111,6 +115,6 @@ public interface SimulateService {
 	 */
 	Date getUserSimulateTime(String user);
 
-	int getUserSimulateSpeed(String user);
+	double getUserSimulateSpeed(String user);
 
 }

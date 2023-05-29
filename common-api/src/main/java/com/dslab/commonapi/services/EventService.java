@@ -5,6 +5,7 @@ import com.dslab.commonapi.entity.User;
 import com.dslab.commonapi.vo.Result;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @program: dslab-event
@@ -111,5 +112,5 @@ public interface EventService {
      * @param userId  用户id
      * @return 日程
      */
-    Result<String> checkUserEventInTime(Date nowTime, String userId);
+    Result<List<Event>> checkUserEventInTime(Date nowTime, String userId);
 }

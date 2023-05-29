@@ -726,7 +726,7 @@ public class EventServiceImpl implements EventService {
      * @return 用户满足要求的日程
      */
     @Override
-    public Result<String> checkUserEventInTime(Date nowTime, String userId) {
+    public Result<List<Event>> checkUserEventInTime(Date nowTime, String userId) {
         long nowDay = TimeUtil.dateToDay(nowTime);
         int nowHour = TimeUtil.dateToHour(nowTime);
         int nowMin = TimeUtil.dateToMin(nowTime);
@@ -739,9 +739,9 @@ public class EventServiceImpl implements EventService {
             // 否则是查询第二天的日程
             res = checkDayEvents(nowDay + 1, Integer.valueOf(userId));
         }
-        String result = JSON.toJSONString(res);
-        logger.debug("查询日程成功 " + nowTime + " " + result);
-        return Result.<String>success("查询成功").data(result);
+//        String result = JSON.toJSONString(res);
+        logger.debug("查询日程成功 " + nowTime + " " + res.toString());
+        return Result.<List<Event>>success("查询成功").data(res);
     }
 
     /**

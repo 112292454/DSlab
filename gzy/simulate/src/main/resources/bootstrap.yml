@@ -35,5 +35,3 @@ dubbo:
   metadata-report:
     group: ${spring.cloud.nacos.config.group}
     address: nacos://${spring.cloud.nacos.server-addr}?namespace=${spring.cloud.nacos.config.namespace}
-  provider:
-    host: ${dubbo.protocol.host}
