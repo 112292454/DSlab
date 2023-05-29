@@ -120,5 +120,5 @@ public interface EventService {
      * @param userId  用户id
      * @return 日程
      */
-    Result<List<Event>> checkUserEventInTime(Date nowTime, String userId);
+    List<Event> checkUserEventInTime(Date nowTime, String userId);
 }
