@@ -106,7 +106,7 @@ public class SimulateServiceImpl implements SimulateService {
 	@Override
 	public Date getUserSimulateTime(String user) {
 //		if(!containsSimulateThread(user)) throw new RuntimeException("此用户未开始模拟！");
-		return threadMap.get(user).getNow();
+		return threadMap.getOrDefault(user,new simulateThread("-1", new Date(), -1, false)).getNow();
 	}
 
 	@Override
