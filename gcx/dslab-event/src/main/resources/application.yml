@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://10.28.166.24:3306/ds_lab?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT
+    url: jdbc:mysql://10.28.166.24:3306/ds_lab?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT&useSSL=false
     username: ds
     password: ds1154459434
 

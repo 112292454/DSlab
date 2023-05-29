@@ -177,7 +177,7 @@ public class EventServiceImpl implements EventService {
                 addSuccess(event, u);
             }
             logger.info("添加成功");
-            return Result.success("添加成功");
+            return Result.success("添加成功").data(event);
         }
     }
 
@@ -235,7 +235,7 @@ public class EventServiceImpl implements EventService {
         // 添加日程和用户的映射关系
         addRelation(user, event);
         logger.info("添加成功");
-        return Result.success("添加成功");
+        return Result.success("添加成功").data(event);
     }
 
     /**
@@ -340,7 +340,7 @@ public class EventServiceImpl implements EventService {
                 updateSuccess(u.getUserId(), src, dest);
             }
             logger.info("修改成功");
-            return Result.success("修改成功");
+            return Result.success("修改成功").data(dest);
         }
     }
 
@@ -390,7 +390,7 @@ public class EventServiceImpl implements EventService {
         SegTree segTree = timeMap.get(userId);
         segTree.modifyEvent(src, dest);
         logger.info("修改成功");
-        return Result.success("修改成功");
+        return Result.success("修改成功").data(dest);
     }
 
 //============================================判断冲突和查找可用时间==============================================
@@ -751,12 +751,12 @@ public class EventServiceImpl implements EventService {
      * @return 用户满足要求的日程
      */
     @Override
-    public Result<List<Event>> checkUserEventInTime(Date nowTime, String userId) {
+    public List<Event> checkUserEventInTime(Date nowTime, String userId) {
         long nowDay = TimeUtil.dateToDay(nowTime);
         int nowHour = TimeUtil.dateToHour(nowTime);
         int nowMin = TimeUtil.dateToMin(nowTime);
 
-        List<Event> res;
+        List<Event> res = new ArrayList<>();
         if (nowHour < 23) {
             // 如果当前时间小于23点, 则是判断查询下一个小时的日程
             res = checkPeriodTimeEvents(nowDay, nowMin, nowMin + 60, Integer.valueOf(userId));
@@ -767,7 +767,7 @@ public class EventServiceImpl implements EventService {
         res = TimeUtil.adjustDate(res, nowTime);
         MathUtil.mySort(res, Comparator.comparing(Event::getStartTime));
         logger.info("查询日程成功 " + nowTime + " " + res);
-        return Result.<List<Event>>success("查询成功").data(res);
+        return res;
     }
 
     /**
