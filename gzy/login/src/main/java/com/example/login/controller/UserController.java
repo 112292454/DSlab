@@ -19,7 +19,7 @@ import java.util.Map;
  * @date 2022-11-09
  */
 @RestController
-@RequestMapping(value = "/user")
+@RequestMapping(value = "/users")
 @Api
 public class UserController {
 
@@ -72,16 +72,6 @@ public class UserController {
 		return Result.success();
 	}
 
-	/**
-	 * 新增
-	 * @author gzy
-	 * @date 2022/11/09
-	 **/
-	@RequestMapping("/insert")
-	@ApiOperation(value ="注册用完全接口，提供完整的用户信息（也可用作注册之后，完善信息的接口）")
-	public Object insert(User user){
-		return userService.insert(user);
-	}
 
 
 }
