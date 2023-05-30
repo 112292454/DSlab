@@ -2,7 +2,7 @@ create table ds_lab.event
 (
     event_id      int auto_increment comment '日程id'
         primary key,
-    `name`        varchar(30)          not null comment '日程名',
+    `name`        varchar(30)          not null comment '日程名' unique,
     event_type    varchar(30)          null comment '日程类型',
     is_online     tinyint(1) default 0 not null comment '日程地点类型, 是否是线上',
     is_group      tinyint(1) default 0 not null comment '日程参与者类型, 是否是集体, 默认集体',
@@ -48,11 +48,11 @@ create table ds_lab.user
     user_id    int auto_increment comment '用户id'
         primary key,
     username   varchar(30)             not null comment '用户名',
-    mail       varchar(320)            not null comment '邮箱',
+    mail       varchar(320)            not null comment '邮箱' unique,
     `password` varchar(255)            not null comment '密码',
     type       varchar(30) default '0' null comment '用户类型',
     group_id   int                     not null comment '用户所属组的id'
-)
+) auto_increment = 2021210000
     comment '用户表';
 
 create index mail_index

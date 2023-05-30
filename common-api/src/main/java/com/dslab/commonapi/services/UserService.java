@@ -32,4 +32,45 @@ public interface UserService {
      * @return 符合条件返回true, 否则返回false
      */
     boolean identifyUser(User u, Event e);
+
+    /**
+     * 根据用户id加载用户
+     *
+     * @param userId 用户id
+     * @return 用户
+     */
+    User load(Integer userId);
+
+    /**
+     * 根据用户邮箱加载用户
+     *
+     * @param mail 用户邮箱
+     * @return 用户
+     */
+    User loadByMail(String mail);
+
+    /**
+     * 判断用户邮箱是否已存在
+     *
+     * @param mail 用户邮箱
+     * @return 用户
+     */
+    boolean contains(String mail);
+
+    /**
+     * 用户注册 (只有学生才会注册)
+     *
+     * @param name     用户名
+     * @param mail     用户邮箱
+     * @param password 密码
+     * @param groupId  组id
+     */
+    void register(String name, String mail, String password, Integer groupId);
+
+    /**
+     * 获取所有的组id
+     *
+     * @return 组id列表
+     */
+    List<Integer> getGroups();
 }

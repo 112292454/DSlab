@@ -2,7 +2,6 @@ package com.example.login.filter;
 
 
 import com.dslab.commonapi.entity.User;
-import com.dslab.commonapi.services.SimulateService;
 import com.dslab.commonapi.services.UserService;
 import com.example.login.utils.JwtUtils;
 import io.jsonwebtoken.Claims;
@@ -81,7 +80,7 @@ public class TokenFilter implements Filter {
                         rep.setHeader("msg", "token is overtime！");
                         return;//不允许继续
                     } else if (validTime < failureTime / 10) {
-                        User user = userService.load(userId);
+                        User user = userService.load(Integer.parseInt(userId));
                         logger.info("token的有效期小于过期时间的10%！");
                         Map<String, Object> data = new HashMap<>();
                         data.put("mail", user.getMail());
