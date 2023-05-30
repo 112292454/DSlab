@@ -165,7 +165,7 @@ public class Event implements Serializable {
     }
 
     /**
-     * 判断是不是临时活动
+     * 判断是不是闹钟
      *
      * @return 是返回true, 否则返回false
      */
