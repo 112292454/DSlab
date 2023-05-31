@@ -16,7 +16,7 @@ create table ds_lab.event
     duration      int                  null comment '日程持续事件',
     `cycle`       int        default 0 null comment '日程周期, 默认为0, 不循环',
     `status`      int        default 1 null comment '该日程的状态, 1表示启用, 0表示禁用'
-)
+) auto_increment = 1000
     comment '日程表';
 
 create index building_index

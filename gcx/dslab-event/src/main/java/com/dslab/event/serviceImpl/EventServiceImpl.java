@@ -189,6 +189,7 @@ public class EventServiceImpl implements EventService {
     private Result<?> addEventByStudent(Event event, User user) {
         // 闹钟不会和其他日程产生冲突, 可以直接添加
         if (event.isClock()) {
+            event = saveEvent(event);
             return addSuccess(event, user);
         }
 
@@ -619,7 +620,7 @@ public class EventServiceImpl implements EventService {
      * @return 日程列表
      */
     @Override
-    public List<Event> getDayEvents(Integer userId, Date date) {
+    public List<Event> getDayEvents(Integer userId, Date date) throws CloneNotSupportedException {
         long nowDay = TimeUtil.dateToDay(date);
         List<Event> res = selectSameDayEvents(nowDay, userId);
         res = TimeUtil.adjustDate(res, date);
@@ -635,7 +636,7 @@ public class EventServiceImpl implements EventService {
      * @return 日程列表
      */
     @Override
-    public List<Event> getLessonAndExam(Integer userId, Date date) {
+    public List<Event> getLessonAndExam(Integer userId, Date date) throws CloneNotSupportedException {
         long nowDay = TimeUtil.dateToDay(date);
         List<Event> events = selectSameDayEvents(nowDay, userId);
         List<Event> res = new ArrayList<>();
@@ -658,7 +659,7 @@ public class EventServiceImpl implements EventService {
      * @return 日程列表
      */
     @Override
-    public List<Event> getWeekLessonAndExam(Integer userId, Date date) {
+    public List<Event> getWeekLessonAndExam(Integer userId, Date date) throws CloneNotSupportedException {
         List<Event> res = new ArrayList<>();
         for (long i = 0; i < 6; ++i) {
             Date d = TimeUtil.addDate(date, i);
@@ -676,7 +677,7 @@ public class EventServiceImpl implements EventService {
      * @return 日程列表
      */
     @Override
-    public List<Event> getGroupActivities(Integer userId, Date date) {
+    public List<Event> getGroupActivities(Integer userId, Date date) throws CloneNotSupportedException {
         long nowDay = TimeUtil.dateToDay(date);
         List<Event> events = selectSameDayEvents(nowDay, userId);
         List<Event> res = new ArrayList<>();
@@ -699,7 +700,7 @@ public class EventServiceImpl implements EventService {
      * @return 日程列表
      */
     @Override
-    public List<Event> getPersonalEvents(Integer userId, Date date) {
+    public List<Event> getPersonalEvents(Integer userId, Date date) throws CloneNotSupportedException {
         long nowDay = TimeUtil.dateToDay(date);
         List<Event> events = selectSameDayEvents(nowDay, userId);
         List<Event> res = new ArrayList<>();
@@ -723,7 +724,7 @@ public class EventServiceImpl implements EventService {
      * @return 日程列表
      */
     @Override
-    public List<Event> getByTypeAndDate(Integer userId, Date date, String type) {
+    public List<Event> getByTypeAndDate(Integer userId, Date date, String type) throws CloneNotSupportedException {
         long nowDay = TimeUtil.dateToDay(date);
         List<Event> events = selectSameDayEvents(nowDay, userId);
         List<Event> res = new ArrayList<>();
@@ -751,7 +752,7 @@ public class EventServiceImpl implements EventService {
      * @return 用户满足要求的日程
      */
     @Override
-    public List<Event> checkUserEventInTime(Date nowTime, String userId) {
+    public List<Event> checkUserEventInTime(Date nowTime, String userId) throws CloneNotSupportedException {
         long nowDay = TimeUtil.dateToDay(nowTime);
         int nowHour = TimeUtil.dateToHour(nowTime);
         int nowMin = TimeUtil.dateToMin(nowTime);
@@ -805,7 +806,7 @@ public class EventServiceImpl implements EventService {
      */
     private List<Event> selectSameDayEvents(long day, Integer userId) {
         // 选出该用户的所有日程
-        List<Integer> events = userEventRelationMap.get(userId);
+        List<Integer> events = userEventRelationMap.getOrDefault(userId, new ArrayList<>());
         // 根据用户的日程id找到对应日程, 并判断其是否是在给定日期的课程
         return selectSameDayEvents(day, events);
     }
