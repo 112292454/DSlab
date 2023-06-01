@@ -46,6 +46,7 @@ public class MapController {
 		return Result.<List<List<Point>>>success("成功获取整个地图").data(pointService.showMap());
 	}
 
+
 //	@PostMapping({"/drop_all"})
 	public Result<String> deleteAll() {
 		return Boolean.TRUE.equals(pointService.deleteAll())?

@@ -8,6 +8,7 @@ import io.swagger.annotations.*;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.Pattern;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -19,11 +20,12 @@ import java.util.Map;
  * @date 2022-11-09
  */
 @RestController
-@RequestMapping(value = "/users")
+@RequestMapping(value = "/user")
+@CrossOrigin
 @Api
 public class UserController {
 
-    @Resource
+    @DubboReference(group = "DSlab", interfaceClass = UserService.class, check = false)
     private UserService userService;
 
     @Resource

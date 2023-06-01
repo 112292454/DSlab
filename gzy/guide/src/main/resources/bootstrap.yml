@@ -19,11 +19,11 @@ dubbo:
   application:
     name: ${spring.application.name}-dubbo
   scan:
-    base-packages: com.dslab.server.guide
+    base-packages: com.dslab.guide
   protocol:
     name: dubbo
     port: -1
-#    host: 10.28.166.24
+    host: 10.28.166.24
   registry:
     address: nacos://${spring.cloud.nacos.server-addr}?namespace=${spring.cloud.nacos.discovery.namespace}
     group: ${spring.cloud.nacos.config.group}

@@ -116,7 +116,6 @@ public class SimulateServiceImpl implements SimulateService {
 	public Date getUserSimulateTime(String user) {
 //		if(!containsSimulateThread(user)) throw new RuntimeException("此用户未开始模拟！");
 		simulateThread thr = threadMap.getOrDefault(user, new simulateThread("-1", new Date(), -1, false));
-
 		log.info("查询用户{}当前模拟时间，为：{}",user,thr.getNow());
 		return thr.getNow();
 	}
@@ -201,7 +200,12 @@ public class SimulateServiceImpl implements SimulateService {
 						timeStamp.setStatusCode(201);
 
 
-						WebSocketUtil.send(user, timeStamp);
+						boolean isOnline = WebSocketUtil.send(user, timeStamp);
+						if(!isOnline){
+							log.info("用户{}已断开ws连接，自动中止模拟",user);
+							this.finish();
+							threadMap.remove(user);
+						}
 						if(!result.getData().isEmpty()) WebSocketUtil.send(user, result);
 
 						//每过1s跳动一下时间

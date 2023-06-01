@@ -14,13 +14,10 @@ spring:
         server-addr: ${spring.cloud.nacos.server-addr}
         namespace: 9af3ea75-52ab-4655-9d78-575a92fdafd7
         group: DSlab
-        #file-extension: yaml
-        #name: ${spring.application.name}
 
 dubbo:
   application:
     name: ${spring.application.name}-dubbo
-    #serialize-check-status: warn
   scan:
     base-packages: com.dslab.event
   protocol:

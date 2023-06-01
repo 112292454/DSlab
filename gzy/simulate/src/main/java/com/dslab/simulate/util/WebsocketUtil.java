@@ -1,6 +1,8 @@
 package com.dslab.simulate.util;
 
-import com.alibaba.fastjson2.JSON;
+import jakarta.websocket.EncodeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Hashtable;
@@ -9,6 +11,9 @@ import java.util.List;
 public class WebSocketUtil {
 	//concurrent 包的线程安全 Set ，用来存放每个客户端对应的 MyWebSocket 对象。
 	private static Hashtable<String,WebSocketServer> webSocketMap = new Hashtable<>();
+
+
+	private static Logger log = LoggerFactory.getLogger(WebSocketUtil.class);
 
 	public static List<WebSocketServer> getAllWS() {
 		return webSocketMap.values().stream().toList();
@@ -40,14 +45,25 @@ public class WebSocketUtil {
 			try {
 				get(uid).sendMessage(message);
 			} catch (IOException e) {
-				throw new RuntimeException(e);
+				e.printStackTrace();
 			}
+			log.info("向用户{}推送消息：{}",uid,message);
 			return true;
 		}
 	}
 
 	public static boolean send(String uid, Object message) {
-		return send(uid,JSON.toJSONString(message));
+		if(get(uid)==null){//如果没获取到socket，也就是对方没有登录，就返回false
+			return false;
+		}else{
+			try {
+				get(uid).sendMessage(message);
+			} catch (IOException | EncodeException e) {
+				e.printStackTrace();
+			}
+			log.info("向用户{}推送消息：{}",uid,message);
+			return true;
+		}
 	}
 
 	/**
