@@ -100,12 +100,13 @@ public class EventController {
     public Result<?> updateEvent(@RequestBody @Valid RequestParams requestParams) {
         logger.info(requestParams.getUser() + " 在 "
                 + simulateService.getUserSimulateTime(String.valueOf(requestParams.getUser().getUserId()))
-                + " 更新课程 " + requestParams.getEvent());
+                + " 更新日程 " + requestParams.getEvent());
         return eventService.updateEvent(requestParams.getEvent(), requestParams.getUser());
     }
 
     /**
      * 根据id获取日程信息
+     * todo 该接口只用于前端获取数据, 不开放给用户
      *
      * @param eventId 日程id
      * @return 日程信息
@@ -130,14 +131,10 @@ public class EventController {
      */
     @GetMapping("/eventName/{eventName}")
     @ResponseBody
-    public Result<Event> getByEventName(@PathVariable @Param("eventName") String eventName) {
+    public Result<?> getByEventName(@PathVariable @Param("eventName") String eventName) {
         logger.info("用户获取名字为 " + eventName + " 的日程");
-        Event e = eventService.getByEventName(eventName);
-        if (e == null) {
-            return Result.error("查询失败");
-        } else {
-            return Result.<Event>success("查询成功").data(e);
-        }
+        List<Event> e = eventService.getByEventName(eventName);
+        return Result.<List<Event>>success("查询成功").data(e);
     }
 
     /**

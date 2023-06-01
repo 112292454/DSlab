@@ -44,7 +44,7 @@ public class TimeUtil {
         int start = dateToHour(e.getStartTime());
         int end = dateToHour(e.getEndTime());
         if (start <= end) {
-            if (e.getIsGroup()) {
+            if (e.isLesson() || e.isExam()) {
                 return start >= ADMIN_START_TIME && end <= ADMIN_END_TIME;
             } else {
                 return start >= STU_START_TIME && end <= STU_END_TIME;

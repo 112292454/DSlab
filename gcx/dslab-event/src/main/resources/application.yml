@@ -15,7 +15,9 @@ spring:
 
 server:
   port: 16663
-#logging:
-#  level:
-#    com.dslab.event.mapper: debug
 
+logging:
+  file:
+    path: ./logs/
+  level:
+    root: info

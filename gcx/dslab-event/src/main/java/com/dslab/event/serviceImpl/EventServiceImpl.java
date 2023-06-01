@@ -540,6 +540,7 @@ public class EventServiceImpl implements EventService {
 
     /**
      * 删除日程
+     * todo 删除有问题, 数据库没有修改(两个数据库)
      *
      * @return 是否删除成功
      */
@@ -601,15 +602,16 @@ public class EventServiceImpl implements EventService {
      * @return 日程信息
      */
     @Override
-    public Event getByEventName(String eventName) {
+    public List<Event> getByEventName(String eventName) {
         Event event = eventNameMap.get(eventName);
+        List<Event> res = new ArrayList<>();
         if (event != null) {
             logger.info("查询成功 " + event);
-            return event;
+            res.add(event);
         } else {
             logger.warn("查询失败 " + eventName);
-            return null;
         }
+        return res;
     }
 
     /**
@@ -624,7 +626,7 @@ public class EventServiceImpl implements EventService {
         long nowDay = TimeUtil.dateToDay(date);
         List<Event> res = selectSameDayEvents(nowDay, userId);
         res = TimeUtil.adjustDate(res, date);
-        logger.info("查询日程成功 " + date + " " + res);
+        logger.info(userId + "查询日程成功 " + date + " " + res);
         return res;
     }
 
@@ -647,7 +649,7 @@ public class EventServiceImpl implements EventService {
         }
         res = TimeUtil.adjustDate(res, date);
         MathUtil.mySort(res, Comparator.comparing(Event::getStartTime));
-        logger.info("查询课程考试成功 " + date + " " + res);
+        logger.info(userId + "查询课程考试成功 " + date + " " + res);
         return res;
     }
 
@@ -688,7 +690,7 @@ public class EventServiceImpl implements EventService {
         }
         res = TimeUtil.adjustDate(res, date);
         MathUtil.mySort(res, Comparator.comparing(Event::getStartTime));
-        logger.info("查询集体活动成功 " + date + " " + res);
+        logger.info(userId + "查询集体活动成功 " + date + " " + res);
         return res;
     }
 
@@ -711,7 +713,7 @@ public class EventServiceImpl implements EventService {
         }
         res = TimeUtil.adjustDate(res, date);
         MathUtil.mySort(res, Comparator.comparing(Event::getStartTime));
-        logger.info("查询个人活动成功 " + date + " " + res);
+        logger.info(userId + "查询个人活动成功 " + date + " " + res);
         return res;
     }
 
@@ -732,7 +734,7 @@ public class EventServiceImpl implements EventService {
             String t = e.getCustomType();
             if (e.isLesson() || e.isExam()) {
                 continue;
-            } else if (type == null) {
+            } else if ("".equals(type)) {
                 res.add(e);
             } else if (type.equals(t)) {
                 res.add(e);
@@ -740,7 +742,7 @@ public class EventServiceImpl implements EventService {
         }
         res = TimeUtil.adjustDate(res, date);
         MathUtil.mySort(res, Comparator.comparing(Event::getStartTime));
-        logger.info("查询成功 " + date + " " + res);
+        logger.info(userId + "查询成功 " + date + " " + res);
         return res;
     }
 
@@ -767,7 +769,7 @@ public class EventServiceImpl implements EventService {
         }
         res = TimeUtil.adjustDate(res, nowTime);
         MathUtil.mySort(res, Comparator.comparing(Event::getStartTime));
-        logger.info("查询日程成功 " + nowTime + " " + res);
+        logger.info(userId + "查询日程成功 " + nowTime + " " + res);
         return res;
     }
 

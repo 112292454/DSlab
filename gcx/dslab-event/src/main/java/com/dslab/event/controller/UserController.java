@@ -25,6 +25,12 @@ public class UserController {
     @Resource
     UserService userService;
 
+    /**
+     * 根据邮箱获取用户信息
+     *
+     * @param mail 邮箱
+     * @return 用户信息
+     */
     @GetMapping("/mail/{mail}")
     public Result<User> getByMail(@PathVariable String mail) {
         User user = userService.loadByMail(mail);

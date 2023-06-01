@@ -55,7 +55,7 @@ public interface EventService {
      * @param eventName 日程名称
      * @return 日程信息
      */
-    Event getByEventName(String eventName);
+    List<Event> getByEventName(String eventName);
 
 
     /**
