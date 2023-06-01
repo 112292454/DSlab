@@ -20,9 +20,9 @@ import java.util.List;
 @CrossOrigin
 @RequestMapping("/users")
 public class UserController {
-    @DubboReference(group = "DSlab", interfaceClass = UserService.class)
-
+    @Autowired
     UserService userService;
+    
 
     /**
      * 根据邮箱获取用户信息

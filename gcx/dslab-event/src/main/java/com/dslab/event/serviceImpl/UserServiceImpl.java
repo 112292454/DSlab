@@ -26,7 +26,7 @@ import java.util.Map;
  **/
 
 @Service
-@DubboService(group = "DSlab",version = "1.0.0",interfaceClass = UserService.class)
+@DubboService(group = "DSlab",interfaceClass = UserService.class)
 public class UserServiceImpl implements UserService {
     private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 

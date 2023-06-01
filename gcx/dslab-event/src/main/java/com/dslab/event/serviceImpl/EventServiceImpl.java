@@ -32,7 +32,7 @@ import java.util.*;
  **/
 
 @Service
-@DubboService(group = "DSlab", version = "1.0.0", interfaceClass = EventService.class)
+@DubboService(group = "DSlab", interfaceClass = EventService.class)
 public class EventServiceImpl implements EventService {
     private static Logger logger = LoggerFactory.getLogger(EventServiceImpl.class);
 
