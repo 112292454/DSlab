@@ -30,7 +30,7 @@
                 <version>2.5.3</version>
                 <configuration>
                     <!-- main方法所在类。 -->
-                    <mainClass>com.example.demo.TextQueryApplication</mainClass>
+                    <mainClass>com.dslab.event.DslabEventApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>

@@ -4,10 +4,7 @@ import com.dslab.commonapi.entity.User;
 import com.dslab.commonapi.services.UserService;
 import com.dslab.commonapi.vo.Result;
 import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,6 +17,7 @@ import java.util.List;
  **/
 
 @RestController
+@CrossOrigin
 @RequestMapping("/users")
 public class UserController {
     @Resource
