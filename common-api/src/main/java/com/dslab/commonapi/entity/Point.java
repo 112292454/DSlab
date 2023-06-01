@@ -43,7 +43,7 @@ public class Point  implements Serializable {
     }
 
     public int getDistance(Point p) {
-        return Math.toIntExact(Math.round(Math.sqrt(Math.pow(p.x - x, 2) + Math.pow(p.y - y, 2))));
+        return Math.toIntExact(Math.round(Math.sqrt(Math.pow(p.x - x, 2) + Math.pow(p.y - y, 2)))+1);
     }
 
     @Override

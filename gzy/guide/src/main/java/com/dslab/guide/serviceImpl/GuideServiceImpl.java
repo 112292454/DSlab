@@ -30,6 +30,7 @@ public class GuideServiceImpl implements GuideService {
 
     @Override
     public List<Point> byManyPointsGuide(List<Integer> passedPoints) {
+        if(passedPoints.isEmpty()) return new ArrayList<>();
         Point start=sr.getPoint(passedPoints.get(0));
 //        passedPoints.remove(0);
 
@@ -41,15 +42,18 @@ public class GuideServiceImpl implements GuideService {
             //如果size大于20，就采取近似解，通过搜索剪枝来确定路径
             while (!passedPoints.isEmpty()){
                 Point now=res.get(res.size()-1);
-                final Point[] temp = new Point[1];
-                final int[] min = {1 << 30};
-                passedPoints.forEach(a->{
-                    if(sr.floydAsk(now.getId(), a)< min[0]){
-                        min[0] =sr.floydAsk(now.getId(), a);
-                        temp[0] =sr.getPoint(a);
+                 Point temp = new Point();
+                int min = 1 << 30,rmi=-1;
+                for (int i = 0; i < passedPoints.size(); i++) {
+                    int a=passedPoints.get(i);
+                    if(sr.floydAsk(now.getId(), a)< min){
+                        min =sr.floydAsk(now.getId(), a);
+                        temp =sr.getPoint(a);
+                        rmi=i;
                     }
-                });
-                res.add(temp[0]);
+                }
+                passedPoints.remove(rmi);
+                res.add(temp);
             }
             res.add(start);
         }else{

@@ -41,40 +41,7 @@ public class SegTreeImpl implements SegTree {
         }
     }
 
-    private class node {
-        //public int value,x;
-        public int father, son, top;//可能变为node对象
-        public int depth, treeSize, value, id;//数值
-        public int x, y;//坐标
-
-        @Override
-        public node clone() {
-            node t = new node();
-            t.father = father;
-            t.son = son;
-            t.top = top;
-            t.depth = depth;
-            t.treeSize = treeSize;
-            t.value = value;
-            t.id = id;
-            t.x = x;
-            t.y = y;
-            return t;
-        }
-
-        public node(int value, int x, int y) {
-            this.value = value;
-            this.x = x;
-            this.y = y;
-        }
-
-        public node() {
-
-        }
-    }
-
     segment[] seg;
-    node[] source;
     private static final int size = 24*60;
 
     public SegTreeImpl(List<Event> userEvents) {
@@ -139,17 +106,13 @@ public class SegTreeImpl implements SegTree {
 
     private void pushUp(int a) {
         seg[a].value = seg[a << 1].merge(seg[a << 1 | 1]);
-        //if(seg[a<<1].value.equals(seg[a<<1|1].value))
-        // seg[a<<1].value=seg[a<<1|1].value;
-
     }
 
     private void pushDown(int a) {
-        if (seg[a].lazy != 0) {
+        if (seg[a].lazy != 0) {//仅当lazy标签
             /*处理a的两个子节点的value变化，视实现而定*/
             seg[a << 1].value.addAll(seg[a].value);
             seg[a << 1 | 1].value.addAll(seg[a].value);
-            //seg[a<<1].lazy=seg[a<<1|1].lazy=seg[a].lazy;
             seg[a].lazy = 0;
         }
     }
@@ -157,19 +120,15 @@ public class SegTreeImpl implements SegTree {
     private void modify(int i, int start, int end, int value, boolean isDelete) {
         int l = seg[i].l, r = seg[i].r, mid = (l + r) / 2;
         if (l >= start && r <= end) {
-            //a.value += value * (r - l + 1);
             if (isDelete) {
-                seg[i].value.remove(value);//TODO:修改时间时清除原有的课程id用，感觉很可能会有bug
+                seg[i].value.remove(value);
             }
             if (!seg[i].value.contains(value)) {
                 seg[i].value.add(value);
                 seg[i].lazy = 1;
             }
-            //视实现而定
             return;
-        } else if (l > end || r < start || r == l) {
-            return;
-        }
+        } else if (l > end || r < start || r == l) return;
         pushDown(i);
         if (mid >= start) {
             modify(i << 1, start, end, value, isDelete);
@@ -188,7 +147,8 @@ public class SegTreeImpl implements SegTree {
             return new segment();
         }
         pushDown(i);
-        return new segment(query(i << 1, start, end).merge(query(i << 1 | 1, start, end)));
+        return new segment(query(i << 1, start, end).
+                merge(query(i << 1 | 1, start, end)));
     }
 }
 
