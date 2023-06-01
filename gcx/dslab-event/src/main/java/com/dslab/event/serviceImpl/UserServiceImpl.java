@@ -8,6 +8,7 @@ import com.dslab.commonapi.services.UserService;
 import com.dslab.event.mapper.UserMapper;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import java.util.Map;
  **/
 
 @Service
+@DubboService(group = "DSlab",version = "1.0.0",interfaceClass = UserService.class)
 public class UserServiceImpl implements UserService {
     private final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -81,9 +83,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean identifyUser(User u, Event e) {
         if (u.isAdmin()) {
-            return e.getIsGroup();
+            return e.getIsGroup() && (e.isLesson() || e.isExam() || e.isActivity());
         }
-        return !e.getIsGroup();
+        return !e.getIsGroup() && (e.isActivity() || e.isTemporary() || e.isClock());
     }
 
     /**
