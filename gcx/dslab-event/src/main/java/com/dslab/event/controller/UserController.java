@@ -20,7 +20,8 @@ import java.util.List;
 @CrossOrigin
 @RequestMapping("/users")
 public class UserController {
-    @Resource
+    @DubboReference(group = "DSlab", interfaceClass = UserService.class)
+
     UserService userService;
 
     /**

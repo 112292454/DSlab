@@ -57,6 +57,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(Exception.class)
 	public Result exceptionHandler(Exception e) {
 		logger.error("异常测试信息2", e);
+		e.printStackTrace();
 		return Result.error( "服务器未知错误").data(e.getMessage());
 	}
 }

@@ -7,6 +7,8 @@ import com.dslab.commonapi.vo.Result;
 import com.dslab.simulate.util.WebSocketUtil;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -15,7 +17,7 @@ import java.util.*;
 @DubboService(group = "DSlab",interfaceClass = SimulateService.class)
 public class SimulateServiceImpl implements SimulateService {
 
-
+	Logger log = LoggerFactory.getLogger(SimulateService.class);
 	private Map<String,simulateThread> threadMap=new HashMap<>();
 
 	@DubboReference(group = "DSlab",interfaceClass = EventService.class,check = false)
@@ -33,13 +35,13 @@ public class SimulateServiceImpl implements SimulateService {
 		if(threadMap.containsKey(user)){
 			threadMap.get(user).setInverseSimulate(isInverseSimulate);
 			threadMap.get(user).restore();
+			log.info("从暂停中恢复模拟，用户：{}，当前模拟时间：{}",user,startTime);
 		}else{
 			simulateThread simulateThread = new simulateThread(user,startTime,simulateSpeed,isInverseSimulate);
 			threadMap.put(user, simulateThread);
 			simulateThread.start();
-
+			log.info("开始模拟，用户：{}，初始模拟时间：{}",user,startTime);
 		}
-
 	}
 
 	@Override
@@ -62,6 +64,7 @@ public class SimulateServiceImpl implements SimulateService {
 		if(!containsSimulateThread(user)) return false;
 		threadMap.get(user).finish();
 		threadMap.remove(user);
+		log.info("中止用户{}的模拟",user);
 		return true;
 	}
 
@@ -69,6 +72,7 @@ public class SimulateServiceImpl implements SimulateService {
 	public boolean resetSimulate(String user, Date resetTime) {
 		if(!containsSimulateThread(user)) return false;
 		threadMap.get(user).setNow(resetTime);
+		log.info("设置用户{}的模拟时间为{}",user,resetTime);
 		return true;
 	}
 
@@ -79,7 +83,9 @@ public class SimulateServiceImpl implements SimulateService {
 
 	@Override
 	public boolean inverseSimulate(String user) {
+		if(!containsSimulateThread(user)) return false;
 		threadMap.get(user).inverseSimulate();
+		log.info("调转用户{}模拟时间方向，当前为：{}",user,threadMap.get(user).isInverseSimulate?"正常":"反向");
 		return true;
 	}
 
@@ -88,6 +94,7 @@ public class SimulateServiceImpl implements SimulateService {
 	public boolean stopSimulate(String user) {
 		if(!containsSimulateThread(user)) return false;
 		threadMap.get(user).setStop();
+		log.info("暂停用户{}的模拟",user);
 		return true;
 	}
 
@@ -95,18 +102,22 @@ public class SimulateServiceImpl implements SimulateService {
 	public void setSimulateSpeed(double sToMin, String user) {
 		if(!containsSimulateThread(user)) return;
 		threadMap.get(user).setSpeed(sToMin*60*1000);
+		log.info("设置用户{}的模拟速度为1秒={}小时",user,threadMap.get(user).getSpeed()/1000/60/60);
 	}
 
 	@Override
 	public void setSimulateInv(String user, boolean isInv) {
 		if(!containsSimulateThread(user)) return;
 		threadMap.get(user).setInverseSimulate(isInv);
+		log.info("设置用户反向模拟");
 	}
 
 	@Override
 	public Date getUserSimulateTime(String user) {
 //		if(!containsSimulateThread(user)) throw new RuntimeException("此用户未开始模拟！");
-		return threadMap.getOrDefault(user,new simulateThread("-1", new Date(), -1, false)).getNow();
+		simulateThread thr = threadMap.getOrDefault(user, new simulateThread("-1", new Date(), -1, false));
+		log.info("查询用户{}当前模拟时间，为：{}",user,thr.getNow());
+		return thr.getNow();
 	}
 
 	@Override
@@ -122,6 +133,7 @@ public class SimulateServiceImpl implements SimulateService {
 
 		Date now;
 
+		//1秒对应speed毫秒
 		double speed;
 
 		boolean isInverseSimulate;
@@ -173,6 +185,7 @@ public class SimulateServiceImpl implements SimulateService {
 		@Override
 		public void run() {
 			try {
+				WebSocketUtil.send(user, "用户"+user+"已成功连接课设ws后端！");
 				while (!finished) {
 					while (!stopped) {
 						//查询应该发送什么提醒
@@ -187,7 +200,12 @@ public class SimulateServiceImpl implements SimulateService {
 						timeStamp.setStatusCode(201);
 
 
-						WebSocketUtil.send(user, timeStamp);
+						boolean isOnline = WebSocketUtil.send(user, timeStamp);
+						if(!isOnline){
+							log.info("用户{}已断开ws连接，自动中止模拟",user);
+							this.finish();
+							threadMap.remove(user);
+						}
 						if(!result.getData().isEmpty()) WebSocketUtil.send(user, result);
 
 						//每过1s跳动一下时间
@@ -203,6 +221,5 @@ public class SimulateServiceImpl implements SimulateService {
 			}
 		}
 	}
-
 
 }

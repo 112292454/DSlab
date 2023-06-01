@@ -5,15 +5,13 @@ import com.dslab.commonapi.services.SimulateService;
 import com.dslab.commonapi.vo.Result;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 
 @RestController("/simulate")
 @RequestMapping("/simulate")
+@CrossOrigin
 public class SimulateController {
 	@Autowired
 	SimulateService simulateService;

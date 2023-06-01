@@ -19,7 +19,7 @@ dubbo:
   application:
     name: ${spring.application.name}-dubbo
   scan:
-    base-packages: com.dslab.server.guide
+    base-packages: com.dslab.guide
   protocol:
     name: dubbo
     port: -1

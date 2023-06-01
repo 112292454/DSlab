@@ -12,7 +12,7 @@ import java.io.IOException;
 /**
  * WebSocket 服务类
  **/
-@ServerEndpoint("/simulate/ws/{uid}")
+@ServerEndpoint(value = "/simulate/ws/{uid}", encoders = { ServerEncoder.class })
 @Component
 public class WebSocketServer {
     static Log log = LogFactory.getLog(WebSocketServer.class);
@@ -92,6 +92,10 @@ public class WebSocketServer {
      */
     public void sendMessage(String message) throws IOException {
         this.session.getBasicRemote().sendText(message);
+    }
+
+    public void sendMessage(Object o) throws IOException, EncodeException {
+        this.session.getBasicRemote().sendObject(o);
     }
 
 
