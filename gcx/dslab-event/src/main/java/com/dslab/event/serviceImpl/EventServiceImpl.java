@@ -15,6 +15,7 @@ import com.dslab.event.mapper.UserEventRelationMapper;
 import com.dslab.event.mapper.UserMapper;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,7 @@ import java.util.*;
  **/
 
 @Service
+@DubboService(group = "DSlab", version = "1.0.0", interfaceClass = EventService.class)
 public class EventServiceImpl implements EventService {
     private static Logger logger = LoggerFactory.getLogger(EventServiceImpl.class);
 
