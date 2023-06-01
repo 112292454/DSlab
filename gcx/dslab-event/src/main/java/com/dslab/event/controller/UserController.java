@@ -22,7 +22,7 @@ import java.util.List;
 public class UserController {
     @Autowired
     UserService userService;
-    
+
 
     /**
      * 根据邮箱获取用户信息
@@ -31,6 +31,7 @@ public class UserController {
      * @return 用户信息
      */
     @GetMapping("/mail/{mail}")
+    
     public Result<User> getByMail(@PathVariable String mail) {
         User user = userService.loadByMail(mail);
         if (user == null) {
