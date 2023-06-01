@@ -18,35 +18,12 @@ public interface AVLTree<T> {
     int height();
 
     /**
-     * 前序遍历
-     */
-    void preOrder();
-
-    /**
-     * 中序遍历
-     */
-    void inOrder();
-
-    /**
-     * 后序遍历
-     */
-    void postOrder();
-
-    /**
      * 查找树中值为key的节点
      *
      * @param key 目标值
      * @return 树的节点
      */
     AVLTreeNode<T> search(T key);
-
-    /**
-     * (非递归实现)查找键值为key的节点
-     *
-     * @param key 待查找节点
-     * @return 树的节点
-     */
-    AVLTreeNode<T> iterativeSearch(T key);
 
     /**
      * 查找最小节点

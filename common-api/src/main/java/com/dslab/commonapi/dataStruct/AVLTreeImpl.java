@@ -5,8 +5,6 @@ import com.dslab.commonapi.entity.AVLTreeNode;
 import java.util.Comparator;
 
 /**
- * todo 待测试
- *
  * @program: DSlab
  * @description: 二叉平衡树的工具类
  * @author: 郭晨旭
@@ -63,86 +61,9 @@ public class AVLTreeImpl<T> implements AVLTree<T> {
     }
 
     /**
-     * 前序遍历"AVL树"
-     */
-    private void preOrder(AVLTreeNode<T> tree) {
-        if (tree != null) {
-            System.out.print(tree.getKey() + " ");
-            preOrder(tree.getLeft());
-            preOrder(tree.getRight());
-        }
-    }
-
-    @Override
-    public void preOrder() {
-        preOrder(root);
-    }
-
-    /**
-     * 中序遍历"AVL树"
-     */
-    private void inOrder(AVLTreeNode<T> tree) {
-        if (tree != null) {
-            inOrder(tree.getLeft());
-            System.out.print(tree.getKey() + " ");
-            inOrder(tree.getRight());
-        }
-    }
-
-    @Override
-    public void inOrder() {
-        inOrder(root);
-    }
-
-    /**
-     * 后序遍历"AVL树"
-     */
-    private void postOrder(AVLTreeNode<T> tree) {
-        if (tree != null) {
-            postOrder(tree.getLeft());
-            postOrder(tree.getRight());
-            System.out.print(tree.getKey() + " ");
-        }
-    }
-
-    @Override
-    public void postOrder() {
-        postOrder(root);
-    }
-
-    /**
-     * (递归实现)查找"AVL树x"中键值为key的节点
+     * 查找AVL树x中键值为key的节点
      */
     private AVLTreeNode<T> search(AVLTreeNode<T> x, T key) {
-        if (x == null) {
-            return x;
-        }
-
-        int cmp = c.compare(key, x.getKey());
-        if (cmp < 0) {
-            return search(x.getLeft(), key);
-        } else if (cmp > 0) {
-            return search(x.getRight(), key);
-        } else {
-            return x;
-        }
-    }
-
-    /**
-     * 查找树中值为key的节点
-     *
-     * @param key 目标值
-     * @return 树的节点
-     */
-    @Override
-    public AVLTreeNode<T> search(T key) {
-        return search(root, key);
-    }
-
-    /**
-     * (非递归实现)查找"AVL树x"中键值为key的节点
-     */
-    private AVLTreeNode<T> iterativeSearch(AVLTreeNode<T> x, T key) {
         while (x != null) {
             int cmp = c.compare(key, x.getKey());
             if (cmp < 0) {
@@ -164,8 +85,8 @@ public class AVLTreeImpl<T> implements AVLTree<T> {
      * @return 树的节点
      */
     @Override
-    public AVLTreeNode<T> iterativeSearch(T key) {
-        return iterativeSearch(root, key);
+    public AVLTreeNode<T> search(T key) {
+        return search(root, key);
     }
 
     /**
@@ -255,7 +176,6 @@ public class AVLTreeImpl<T> implements AVLTree<T> {
         k2 = k1.getRight();
         k1.setRight(k2.getLeft());
         k2.setLeft(k1);
-        ;
 
         k1.setHeight(max(height(k1.getLeft()), height(k1.getRight())) + 1);
         k2.setHeight(max(height(k2.getRight()), k1.getHeight()) + 1);
@@ -496,6 +416,12 @@ public class AVLTreeImpl<T> implements AVLTree<T> {
         }
     }
 
+    /**
+     * 修改节点
+     *
+     * @param src  原节点
+     * @param dest 目标节点
+     */
     @Override
     public void update(T src, T dest) {
         this.remove(src);

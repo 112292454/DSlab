@@ -189,6 +189,7 @@ public class EventServiceImpl implements EventService {
     private Result<?> addEventByStudent(Event event, User user) {
         // 闹钟不会和其他日程产生冲突, 可以直接添加
         if (event.isClock()) {
+            event = saveEvent(event);
             return addSuccess(event, user);
         }
 
@@ -539,6 +540,7 @@ public class EventServiceImpl implements EventService {
 
     /**
      * 删除日程
+     * todo 删除有问题, 数据库没有修改(两个数据库)
      *
      * @return 是否删除成功
      */
@@ -600,15 +602,16 @@ public class EventServiceImpl implements EventService {
      * @return 日程信息
      */
     @Override
-    public Event getByEventName(String eventName) {
+    public List<Event> getByEventName(String eventName) {
         Event event = eventNameMap.get(eventName);
+        List<Event> res = new ArrayList<>();
         if (event != null) {
             logger.info("查询成功 " + event);
-            return event;
+            res.add(event);
         } else {
             logger.warn("查询失败 " + eventName);
-            return null;
         }
+        return res;
     }
 
     /**
@@ -619,11 +622,11 @@ public class EventServiceImpl implements EventService {
      * @return 日程列表
      */
     @Override
-    public List<Event> getDayEvents(Integer userId, Date date) {
+    public List<Event> getDayEvents(Integer userId, Date date) throws CloneNotSupportedException {
         long nowDay = TimeUtil.dateToDay(date);
         List<Event> res = selectSameDayEvents(nowDay, userId);
         res = TimeUtil.adjustDate(res, date);
-        logger.info("查询日程成功 " + date + " " + res);
+        logger.info(userId + "查询日程成功 " + date + " " + res);
         return res;
     }
 
@@ -635,7 +638,7 @@ public class EventServiceImpl implements EventService {
      * @return 日程列表
      */
     @Override
-    public List<Event> getLessonAndExam(Integer userId, Date date) {
+    public List<Event> getLessonAndExam(Integer userId, Date date) throws CloneNotSupportedException {
         long nowDay = TimeUtil.dateToDay(date);
         List<Event> events = selectSameDayEvents(nowDay, userId);
         List<Event> res = new ArrayList<>();
@@ -646,7 +649,7 @@ public class EventServiceImpl implements EventService {
         }
         res = TimeUtil.adjustDate(res, date);
         MathUtil.mySort(res, Comparator.comparing(Event::getStartTime));
-        logger.info("查询课程考试成功 " + date + " " + res);
+        logger.info(userId + "查询课程考试成功 " + date + " " + res);
         return res;
     }
 
@@ -658,7 +661,7 @@ public class EventServiceImpl implements EventService {
      * @return 日程列表
      */
     @Override
-    public List<Event> getWeekLessonAndExam(Integer userId, Date date) {
+    public List<Event> getWeekLessonAndExam(Integer userId, Date date) throws CloneNotSupportedException {
         List<Event> res = new ArrayList<>();
         for (long i = 0; i < 6; ++i) {
             Date d = TimeUtil.addDate(date, i);
@@ -676,7 +679,7 @@ public class EventServiceImpl implements EventService {
      * @return 日程列表
      */
     @Override
-    public List<Event> getGroupActivities(Integer userId, Date date) {
+    public List<Event> getGroupActivities(Integer userId, Date date) throws CloneNotSupportedException {
         long nowDay = TimeUtil.dateToDay(date);
         List<Event> events = selectSameDayEvents(nowDay, userId);
         List<Event> res = new ArrayList<>();
@@ -687,7 +690,7 @@ public class EventServiceImpl implements EventService {
         }
         res = TimeUtil.adjustDate(res, date);
         MathUtil.mySort(res, Comparator.comparing(Event::getStartTime));
-        logger.info("查询集体活动成功 " + date + " " + res);
+        logger.info(userId + "查询集体活动成功 " + date + " " + res);
         return res;
     }
 
@@ -699,7 +702,7 @@ public class EventServiceImpl implements EventService {
      * @return 日程列表
      */
     @Override
-    public List<Event> getPersonalEvents(Integer userId, Date date) {
+    public List<Event> getPersonalEvents(Integer userId, Date date) throws CloneNotSupportedException {
         long nowDay = TimeUtil.dateToDay(date);
         List<Event> events = selectSameDayEvents(nowDay, userId);
         List<Event> res = new ArrayList<>();
@@ -710,7 +713,7 @@ public class EventServiceImpl implements EventService {
         }
         res = TimeUtil.adjustDate(res, date);
         MathUtil.mySort(res, Comparator.comparing(Event::getStartTime));
-        logger.info("查询个人活动成功 " + date + " " + res);
+        logger.info(userId + "查询个人活动成功 " + date + " " + res);
         return res;
     }
 
@@ -723,7 +726,7 @@ public class EventServiceImpl implements EventService {
      * @return 日程列表
      */
     @Override
-    public List<Event> getByTypeAndDate(Integer userId, Date date, String type) {
+    public List<Event> getByTypeAndDate(Integer userId, Date date, String type) throws CloneNotSupportedException {
         long nowDay = TimeUtil.dateToDay(date);
         List<Event> events = selectSameDayEvents(nowDay, userId);
         List<Event> res = new ArrayList<>();
@@ -731,7 +734,7 @@ public class EventServiceImpl implements EventService {
             String t = e.getCustomType();
             if (e.isLesson() || e.isExam()) {
                 continue;
-            } else if (type == null) {
+            } else if ("".equals(type)) {
                 res.add(e);
             } else if (type.equals(t)) {
                 res.add(e);
@@ -739,7 +742,7 @@ public class EventServiceImpl implements EventService {
         }
         res = TimeUtil.adjustDate(res, date);
         MathUtil.mySort(res, Comparator.comparing(Event::getStartTime));
-        logger.info("查询成功 " + date + " " + res);
+        logger.info(userId + "查询成功 " + date + " " + res);
         return res;
     }
 
@@ -751,7 +754,7 @@ public class EventServiceImpl implements EventService {
      * @return 用户满足要求的日程
      */
     @Override
-    public List<Event> checkUserEventInTime(Date nowTime, String userId) {
+    public List<Event> checkUserEventInTime(Date nowTime, String userId) throws CloneNotSupportedException {
         long nowDay = TimeUtil.dateToDay(nowTime);
         int nowHour = TimeUtil.dateToHour(nowTime);
         int nowMin = TimeUtil.dateToMin(nowTime);
@@ -766,7 +769,7 @@ public class EventServiceImpl implements EventService {
         }
         res = TimeUtil.adjustDate(res, nowTime);
         MathUtil.mySort(res, Comparator.comparing(Event::getStartTime));
-        logger.info("查询日程成功 " + nowTime + " " + res);
+        logger.info(userId + "查询日程成功 " + nowTime + " " + res);
         return res;
     }
 
@@ -805,7 +808,7 @@ public class EventServiceImpl implements EventService {
      */
     private List<Event> selectSameDayEvents(long day, Integer userId) {
         // 选出该用户的所有日程
-        List<Integer> events = userEventRelationMap.get(userId);
+        List<Integer> events = userEventRelationMap.getOrDefault(userId, new ArrayList<>());
         // 根据用户的日程id找到对应日程, 并判断其是否是在给定日期的课程
         return selectSameDayEvents(day, events);
     }

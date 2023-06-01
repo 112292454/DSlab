@@ -16,7 +16,7 @@
         user_id,
         username,
         mail,
-        password,
+        `password`,
         type,
         group_id
     </sql>
@@ -87,7 +87,7 @@
         <set>
             username = #{username},
             mail = #{mail},
-            password = #{password},
+            `password` = #{password},
             type = #{type},
             group_id = #{groupId}
         </set>
@@ -108,18 +108,24 @@
         WHERE user_id = #{userId}
     </select>
 
-    <select id="getByUsername" resultMap="BaseResultMap">
-        SELECT
-        <include refid="Base_Column_List"/>
-        FROM user
-        where username = #{username}
-    </select>
-
     <select id="getByGroupId" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
         FROM user
         where group_id = #{groupId}
+    </select>
+
+    <select id="getByMail" resultType="com.dslab.commonapi.entity.User">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM user
+        where mail = #{mail}
+    </select>
+
+    <select id="getGroups" resultType="java.lang.Integer">
+        SELECT group_id
+        FROM user
+        where type = '1'
     </select>
 
 </mapper>

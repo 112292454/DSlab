@@ -13,9 +13,11 @@ spring:
 #    username: root
 #    password: 101325
 
-#server:
-#  port: 16663
-#logging:
-#  level:
-#    com.dslab.event.mapper: debug
+server:
+  port: 16663
 
+logging:
+  file:
+    path: ./logs/
+  level:
+    root: info

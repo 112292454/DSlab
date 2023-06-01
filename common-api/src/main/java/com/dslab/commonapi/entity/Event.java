@@ -21,7 +21,7 @@ import java.util.Date;
 
 @Data
 @AllArgsConstructor
-public class Event implements Serializable {
+public class Event implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 1324389877898L;
     /**
@@ -173,12 +173,29 @@ public class Event implements Serializable {
         return EventType.EVENT_CLOCK.getValue().equals(eventType);
     }
 
+    @Override
+    protected Event clone() throws CloneNotSupportedException {
+        Event clone = null;
+        try {
+            clone = (Event) super.clone();
+
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+        return clone;
+    }
+
     /**
      * 日程日期加上一个周期
+     *
+     * @param dif 要加的天数
+     * @return 改过日期后的新日程
      */
-    public void addCycle() {
-        date = TimeUtil.addDate(date, cycle);
-        startTime = TimeUtil.addDate(startTime, cycle);
-        endTime = TimeUtil.addDate(endTime, cycle);
+    public Event addCycle(long dif) throws CloneNotSupportedException {
+        Event newEvent = this.clone();
+        newEvent.date = TimeUtil.addDate(date, dif);
+        newEvent.startTime = TimeUtil.addDate(startTime, dif);
+        newEvent.endTime = TimeUtil.addDate(endTime, dif);
+        return newEvent;
     }
 }

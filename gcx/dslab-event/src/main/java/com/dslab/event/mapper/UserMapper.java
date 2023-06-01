@@ -65,12 +65,19 @@ public interface UserMapper {
     User getByUserId(Integer userId);
 
     /**
-     * 按照姓名查询用户
+     * 按照邮箱查询用户
      *
-     * @param username 用户名
+     * @param mail 邮箱
      * @return 用户信息
      */
-    User getByUsername(String username);
+    User getByMail(String mail);
+
+    /**
+     * 获取所有的组id
+     *
+     * @return 组id列表
+     */
+    List<Integer> getGroups();
 
     /**
      * 按照组id查询学生用户

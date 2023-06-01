@@ -52,6 +52,14 @@ public class User implements Serializable {
     public User() {
     }
 
+    public User(String username, String password, String mail, String type, Integer groupId) {
+        this.username = username;
+        this.password = password;
+        this.mail = mail;
+        this.type = type;
+        this.groupId = groupId;
+    }
+
     public User(Integer userId) {
         this.userId = userId;
     }

@@ -44,7 +44,7 @@ public class TimeUtil {
         int start = dateToHour(e.getStartTime());
         int end = dateToHour(e.getEndTime());
         if (start <= end) {
-            if (e.getIsGroup()) {
+            if (e.isLesson() || e.isExam()) {
                 return start >= ADMIN_START_TIME && end <= ADMIN_END_TIME;
             } else {
                 return start >= STU_START_TIME && end <= STU_END_TIME;
@@ -165,17 +165,16 @@ public class TimeUtil {
     /**
      * 将日程日期调整到指定日期之后
      *
-     * @param e 日程列表
+     * @param events 日程列表
      * @param date 指定日期
      * @return 调整后日程列表
      */
-    public static List<Event> adjustDate(List<Event> events, Date date) {
+    public static List<Event> adjustDate(List<Event> events, Date date) throws CloneNotSupportedException {
         List<Event> res = new ArrayList<>();
         for (Event e : events) {
-            while (e.getDate().before(date)) {
-                e.addCycle();
-            }
-            res.add(e);
+            long dif = dateToDay(date) - dateToDay(e.getStartTime());
+            Event newEvent = e.addCycle(dif);
+            res.add(newEvent);
         }
         return res;
     }

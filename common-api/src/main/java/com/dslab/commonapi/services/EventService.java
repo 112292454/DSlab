@@ -55,7 +55,7 @@ public interface EventService {
      * @param eventName 日程名称
      * @return 日程信息
      */
-    Event getByEventName(String eventName);
+    List<Event> getByEventName(String eventName);
 
 
     /**
@@ -65,7 +65,7 @@ public interface EventService {
      * @param date   时间
      * @return 日程列表
      */
-    List<Event> getDayEvents(Integer userId, Date date);
+    List<Event> getDayEvents(Integer userId, Date date) throws CloneNotSupportedException;
 
     /**
      * 获取用户给定日期的所有课程和考试日程
@@ -74,7 +74,7 @@ public interface EventService {
      * @param date   时间
      * @return 日程列表
      */
-    List<Event> getLessonAndExam(Integer userId, Date date);
+    List<Event> getLessonAndExam(Integer userId, Date date) throws CloneNotSupportedException;
 
     /**
      * 获取用户给定以给定日期为起始的一周的课程和考试
@@ -82,7 +82,7 @@ public interface EventService {
      * @param userId 用户id
      * @param date   一周的起始
      */
-    List<Event> getWeekLessonAndExam(Integer userId, Date date);
+    List<Event> getWeekLessonAndExam(Integer userId, Date date) throws CloneNotSupportedException;
 
     /**
      * 获取用户给定日期的所有集体活动
@@ -91,7 +91,7 @@ public interface EventService {
      * @param date   时间
      * @return 日程列表
      */
-    List<Event> getGroupActivities(Integer userId, Date date);
+    List<Event> getGroupActivities(Integer userId, Date date) throws CloneNotSupportedException;
 
     /**
      * 获取用户给定日期的所有个人日程
@@ -100,7 +100,7 @@ public interface EventService {
      * @param date   时间
      * @return 日程列表
      */
-    List<Event> getPersonalEvents(Integer userId, Date date);
+    List<Event> getPersonalEvents(Integer userId, Date date) throws CloneNotSupportedException;
 
     /**
      * 获取用户给定日期和类型的活动或者临时事务
@@ -110,7 +110,7 @@ public interface EventService {
      * @param type   类型
      * @return 日程列表
      */
-    List<Event> getByTypeAndDate(Integer userId, Date date, String type);
+    List<Event> getByTypeAndDate(Integer userId, Date date, String type) throws CloneNotSupportedException;
 
     /**
      * 根据给定时间获取用户日程
@@ -120,5 +120,5 @@ public interface EventService {
      * @param userId  用户id
      * @return 日程
      */
-    List<Event> checkUserEventInTime(Date nowTime, String userId);
+    List<Event> checkUserEventInTime(Date nowTime, String userId) throws CloneNotSupportedException;
 }

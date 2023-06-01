@@ -200,14 +200,13 @@ class DslabEventApplicationTests {
     }
 
     @Test
-    void testAddCycle() {
+    void testAddCycle() throws CloneNotSupportedException {
         Event e = new Event();
         e.setDate(new Date());
         e.setStartTime(new Date());
         e.setEndTime(new Date());
         e.setCycle(3);
         System.out.println(e);
-        e.addCycle();
         System.out.println(e);
     }
 }

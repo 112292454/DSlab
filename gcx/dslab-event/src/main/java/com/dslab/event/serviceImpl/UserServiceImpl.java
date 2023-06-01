@@ -3,6 +3,7 @@ package com.dslab.event.serviceImpl;
 import com.dslab.commonapi.dataStruct.MyHashMap;
 import com.dslab.commonapi.entity.Event;
 import com.dslab.commonapi.entity.User;
+import com.dslab.commonapi.entity.UserType;
 import com.dslab.commonapi.services.UserService;
 import com.dslab.event.mapper.UserMapper;
 import jakarta.annotation.PostConstruct;
@@ -83,5 +84,68 @@ public class UserServiceImpl implements UserService {
             return e.getIsGroup();
         }
         return !e.getIsGroup();
+    }
+
+    /**
+     * 根据用户id加载用户
+     *
+     * @param userId 用户id
+     * @return 用户
+     */
+    @Override
+    public User load(Integer userId) {
+        return userIdMap.get(userId);
+    }
+
+    /**
+     * 根据用户邮箱加载用户
+     *
+     * @param mail 用户邮箱
+     * @return 用户
+     */
+    @Override
+    public User loadByMail(String mail) {
+        return userMapper.getByMail(mail);
+    }
+
+    /**
+     * 判断用户邮箱是否已存在
+     *
+     * @param mail 用户邮箱
+     * @return 用户
+     */
+    @Override
+    public boolean contains(String mail) {
+        return userMapper.getByMail(mail) != null;
+    }
+
+    /**
+     * 用户注册 (只有学生才会注册)
+     *
+     * @param name     用户名
+     * @param mail     用户邮箱
+     * @param password 密码
+     * @param groupId  组id
+     */
+    @Override
+    public void register(String name, String mail, String password, Integer groupId) {
+        User u = new User(name, password, mail, UserType.USER_STUDENT.getValue(), groupId);
+        userMapper.add(u);
+        u = userMapper.getByMail(mail);
+        // 更新内存中的数据
+        List<User> groupUsers = userGroupIdMap.getOrDefault(groupId, new ArrayList<>());
+        groupUsers.add(u);
+        userGroupIdMap.put(groupId, groupUsers);
+        userIdMap.put(u.getUserId(), u);
+    }
+
+    /**
+     * 获取所有的组id
+     *
+     * @return 组id列表
+     */
+    @Override
+    public List<Integer> getGroups() {
+        return userMapper.getGroups();
     }
 }

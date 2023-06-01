@@ -100,12 +100,13 @@ public class EventController {
     public Result<?> updateEvent(@RequestBody @Valid RequestParams requestParams) {
         logger.info(requestParams.getUser() + " 在 "
                 + simulateService.getUserSimulateTime(String.valueOf(requestParams.getUser().getUserId()))
-                + " 更新课程 " + requestParams.getEvent());
+                + " 更新日程 " + requestParams.getEvent());
         return eventService.updateEvent(requestParams.getEvent(), requestParams.getUser());
     }
 
     /**
      * 根据id获取日程信息
+     * todo 该接口只用于前端获取数据, 不开放给用户
      *
      * @param eventId 日程id
      * @return 日程信息
@@ -130,14 +131,10 @@ public class EventController {
      */
     @GetMapping("/eventName/{eventName}")
     @ResponseBody
-    public Result<Event> getByEventName(@PathVariable @Param("eventName") String eventName) {
-        logger.info("用户获取id为 " + eventName + " 的日程");
-        Event e = eventService.getByEventName(eventName);
-        if (e == null) {
-            return Result.error("查询失败");
-        } else {
-            return Result.<Event>success("查询成功").data(e);
-        }
+    public Result<?> getByEventName(@PathVariable @Param("eventName") String eventName) {
+        logger.info("用户获取名字为 " + eventName + " 的日程");
+        List<Event> e = eventService.getByEventName(eventName);
+        return Result.<List<Event>>success("查询成功").data(e);
     }
 
     /**
@@ -151,7 +148,7 @@ public class EventController {
     @ResponseBody
     public Result<?> getDayEvents(@PathVariable(value = "userId") Integer userId,
                                   @PathVariable(value = "date", required = false)
-                                  @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) {
+                                  @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) throws CloneNotSupportedException {
         if (date == null) {
             date = simulateService.getUserSimulateTime(String.valueOf(userId));
         }
@@ -171,7 +168,7 @@ public class EventController {
     @ResponseBody
     public Result<?> getLessonAndExam(@PathVariable(value = "userId") Integer userId,
                                       @PathVariable(value = "date", required = false)
-                                      @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) {
+                                      @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) throws CloneNotSupportedException {
         if (date == null) {
             date = simulateService.getUserSimulateTime(String.valueOf(userId));
         }
@@ -191,7 +188,7 @@ public class EventController {
     @ResponseBody
     public Result<?> getWeekLessonAndExam(@PathVariable(value = "userId") Integer userId,
                                           @PathVariable(value = "date")
-                                          @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) {
+                                          @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) throws CloneNotSupportedException {
         if (date == null) {
             logger.info(userId + " 获取以 " + date + " 为起始的一周的课程和考试, 但date为空, 获取失败");
             return Result.<List<Event>>error("日期为空, 查询失败");
@@ -212,7 +209,7 @@ public class EventController {
     @ResponseBody
     public Result<?> getGroupActivities(@PathVariable(value = "userId") Integer userId,
                                         @PathVariable(value = "date", required = false)
-                                        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) {
+                                        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) throws CloneNotSupportedException {
         if (date == null) {
             date = simulateService.getUserSimulateTime(String.valueOf(userId));
         }
@@ -232,7 +229,7 @@ public class EventController {
     @ResponseBody
     public Result<?> getPersonalEvents(@PathVariable(value = "userId") Integer userId,
                                        @PathVariable(value = "date", required = false)
-                                       @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) {
+                                       @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date) throws CloneNotSupportedException {
         if (date == null) {
             date = simulateService.getUserSimulateTime(String.valueOf(userId));
         }
@@ -254,7 +251,7 @@ public class EventController {
     public Result<?> getByTypeAndDate(@PathVariable(value = "userId") Integer userId,
                                       @PathVariable(value = "date", required = false)
                                       @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date date,
-                                      @PathVariable(value = "type", required = false) String type) {
+                                      @PathVariable(value = "type", required = false) String type) throws CloneNotSupportedException {
         if (date == null) {
             date = simulateService.getUserSimulateTime(String.valueOf(userId));
         }
