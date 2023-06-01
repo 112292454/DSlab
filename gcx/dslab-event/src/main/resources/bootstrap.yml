@@ -1,6 +1,6 @@
 spring:
   application:
-    name: DSlab-event
+    name: DSlab-schedule
   cloud:
     nacos:
       username: nacos

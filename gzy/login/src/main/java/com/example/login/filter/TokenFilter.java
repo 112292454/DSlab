@@ -30,7 +30,7 @@ public class TokenFilter implements Filter {
     @Resource
     private JwtUtils jwtUtils;
 
-    @DubboReference(group = "DSlab", interfaceClass = UserService.class, check = false)
+    @DubboReference(group = "DSlab", interfaceClass = UserService.class)
     private UserService userService;
 
     @Value("${jwt.config.failureTime}")

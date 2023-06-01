@@ -3,7 +3,7 @@ package com.dslab.event.controller;
 import com.dslab.commonapi.entity.User;
 import com.dslab.commonapi.services.UserService;
 import com.dslab.commonapi.vo.Result;
-import jakarta.annotation.Resource;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +22,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    @Resource
+    @DubboReference(group = "DSlab", interfaceClass = UserService.class)
+
     UserService userService;
 
     /**
