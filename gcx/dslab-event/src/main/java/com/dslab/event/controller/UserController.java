@@ -20,7 +20,7 @@ import java.util.List;
 @CrossOrigin
 @RequestMapping("/users")
 public class UserController {
-    @Autowired
+    @Resource
     UserService userService;
 
 
