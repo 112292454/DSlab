@@ -24,6 +24,7 @@ import java.util.List;
 public class UserController {
     @Autowired
     UserService userService;
+    
 
     /**
      * 根据邮箱获取用户信息
