@@ -115,7 +115,7 @@
         where group_id = #{groupId}
     </select>
 
-    <select id="getByMail" resultType="com.dslab.commonapi.entity.User">
+    <select id="getByMail" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
         FROM user

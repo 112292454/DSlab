@@ -5,21 +5,23 @@ import com.dslab.commonapi.dataStruct.MyHashMap;
 import com.dslab.commonapi.entity.Event;
 import com.dslab.commonapi.entity.User;
 import com.dslab.commonapi.entity.UserEventRelation;
+import com.dslab.commonapi.services.EventService;
+import com.dslab.commonapi.services.UserService;
 import com.dslab.commonapi.utils.MathUtil;
 import com.dslab.commonapi.utils.TimeUtil;
 import com.dslab.event.mapper.EventMapper;
 import com.dslab.event.mapper.UserEventRelationMapper;
 import com.dslab.event.mapper.UserMapper;
-import com.dslab.event.serviceImpl.EventServiceImpl;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-//@SpringBootTest
+@SpringBootTest
 class DslabEventApplicationTests {
 
     @Resource
@@ -32,7 +34,10 @@ class DslabEventApplicationTests {
     UserMapper userMapper;
 
     @Resource
-    EventServiceImpl eventService;
+    EventService eventService;
+
+    @Resource
+    UserService userService;
 
     @Test
     void contextLoads() {
@@ -208,5 +213,25 @@ class DslabEventApplicationTests {
         e.setCycle(3);
         System.out.println(e);
         System.out.println(e);
+    }
+
+    @Test
+    void testCRT() {
+        long a = 19412;
+        long b = 19410;
+        long ac = 7;
+        long bc = 28;
+        System.out.println(MathUtil.CRT(new long[]{a, b}, new long[]{ac, bc}, 2));
+    }
+
+    @Test
+    void testRegister(){
+        userService.register("123", "123@mai.com", "123", 123);
+    }
+
+    @Test
+    void testGetByMail() {
+        System.out.println(userMapper.getByMail("lisi@bupt.edu.cn"));
+        System.out.println(userMapper.getByUserId(2021210013));
     }
 }

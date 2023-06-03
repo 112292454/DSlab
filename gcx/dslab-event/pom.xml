@@ -7,7 +7,7 @@
         <artifactId>gcx</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <groupId>com.dslab.</groupId>
+    <groupId>com.dslab</groupId>
     <artifactId>schedule</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>schedule</name>

@@ -105,7 +105,7 @@ public class EventServiceImpl implements EventService {
             }
         }
 
-        logger.info("-----event service init success!-----");
+        logger.info("========================================event service init success!========================================");
     }
 
 //===============================================增加日程==============================================
@@ -542,7 +542,6 @@ public class EventServiceImpl implements EventService {
 
     /**
      * 删除日程
-     * todo 删除有问题, 数据库没有修改(两个数据库)
      *
      * @return 是否删除成功
      */

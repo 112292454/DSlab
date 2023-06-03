@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
                 userGroupIdMap.put(u.getGroupId(), list);
             }
         }
-        logger.info("-----user service init success!-----");
+        logger.info("========================================user service init success!========================================");
     }
 
     /**
@@ -83,9 +83,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean identifyUser(User u, Event e) {
         if (u.isAdmin()) {
-            return e.getIsGroup() && (e.isLesson() || e.isExam() || e.isActivity());
+            return e.getIsGroup();
         }
-        return !e.getIsGroup() && (e.isActivity() || e.isTemporary() || e.isClock());
+        return !e.getIsGroup();
     }
 
     /**

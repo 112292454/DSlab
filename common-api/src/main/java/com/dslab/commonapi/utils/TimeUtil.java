@@ -123,19 +123,30 @@ public class TimeUtil {
         }
         long aDate = dateToDay(a.getStartTime());
         long bDate = dateToDay(b.getStartTime());
-        // 根据周期是否为0分类讨论, 进行判断
+        if (aDate == bDate) {
+            return true;
+        }
+        // 根据周期分类讨论, 进行判断
         if (a.getCycle() == 0 && b.getCycle() == 0) {
             return aDate == bDate;
         } else if (a.getCycle() == 0) {
             return bDate <= aDate && (aDate - bDate) % b.getCycle() == 0;
         } else if (b.getCycle() == 0) {
             return aDate <= bDate && (bDate - aDate) % a.getCycle() == 0;
+        } else if (a.getCycle() % b.getCycle() == 0 || b.getCycle() % a.getCycle() == 0) {
+            if (a.getCycle().equals(b.getCycle())) {
+                return aDate == bDate;
+            }
+            return Math.abs(aDate - bDate) % Math.abs(a.getCycle() - b.getCycle()) == 0;
         } else {
             long date;
-            if (aDate <= bDate) {
+            if (aDate < bDate) {
                 date = MathUtil.CRT(new long[]{0, bDate - aDate}, new long[]{a.getCycle(), b.getCycle()}, 2);
             } else {
                 date = MathUtil.CRT(new long[]{aDate - bDate, 0}, new long[]{a.getCycle(), b.getCycle()}, 2);
+            }
+            if (date == 0) {
+                return aDate == bDate;
             }
             if (date < Math.abs(aDate - bDate)) {
                 date = date + (long) a.getCycle() * b.getCycle() / MathUtil.gcd(a.getCycle(), b.getCycle());
@@ -166,7 +177,7 @@ public class TimeUtil {
      * 将日程日期调整到指定日期之后
      *
      * @param events 日程列表
-     * @param date 指定日期
+     * @param date   指定日期
      * @return 调整后日程列表
      */
     public static List<Event> adjustDate(List<Event> events, Date date) throws CloneNotSupportedException {
