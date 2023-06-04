@@ -1,6 +1,6 @@
 package com.dslab.simulate.util;
 
-import jakarta.websocket.EncodeException;
+import com.alibaba.fastjson2.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,20 +51,24 @@ public class WebSocketUtil {
 			return true;
 		}
 	}
-
 	public static boolean send(String uid, Object message) {
-		if(get(uid)==null){//如果没获取到socket，也就是对方没有登录，就返回false
-			return false;
-		}else{
-			try {
-				get(uid).sendMessage(message);
-			} catch (IOException | EncodeException e) {
-				e.printStackTrace();
-			}
-			log.info("向用户{}推送消息：{}",uid,message);
-			return true;
-		}
+		return send(uid, JSON.toJSONString(message));
 	}
+
+
+//	public static boolean send(String uid, Object message) {
+//		if(get(uid)==null){//如果没获取到socket，也就是对方没有登录，就返回false
+//			return false;
+//		}else{
+//			try {
+//				get(uid).sendMessage(message);
+//			} catch (IOException | EncodeException e) {
+//				e.printStackTrace();
+//			}
+//			log.info("向用户{}推送消息：{}",uid,message);
+//			return true;
+//		}
+//	}
 
 	/**
 	 * 实现群发

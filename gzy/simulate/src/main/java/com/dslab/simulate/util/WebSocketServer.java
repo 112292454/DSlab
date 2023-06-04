@@ -12,7 +12,7 @@ import java.io.IOException;
 /**
  * WebSocket 服务类
  **/
-@ServerEndpoint(value = "/simulate/ws/{uid}", encoders = { ServerEncoder.class })
+@ServerEndpoint(value = "/simulate/ws/{uid}"/*, encoders = { ServerEncoder.class }*/)
 @Component
 public class WebSocketServer {
     static Log log = LogFactory.getLog(WebSocketServer.class);
@@ -35,17 +35,14 @@ public class WebSocketServer {
      * 连接建立成功调用的方法
      */
     @OnOpen
-    public void onOpen(Session session, @PathParam("uid") String uid){
+    public void onOpen(Session session, @PathParam("uid") String uid) {
         this.session = session;
         this.uid = uid;
         WebSocketUtil.add(this);
         addOnlineCount();   //在线数加1
-        try {
-            sendMessage("WebSocket连接成功！");
-            log.info("有新窗口开始监听:" + uid + ",当前在线人数为:" + getOnlineCount());
-        } catch (IOException e) {
-            log.error("websocket IO Exception");
-        }
+        //sendMessage("WebSocket连接成功！");
+        log.info("有新窗口开始监听:" + uid + ",当前在线人数为:" + getOnlineCount());
+
     }
 
     /**

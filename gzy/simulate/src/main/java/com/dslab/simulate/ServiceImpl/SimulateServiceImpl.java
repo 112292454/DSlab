@@ -1,8 +1,12 @@
 package com.dslab.simulate.ServiceImpl;
 
 import com.dslab.commonapi.entity.Event;
+import com.dslab.commonapi.entity.Point;
 import com.dslab.commonapi.services.EventService;
+import com.dslab.commonapi.services.GuideService;
+import com.dslab.commonapi.services.PointService;
 import com.dslab.commonapi.services.SimulateService;
+import com.dslab.commonapi.utils.TimeUtil;
 import com.dslab.commonapi.vo.Result;
 import com.dslab.simulate.util.WebSocketUtil;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -22,6 +26,12 @@ public class SimulateServiceImpl implements SimulateService {
 
 	@DubboReference(group = "DSlab",interfaceClass = EventService.class,check = false)
 	EventService eventService;
+
+	@DubboReference(group = "DSlab",interfaceClass = GuideService.class,check = false)
+	GuideService guideService;
+
+	@DubboReference(group = "DSlab",interfaceClass = PointService.class,check = false)
+	PointService pointService;
 
 
 	@Override
@@ -125,6 +135,8 @@ public class SimulateServiceImpl implements SimulateService {
 		if(!containsSimulateThread(user)) throw new RuntimeException("此用户未开始模拟！");
 		return threadMap.get(user).getSpeed()/1000/60;
 	}
+
+
 	private class simulateThread extends Thread{
 		boolean finished=false;
 		boolean stopped=false;
@@ -138,11 +150,14 @@ public class SimulateServiceImpl implements SimulateService {
 
 		boolean isInverseSimulate;
 
+		int nowPlace;
+
 		public simulateThread(String user, Date now, double speed, boolean isInverseSimulate) {
 			this.user = user;
 			this.now = now;
 			this.speed = speed;
 			this.isInverseSimulate = isInverseSimulate;
+			this.nowPlace = 13;//学五宿舍楼的id，即模拟的用户默认在学五，然后遇到课程了就去各个课/活动，再以去了的位置作为下一次的起始位置
 		}
 
 		public Date getNow() {
@@ -184,30 +199,38 @@ public class SimulateServiceImpl implements SimulateService {
 
 		@Override
 		public void run() {
+			int nowHour=0;
+			boolean checked = false;
 			try {
-				WebSocketUtil.send(user, "用户"+user+"已成功连接课设ws后端！");
+//				WebSocketUtil.send(user, "用户"+user+"已成功连接课设ws后端！");
 				while (!finished) {
 					while (!stopped) {
 						//查询应该发送什么提醒
 						//这个消息的内容格式应该是和前端约定一下：socket收到这种消息就给用户弹一个提示，
 						// 比方说result的{code=201，data=[课程a、课程b]}之类
-//						Result<List<Event>> result = eventService.checkUserEventInTime(now, user);
-						Result<List<Event>> result = Result.<List<Event>>success().data(new ArrayList<>());
-						if(new Random().nextInt(10)==8) result.getData().add(new Event("webSocket测试样例"));
+						Result<List<Event>> result = Result.<List<Event>>success("成功获取接下来待提醒的课程信息").
+								data(eventService.checkUserEventInTime(now, user));
 
-						Result<Date> timeStamp = Result.<Date>success("当前时间").data(now);
-						result.setStatusCode(200);
-						timeStamp.setStatusCode(201);
-
+						Result<Date> timeStamp = Result.<Date>success("当前时间").data(now).setStatusCode(201);
 
 						boolean isOnline = WebSocketUtil.send(user, timeStamp);
+
 						if(!isOnline){
 							log.info("用户{}已断开ws连接，自动中止模拟",user);
 							this.finish();
 							threadMap.remove(user);
-						}
-						if(!result.getData().isEmpty()) WebSocketUtil.send(user, result);
+						}else if(!result.getData().isEmpty()) {
+							if(nowHour!=TimeUtil.dateToHour(now)){
+								log.info("用户{}有课程待提醒，推送课程信息和导航路径",user);
+								WebSocketUtil.send(user, result);
+								Result<List<Point>> pathResult = getPathResult(result.getData());
+								WebSocketUtil.send(user,pathResult);
+							}
 
+
+
+						}
+						nowHour= TimeUtil.dateToHour(now);
 						//每过1s跳动一下时间
 						Thread.sleep(1000);
 						now = new Date((long) (now.getTime() + speed*(isInverseSimulate?-1:1)));
@@ -219,6 +242,30 @@ public class SimulateServiceImpl implements SimulateService {
 				WebSocketUtil.send(user, Result.error("模拟出现异常，现已中止！").data(e));
 				e.printStackTrace();
 			}
+		}
+
+		private Result<List<Point>> getPathResult(List<Event> result) {
+			List<Integer> placeIds=new ArrayList<>();
+			placeIds.add(nowPlace);
+			result.stream().filter(a->!a.getIsOnline()).filter(a->{
+				Point p = pointService.getByName(a.getBuildingName());
+				return p!=null&&p.getId()>0&&p.getId()<250&&p.getX()>50&&p.getY()>50;
+			}).forEach(a-> placeIds.add(pointService.getByName(a.getBuildingName()).getId()));
+			if(placeIds.size()>2){
+				placeIds.clear();
+				placeIds.add(nowPlace);
+				for (int i = 0; i < 4; i++) {
+					placeIds.add(new Random().nextInt(50)+20);
+				}
+			}
+
+			List<Point> guidePaths = placeIds.size()>2?
+					guideService.byManyPointsGuide(placeIds)
+					:guideService.directGuide(placeIds.get(0),placeIds.get(1));
+			nowPlace=guidePaths.size()>2?
+					guidePaths.get(guidePaths.size()-1).getId()
+					:13;
+			return Result.<List<Point>>success("已为当前提醒的课程导航成功").data(guidePaths).setStatusCode(202);
 		}
 	}
 

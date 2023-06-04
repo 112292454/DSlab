@@ -5,6 +5,7 @@ import com.dslab.commonapi.entity.Point;
 import com.dslab.commonapi.services.GuideService;
 import com.dslab.commonapi.services.PointService;
 import jakarta.annotation.PostConstruct;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,12 +14,12 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
+@DubboService(group = "DSlab",interfaceClass = GuideService.class)
 public class GuideServiceImpl implements GuideService {
 
     ShortestRoad sr;
 
     @Autowired
-//    @DubboReference(group = "DSlab",version = "1.0.0",interfaceClass = PointService.class)
     PointService pointService;
 
     @Override
@@ -32,13 +33,12 @@ public class GuideServiceImpl implements GuideService {
     public List<Point> byManyPointsGuide(List<Integer> passedPoints) {
         if(passedPoints.isEmpty()) return new ArrayList<>();
         Point start=sr.getPoint(passedPoints.get(0));
-//        passedPoints.remove(0);
 
         List<Point> res=new ArrayList<>();
         res.add(start);
         int passedSize = passedPoints.size();
 
-        if(passedSize >20){
+        if(passedSize >18){
             //如果size大于20，就采取近似解，通过搜索剪枝来确定路径
             while (!passedPoints.isEmpty()){
                 Point now=res.get(res.size()-1);

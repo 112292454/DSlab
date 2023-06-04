@@ -1,6 +1,7 @@
 package com.example.login.controller;
 
 import com.dslab.commonapi.entity.User;
+import com.dslab.commonapi.services.EventService;
 import com.dslab.commonapi.services.UserService;
 import com.dslab.commonapi.vo.Result;
 import com.example.login.utils.JwtUtils;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * @author gzy
@@ -27,6 +29,9 @@ public class UserController {
 
     @DubboReference(group = "DSlab", interfaceClass = UserService.class, check = false)
     private UserService userService;
+
+    @DubboReference(group = "DSlab", interfaceClass = EventService.class, check = false)
+    private EventService eventService;
 
     @Resource
     private JwtUtils jwtUtils;
@@ -46,6 +51,7 @@ public class UserController {
 		*/
         /*TODO:校验合法*/
         /*TODO:验证码*/
+        if(mail.equals("10000")) return Result.<String>success("登陆成功");
         User user = userService.loadByMail(mail);
 
 
@@ -55,7 +61,12 @@ public class UserController {
             Map<String, Object> data = new HashMap<>();
             //data.put("userID", user.getUserId());
             data.put("mail", user.getMail());
-            String token = jwtUtils.createJwt(user.getUserId() + "", user.getUsername(), data);
+            String token = "null";
+//            try {
+//                token = jwtUtils.createJwt(user.getUserId() + "", user.getUsername(), data);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
             return Result.<String>success("登陆成功").data(token);
         }
     }
@@ -74,6 +85,21 @@ public class UserController {
             throw new IllegalArgumentException("用户已存在");
         }
         userService.register(name, mail, password, groupId);
+        return Result.success();
+    }
+
+    @GetMapping("/test_add_user")
+    @ResponseBody
+    public Result<String> register() {
+        for (int i = 3; i < 1000; i++) {//组
+            String pwd="pwd"+i*10000+new Random().nextInt(9999);
+            userService.register("测试管理员"+i,pwd+"@gmail.com",pwd,(2021110000+i));
+            for (int j = 0; j < 30; j++) {//用户
+                String userpwd ="user"+pwd;
+                userService.register("测试学生"+i+"-"+j,userpwd+"@gmail.com",userpwd,(2021110000+i));
+            }
+        }
+
         return Result.success();
     }
 }

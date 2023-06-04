@@ -180,12 +180,16 @@ public class TimeUtil {
      * @param date   指定日期
      * @return 调整后日程列表
      */
-    public static List<Event> adjustDate(List<Event> events, Date date) throws CloneNotSupportedException {
+    public static List<Event> adjustDate(List<Event> events, Date date) {
         List<Event> res = new ArrayList<>();
         for (Event e : events) {
             long dif = dateToDay(date) - dateToDay(e.getStartTime());
-            Event newEvent = e.addCycle(dif);
-            res.add(newEvent);
+            try {
+                Event newEvent=e.addCycle(dif);
+                res.add(newEvent);
+            } catch (CloneNotSupportedException ex) {
+                ex.printStackTrace();
+            }
         }
         return res;
     }

@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
-@DubboService(group = "DSlab",version = "1.0.0",interfaceClass = PointService.class)
+@DubboService(group = "DSlab",interfaceClass = PointService.class)
 public class PointServiceImpl implements PointService {
 
     private static HashMap<Integer, Point> points;

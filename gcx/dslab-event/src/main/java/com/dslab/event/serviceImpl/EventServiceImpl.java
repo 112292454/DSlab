@@ -48,6 +48,19 @@ public class EventServiceImpl implements EventService {
     @Resource
     UserService userService;
 
+//    @PostConstruct
+    public void addUsers() {
+        for (int i = 3; i < 1000; i++) {//组
+            System.out.println("添加组：" + i);
+            String pwd="pwd"+i*10000+new Random().nextInt(9999);
+            userMapper.add(new User("测试管理员"+i,pwd,pwd+"@gmail.com","1",(2021110000+i)));
+            for (int j = 0; j < 30; j++) {//用户
+                String userpwd ="user"+pwd+j;
+                userMapper.add(new User("测试学生"+i+"-"+j,userpwd,userpwd+"@gmail.com","0",(2021110000+i)));
+            }
+        }
+    }
+
     /**
      * 每个用户一棵树, 记录其所有日程的时间
      */
@@ -755,7 +768,7 @@ public class EventServiceImpl implements EventService {
      * @return 用户满足要求的日程
      */
     @Override
-    public List<Event> checkUserEventInTime(Date nowTime, String userId) throws CloneNotSupportedException {
+    public List<Event> checkUserEventInTime(Date nowTime, String userId) {
         long nowDay = TimeUtil.dateToDay(nowTime);
         int nowHour = TimeUtil.dateToHour(nowTime);
         int nowMin = TimeUtil.dateToMin(nowTime);
