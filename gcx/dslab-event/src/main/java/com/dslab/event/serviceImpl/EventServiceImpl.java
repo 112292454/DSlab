@@ -48,19 +48,6 @@ public class EventServiceImpl implements EventService {
     @Resource
     UserService userService;
 
-//    @PostConstruct
-    public void addUsers() {
-        for (int i = 3; i < 1000; i++) {//组
-            System.out.println("添加组：" + i);
-            String pwd="pwd"+i*10000+new Random().nextInt(9999);
-            userMapper.add(new User("测试管理员"+i,pwd,pwd+"@gmail.com","1",(2021110000+i)));
-            for (int j = 0; j < 30; j++) {//用户
-                String userpwd ="user"+pwd+j;
-                userMapper.add(new User("测试学生"+i+"-"+j,userpwd,userpwd+"@gmail.com","0",(2021110000+i)));
-            }
-        }
-    }
-
     /**
      * 每个用户一棵树, 记录其所有日程的时间
      */
@@ -804,10 +791,7 @@ public class EventServiceImpl implements EventService {
         List<Integer> events = new ArrayList<>();
         for (Integer id : eventIds) {
             Event e = eventIdMap.get(id);
-            if (!e.isActivity() && !e.isTemporary()) {
-                // 活动和临时事务不需要提前一小时提醒
-                events.add(e.getEventId());
-            }
+            events.add(e.getEventId());
         }
         // 返回在同一天的日程
         return selectSameDayEvents(day, events);
