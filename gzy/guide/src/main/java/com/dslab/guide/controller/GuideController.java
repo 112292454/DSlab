@@ -39,7 +39,10 @@ public class GuideController {
 	@PostMapping({"/by_many"})
 	//注意，传入参数中，第一个点是起始点的id，后面的是需要经过的点的id，不用把最终回到原点的需求也写进来
 	public Result<List<Point>> byManyguide(@RequestBody byManyPostBody pointdata) {
-		List<Integer> pointIds = pointdata.getPointdata().stream().filter(a->a.getX()>50&&a.getY()>50).map(a -> pointService.getByPos(a.getX(), a.getY()).getId()).collect(Collectors.toList());
+		List<Integer> pointIds = pointdata.getPointdata().stream()
+				.filter(a->a.getX()>50&&a.getY()>50)
+				.map(a -> pointService.getByPos(a.getX(), a.getY()).getId())
+				.collect(Collectors.toList());
 		List<Point> guidePaths = guideService.byManyPointsGuide(pointIds);
 		return getResult(guidePaths);
 	}
