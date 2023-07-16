@@ -1,3 +1,23 @@
+# DataStruct-Lab
+
+北京邮电大学
+
+计算机学院
+
+大二
+
+数据结构课程设计--后端代码仓库
+
+前端（客户端）代码仓库：[web](https://github.com/ypx9628/UniAgile)@[ypx](https://github.com/ypx9628)
+
+另外部分后端@[Guo-Chenxu](https://github.com/Guo-Chenxu)
+
+课设得分98
+
+
+
+
+
 <div align=center>
     <h2>2023春 数据结构课程设计</h2>
     <h2>21组</h2>
@@ -371,3 +391,32 @@ nacos 作为注册中心，通过 dubbo 实现服务的 gRPC 调用
 
     ![image-20230610011102338](assets/image-20230610011102338.png)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+——————————另：据我实测 bug还很多 不过高水平的验收大忽悠糊弄过去了
+所以如果有学弟用到这玩意 发现有bug  那很正常。也可以问我——如果有空
+上面这个就是提交的概要课程报告
